@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary Meta Tags -->
+    <title>Your Private Estate Chef | By Introduction Only</title>
+    <meta name="title" content="Your Private Estate Chef | By Introduction Only">
+    <meta name="description" content="Private estate chefs for discerning families. Exceptional dining, in your home. By introduction only.">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.yourprivateestatechef.com">
+    <meta property="og:title" content="Your Private Estate Chef | By Introduction Only">
+    <meta property="og:description" content="Private estate chefs for discerning families. By introduction only.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Italiana&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Intimate Palette - Deep Plum + Soft Blush + Candlelight Gold */
+            --plum-deep: #2d1f2b;
+            --plum: #3d2a3a;
+            --plum-light: #4d3a4a;
+            --plum-soft: #5d4a5a;
+
+            --blush: #c9a8a0;
+            --blush-light: #d9bbb4;
+            --blush-soft: #e8d0ca;
+            --blush-pale: #f5e8e5;
+
+            --candlelight: #d4a855;
+            --candlelight-soft: #e0be7a;
+            --candlelight-glow: #ebd09a;
+
+            --cream: #fffdf9;
+            --ivory: #faf7f2;
+            --warm-white: #f5f0ea;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Cormorant', Georgia, serif;
+            line-height: 1.8;
+            color: var(--plum-deep);
+            background-color: var(--cream);
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            font-family: 'Italiana', serif;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: clamp(2.8rem, 6vw, 5rem);
+            color: var(--cream);
+        }
+
+        h2 {
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            color: var(--plum-deep);
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            color: var(--candlelight);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        p {
+            font-size: 1.15rem;
+            font-weight: 300;
+            line-height: 2;
+            color: var(--plum-soft);
+        }
+
+        a {
+            color: var(--plum-deep);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--candlelight);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.5rem 0;
+            background: transparent;
+            transition: all 0.4s ease;
+        }
+
+        header.scrolled {
+            background: rgba(250, 247, 242, 0.97);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Italiana', serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.2em;
+            color: var(--plum-deep);
+            text-transform: uppercase;
+        }
+
+        nav {
+            display: flex;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        nav a {
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 400;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--plum-soft);
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--plum-deep);
+        }
+
+        .nav-cta {
+            color: var(--plum-deep) !important;
+            border-bottom: 1px solid var(--plum-deep);
+            padding-bottom: 2px;
+        }
+
+        .nav-cta:hover {
+            color: var(--candlelight) !important;
+            border-color: var(--candlelight);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6rem 2rem;
+            position: relative;
+            background: var(--plum-deep);
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(212, 168, 85, 0.1) 0%, transparent 40%),
+                radial-gradient(ellipse at 70% 80%, rgba(201, 168, 160, 0.08) 0%, transparent 40%),
+                radial-gradient(ellipse at 50% 50%, rgba(212, 168, 85, 0.05) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 750px;
+        }
+
+        .hero-monogram {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 3rem;
+            border: 1px solid var(--candlelight);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.9;
+        }
+
+        .hero-monogram span {
+            font-family: 'Italiana', serif;
+            font-size: 1.3rem;
+            color: var(--candlelight);
+            letter-spacing: 0.1em;
+        }
+
+        .hero h1 {
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeIn 1.2s ease forwards 0.3s;
+        }
+
+        .hero-line {
+            width: 60px;
+            height: 1px;
+            background: var(--candlelight);
+            margin: 0 auto 2rem;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards 0.6s;
+        }
+
+        .hero-tagline {
+            font-family: 'Cormorant', serif;
+            font-size: 1.25rem;
+            font-weight: 300;
+            font-style: italic;
+            color: var(--blush-light);
+            margin-bottom: 4rem;
+            letter-spacing: 0.02em;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards 0.8s;
+        }
+
+        .hero-cta {
+            opacity: 0;
+            animation: fadeIn 1s ease forwards 1s;
+        }
+
+        .btn {
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 400;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            padding: 1.2rem 3rem;
+            border: 1px solid var(--blush);
+            background: transparent;
+            color: var(--cream);
+            cursor: pointer;
+            transition: all 0.5s ease;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: var(--blush);
+            color: var(--plum-deep);
+        }
+
+        .btn-primary {
+            background: var(--blush);
+            border-color: var(--blush);
+            color: var(--plum-deep);
+        }
+
+        .btn-primary:hover {
+            background: var(--blush-light);
+            border-color: var(--blush-light);
+        }
+
+        /* Introduction Section */
+        .introduction {
+            padding: 10rem 0;
+            background: var(--cream);
+            position: relative;
+        }
+
+        .introduction::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 80px;
+            background: linear-gradient(to bottom, transparent, var(--candlelight), transparent);
+        }
+
+        .intro-content {
+            max-width: 680px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .intro-content h2 {
+            margin-bottom: 2rem;
+        }
+
+        .intro-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        .intro-content p:last-of-type {
+            margin-bottom: 0;
+        }
+
+        /* Philosophy Section */
+        .philosophy {
+            padding: 8rem 0;
+            background: var(--plum);
+        }
+
+        .philosophy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1px 1fr 1px 1fr;
+            gap: 0;
+        }
+
+        @media (max-width: 900px) {
+            .philosophy-grid {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            .philosophy-divider {
+                display: none;
+            }
+        }
+
+        .philosophy-divider {
+            background: linear-gradient(to bottom, transparent, var(--plum-light), transparent);
+        }
+
+        .philosophy-item {
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .philosophy-number {
+            font-family: 'Italiana', serif;
+            font-size: 0.8rem;
+            color: var(--candlelight);
+            letter-spacing: 0.3em;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .philosophy-item h3 {
+            font-family: 'Italiana', serif;
+            font-size: 1.3rem;
+            color: var(--cream);
+            margin-bottom: 1.25rem;
+            letter-spacing: 0.05em;
+        }
+
+        .philosophy-item p {
+            font-size: 1rem;
+            color: var(--blush);
+            line-height: 1.9;
+        }
+
+        /* The Service Section */
+        .service {
+            padding: 10rem 0;
+            background: var(--cream);
+        }
+
+        .service-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .service-content {
+                grid-template-columns: 1fr;
+                gap: 4rem;
+            }
+        }
+
+        .service-text h2 {
+            margin-bottom: 2rem;
+        }
+
+        .service-text p {
+            margin-bottom: 1.5rem;
+        }
+
+        .service-list {
+            list-style: none;
+            margin-top: 3rem;
+        }
+
+        .service-list li {
+            padding: 1.25rem 0;
+            border-bottom: 1px solid var(--blush-pale);
+            font-family: 'Cormorant', serif;
+            font-size: 1.1rem;
+            font-weight: 300;
+            color: var(--plum-soft);
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .service-list li:first-child {
+            border-top: 1px solid var(--blush-pale);
+        }
+
+        .list-marker {
+            width: 6px;
+            height: 6px;
+            background: var(--candlelight);
+            flex-shrink: 0;
+        }
+
+        .service-quote {
+            position: relative;
+            padding: 4rem 3rem;
+            background: var(--blush-pale);
+            box-shadow: 0 20px 60px rgba(45, 31, 43, 0.08);
+        }
+
+        .service-quote::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--candlelight);
+        }
+
+        .quote-text {
+            font-family: 'Cormorant', serif;
+            font-size: 1.5rem;
+            font-style: italic;
+            font-weight: 300;
+            color: var(--plum-deep);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        .quote-mark {
+            font-family: 'Italiana', serif;
+            font-size: 4rem;
+            color: var(--candlelight);
+            line-height: 0.5;
+            display: block;
+            margin-bottom: 1.5rem;
+            opacity: 0.6;
+        }
+
+        .quote-attribution {
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--plum-soft);
+        }
+
+        /* Inquiry Section */
+        .inquiry {
+            padding: 10rem 0;
+            background: var(--warm-white);
+            text-align: center;
+            position: relative;
+        }
+
+        .inquiry::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 80px;
+            background: linear-gradient(to bottom, transparent, var(--candlelight), transparent);
+        }
+
+        .inquiry h2 {
+            margin-bottom: 1.5rem;
+        }
+
+        .inquiry > .container > p {
+            max-width: 500px;
+            margin: 0 auto 3rem;
+            font-style: italic;
+        }
+
+        .inquiry-note {
+            margin-top: 3rem;
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--blush);
+        }
+
+        /* Footer */
+        footer {
+            padding: 4rem 0;
+            background: var(--plum-deep);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-brand .logo {
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: var(--cream);
+        }
+
+        .footer-brand p {
+            font-size: 0.85rem;
+            color: var(--blush);
+        }
+
+        .footer-ecosystem {
+            text-align: right;
+        }
+
+        .footer-ecosystem span {
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--blush);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-ecosystem a {
+            font-family: 'Cormorant', serif;
+            font-size: 0.9rem;
+            color: var(--blush);
+            margin-left: 1.5rem;
+        }
+
+        .footer-ecosystem a:first-of-type {
+            margin-left: 0;
+        }
+
+        .footer-ecosystem a:hover {
+            color: var(--candlelight);
+        }
+
+        .footer-bottom {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--plum);
+            text-align: center;
+        }
+
+        .footer-bottom p {
+            font-size: 0.8rem;
+            color: var(--plum-light);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile Nav */
+        @media (max-width: 900px) {
+            nav {
+                display: none;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-ecosystem {
+                text-align: center;
+            }
+        }
+
+        /* Scroll animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Subtle hover states */
+        .philosophy-item {
+            transition: background 0.4s ease;
+        }
+
+        .philosophy-item:hover {
+            background: rgba(212, 168, 85, 0.05);
+        }
+
+        .service-list li {
+            transition: padding-left 0.3s ease, color 0.3s ease;
+        }
+
+        .service-list li:hover {
+            padding-left: 0.5rem;
+            color: var(--plum-deep);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <div class="container header-content">
+            <a href="/" class="logo">Your Private Estate Chef</a>
+            <nav>
+                <a href="#philosophy">Philosophy</a>
+                <a href="#service">The Service</a>
+                <a href="#inquiry" class="nav-cta">Request Introduction</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-monogram">
+                <span>YPEC</span>
+            </div>
+            <h1>Your Private Estate Chef</h1>
+            <div class="hero-line"></div>
+            <p class="hero-tagline">
+                Exceptional private dining, in your home.<br>
+                By introduction only.
+            </p>
+            <div class="hero-cta">
+                <a href="#inquiry" class="btn btn-primary">Request an Introduction</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Introduction Section -->
+    <section class="introduction">
+        <div class="container">
+            <div class="intro-content reveal">
+                <h2>For Discerning Families</h2>
+                <p>
+                    We serve a limited number of households each season — families who understand
+                    that gathering around the table is where life happens, and that exceptional
+                    food elevates every occasion.
+                </p>
+                <p>
+                    Our chefs bring estate-quality dining to your home, your kitchen, your family's table.
+                    Whether it's Tuesday dinner or a celebration worth remembering.
+                </p>
+                <p>
+                    This is not a service. It is an invitation.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Philosophy Section -->
+    <section class="philosophy" id="philosophy">
+        <div class="container">
+            <div class="philosophy-grid">
+                <div class="philosophy-item reveal">
+                    <span class="philosophy-number">I</span>
+                    <h3>Excellence</h3>
+                    <p>Culinary craft at the highest level. Every plate intentional. Every meal memorable.</p>
+                </div>
+
+                <div class="philosophy-divider"></div>
+
+                <div class="philosophy-item reveal">
+                    <span class="philosophy-number">II</span>
+                    <h3>Intimacy</h3>
+                    <p>Your home. Your preferences. Your rhythm. We adapt to your life, never the reverse.</p>
+                </div>
+
+                <div class="philosophy-divider"></div>
+
+                <div class="philosophy-item reveal">
+                    <span class="philosophy-number">III</span>
+                    <h3>Discretion</h3>
+                    <p>Your home remains yours. We arrive, we create, we depart. Invisible excellence.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Service Section -->
+    <section class="service" id="service">
+        <div class="container">
+            <div class="service-content">
+                <div class="service-text reveal">
+                    <h2>The Service</h2>
+                    <p>
+                        Each engagement begins with a private consultation. We learn your household,
+                        your tastes, the way your family gathers. Then we match you with a chef
+                        whose expertise aligns with your table.
+                    </p>
+                    <p>
+                        Whether weekly meal preparation, intimate dinner gatherings, or full-season
+                        estate residency — the service adapts to your life.
+                    </p>
+
+                    <ul class="service-list">
+                        <li><span class="list-marker"></span>Private weekly meal preparation</li>
+                        <li><span class="list-marker"></span>Intimate dinner gatherings</li>
+                        <li><span class="list-marker"></span>Estate and second-home residency</li>
+                        <li><span class="list-marker"></span>Seasonal menu curation</li>
+                        <li><span class="list-marker"></span>Special occasion dining</li>
+                        <li><span class="list-marker"></span>Multi-generational family events</li>
+                    </ul>
+                </div>
+
+                <div class="service-quote reveal">
+                    <span class="quote-mark">"</span>
+                    <p class="quote-text">
+                        The table is where families become families.
+                        What is served there should honor that gathering.
+                    </p>
+                    <span class="quote-attribution">The YPEC Philosophy</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Inquiry Section -->
+    <section class="inquiry" id="inquiry">
+        <div class="container">
+            <h2>Begin the Conversation</h2>
+            <p>
+                We accept a limited number of new households each season.
+                Inquiries are reviewed personally.
+            </p>
+            <a href="mailto:private@yourprivateestatechef.com?subject=Introduction%20Request" class="btn btn-primary">Request an Introduction</a>
+            <p class="inquiry-note">Response within 48 hours</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="/" class="logo">Your Private Estate Chef</a>
+                    <p>By introduction only.</p>
+                </div>
+
+                <div class="footer-ecosystem">
+                    <span>Part of the Sovereign Economy</span>
+                    <a href="https://www.steadinghome.com" target="_blank">Steading Home</a>
+                    <a href="https://www.timberhomestead.com" target="_blank">Timber Homestead</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Your Private Estate Chef. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Header scroll effect
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Scroll reveal
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
