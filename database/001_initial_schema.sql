@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS ypec_chefs (
     portfolio_url VARCHAR(500),
     background_check_completed BOOLEAN DEFAULT FALSE,
     background_check_date TIMESTAMP WITH TIME ZONE,
-    references TEXT[], -- Array of reference contacts
+    reference_contacts TEXT[], -- Array of reference contacts
 
     -- Compensation (if tracked)
     base_rate_weekly DECIMAL(10, 2),

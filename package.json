@@ -1,0 +1,11 @@
+{
+  "name": "yourprivateestatechef",
+  "version": "1.0.0",
+  "description": "Your Private Estate Chef - Landing Page",
+  "scripts": {
+    "start": "npx serve public -p $PORT"
+  },
+  "dependencies": {
+    "serve": "^14.2.1"
+  }
+}
