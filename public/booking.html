@@ -11,11 +11,21 @@
 
     <style>
         :root {
-            --midnight: #0f1419;
-            --charcoal: #1a1a2e;
-            --candlelight: #d4af37;
-            --cream: #f5f5f5;
-            --blush: #e8d5c4;
+            /* Matching Landing Page Branding */
+            --plum-deep: #2d1f2b;
+            --plum: #3d2a3a;
+            --plum-light: #4d3a4a;
+            --plum-soft: #5d4a5a;
+            --blush: #c9a8a0;
+            --blush-light: #d9bbb4;
+            --blush-soft: #e8d0ca;
+            --blush-pale: #f5e8e5;
+            --candlelight: #d4a855;
+            --candlelight-soft: #e0be7a;
+            --candlelight-glow: #ebd09a;
+            --cream: #fffdf9;
+            --ivory: #faf7f2;
+            --warm-white: #f5f0ea;
         }
 
         * {
@@ -26,8 +36,8 @@
 
         body {
             font-family: 'Cormorant', serif;
-            background: linear-gradient(135deg, var(--midnight) 0%, var(--charcoal) 100%);
-            color: var(--cream);
+            background-color: var(--cream);
+            color: var(--plum-deep);
             line-height: 1.6;
             min-height: 100vh;
         }
@@ -61,24 +71,24 @@
             font-family: 'Italiana', serif;
             font-size: 2.5em;
             font-weight: 400;
-            color: var(--candlelight);
+            color: var(--plum-deep);
             margin-bottom: 10px;
             letter-spacing: 0.05em;
         }
 
         .subtitle {
             font-size: 1.1em;
-            color: var(--blush);
+            color: var(--plum-soft);
             font-style: italic;
         }
 
         .booking-container {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
             border-radius: 16px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border: 1px solid var(--blush);
             padding: 40px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(45, 31, 43, 0.1);
         }
 
         .step-indicator {
@@ -110,30 +120,32 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(212, 175, 55, 0.3);
+            background: var(--ivory);
+            border: 2px solid var(--blush);
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 10px;
             font-weight: bold;
+            color: var(--plum-soft);
             transition: all 0.3s ease;
         }
 
         .step.active .step-circle {
             background: var(--candlelight);
             border-color: var(--candlelight);
-            color: var(--midnight);
+            color: var(--plum-deep);
         }
 
         .step.completed .step-circle {
-            background: rgba(212, 175, 55, 0.3);
+            background: var(--blush-soft);
             border-color: var(--candlelight);
+            color: var(--plum-deep);
         }
 
         .step-label {
             font-size: 0.9em;
-            color: rgba(245, 245, 245, 0.6);
+            color: var(--plum-soft);
         }
 
         .step.active .step-label {
@@ -156,12 +168,12 @@
 
         .section-title {
             font-size: 1.8em;
-            color: var(--candlelight);
+            color: var(--plum-deep);
             margin-bottom: 10px;
         }
 
         .section-description {
-            color: var(--blush);
+            color: var(--plum-soft);
             margin-bottom: 30px;
         }
 
@@ -172,17 +184,17 @@
         label {
             display: block;
             margin-bottom: 8px;
-            color: var(--candlelight);
+            color: var(--plum-deep);
             font-weight: 600;
         }
 
         input, select, textarea {
             width: 100%;
             padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: var(--ivory);
+            border: 1px solid var(--blush);
             border-radius: 8px;
-            color: var(--cream);
+            color: var(--plum-deep);
             font-family: 'Cormorant', serif;
             font-size: 1em;
             transition: all 0.3s ease;
@@ -191,7 +203,7 @@
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--candlelight);
-            background: rgba(255, 255, 255, 0.08);
+            background: var(--warm-white);
         }
 
         textarea {
@@ -207,8 +219,8 @@
         }
 
         .service-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 2px solid rgba(212, 175, 55, 0.2);
+            background: var(--ivory);
+            border: 2px solid var(--blush);
             border-radius: 12px;
             padding: 20px;
             cursor: pointer;
@@ -217,12 +229,12 @@
 
         .service-card:hover {
             border-color: var(--candlelight);
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--warm-white);
         }
 
         .service-card.selected {
             border-color: var(--candlelight);
-            background: rgba(212, 175, 55, 0.1);
+            background: var(--blush-pale);
         }
 
         .service-card input[type="radio"] {
@@ -232,13 +244,13 @@
         .service-name {
             font-size: 1.2em;
             font-weight: bold;
-            color: var(--candlelight);
+            color: var(--plum-deep);
             margin-bottom: 8px;
         }
 
         .service-description {
             font-size: 0.9em;
-            color: var(--blush);
+            color: var(--plum-soft);
             margin-bottom: 12px;
         }
 
@@ -257,8 +269,8 @@
 
         .calendar-day {
             aspect-ratio: 1;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            background: var(--ivory);
+            border: 1px solid var(--blush);
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -266,17 +278,18 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 0.9em;
+            color: var(--plum-deep);
         }
 
         .calendar-day:hover:not(.disabled) {
             border-color: var(--candlelight);
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--warm-white);
         }
 
         .calendar-day.selected {
             background: var(--candlelight);
             border-color: var(--candlelight);
-            color: var(--midnight);
+            color: var(--plum-deep);
             font-weight: bold;
         }
 
@@ -293,8 +306,8 @@
 
         .time-slot {
             padding: 12px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            background: var(--ivory);
+            border: 1px solid var(--blush);
             border-radius: 8px;
             text-align: center;
             cursor: pointer;
@@ -303,13 +316,13 @@
 
         .time-slot:hover:not(.disabled) {
             border-color: var(--candlelight);
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--warm-white);
         }
 
         .time-slot.selected {
             background: var(--candlelight);
             border-color: var(--candlelight);
-            color: var(--midnight);
+            color: var(--plum-deep);
             font-weight: bold;
         }
 
@@ -324,21 +337,21 @@
         }
 
         .summary-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            background: var(--ivory);
+            border: 1px solid var(--blush);
             border-radius: 8px;
             padding: 16px;
         }
 
         .summary-label {
             font-size: 0.9em;
-            color: var(--blush);
+            color: var(--plum-soft);
             margin-bottom: 4px;
         }
 
         .summary-value {
             font-size: 1.1em;
-            color: var(--candlelight);
+            color: var(--plum-deep);
             font-weight: bold;
         }
 
@@ -362,7 +375,7 @@
 
         .btn-primary {
             background: linear-gradient(135deg, var(--candlelight) 0%, #c9a237 100%);
-            color: var(--midnight);
+            color: var(--plum-deep);
         }
 
         .btn-primary:hover {
@@ -371,9 +384,9 @@
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            color: var(--cream);
+            background: var(--ivory);
+            border: 1px solid var(--blush);
+            color: var(--plum-deep);
         }
 
         .btn-secondary:hover {
