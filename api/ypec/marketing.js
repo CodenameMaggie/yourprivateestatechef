@@ -6,6 +6,7 @@
 
 const { getSupabase } = require('./database');
 const mfs = require('./mfs-integration');
+const mfsDb = require('./mfs-database');
 
 
 const BOT_INFO = {
@@ -14,7 +15,7 @@ const BOT_INFO = {
   company: 'Your Private Estate Chef',
   company_number: 7,
   purpose: 'Referral tracking, content creation, waitlist management, growth',
-  actions: ['status', 'referrals', 'content', 'waitlist', 'sources', 'run']
+  actions: ['status', 'referrals', 'content', 'waitlist', 'sources', 'run', 'test_mfs_connection', 'sync_mfs_leads', 'cross_portfolio_leads']
 };
 
 module.exports = async (req, res) => {
@@ -39,6 +40,15 @@ module.exports = async (req, res) => {
 
       case 'run':
         return await dailyRun(req, res);
+
+      case 'test_mfs_connection':
+        return await testMFSConnection(req, res);
+
+      case 'sync_mfs_leads':
+        return await syncMFSLeads(req, res);
+
+      case 'cross_portfolio_leads':
+        return await getCrossPortfolioLeads(req, res);
 
       default:
         return res.status(400).json({
@@ -377,5 +387,116 @@ async function dailyRun(req, res) {
     waitlist_opportunities: (availableChefs?.length || 0) > 0 && (waitlist?.length || 0) > 0,
     conversion_rate: conversionRate + '%',
     timestamp: new Date().toISOString()
+  });
+}
+
+// ============================================================================
+// MFS CENTRAL DATABASE INTEGRATION
+// ============================================================================
+
+async function testMFSConnection(req, res) {
+  console.log(`[${BOT_INFO.name}] Testing MFS Central Database connection`);
+
+  const result = await mfsDb.testMFSConnection();
+
+  return res.json({
+    success: result.connected,
+    ...result,
+    timestamp: new Date().toISOString()
+  });
+}
+
+async function syncMFSLeads(req, res) {
+  console.log(`[${BOT_INFO.name}] Syncing leads to MFS Central Database`);
+
+  // Get all YPEC inquiries not yet synced to MFS
+  const { data: inquiries, error } = await getSupabase()
+    .from('ypec_inquiries')
+    .select('*')
+    .is('mfs_lead_id', null)
+    .limit(100);
+
+  if (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+
+  let synced = 0;
+  let failed = 0;
+
+  for (const inquiry of inquiries || []) {
+    const result = await mfsDb.storeMFSLead({
+      email: inquiry.email,
+      name: inquiry.name || inquiry.household_name,
+      phone: inquiry.phone,
+      location: inquiry.location,
+      income_level: 'high_net_worth',
+      interest_level: inquiry.service_interest || 'inquiry',
+      notes: `YPEC inquiry: ${inquiry.service_interest || 'General inquiry'}`,
+      status: inquiry.status === 'converted' ? 'converted' : 'new'
+    });
+
+    if (result.data && !result.error) {
+      // Update YPEC inquiry with MFS lead ID
+      await getSupabase()
+        .from('ypec_inquiries')
+        .update({ mfs_lead_id: result.data.id })
+        .eq('id', inquiry.id);
+
+      synced++;
+    } else {
+      failed++;
+      console.error(`[${BOT_INFO.name}] Failed to sync inquiry ${inquiry.id}:`, result.error);
+    }
+  }
+
+  console.log(`[${BOT_INFO.name}] Synced ${synced} leads to MFS, ${failed} failed`);
+
+  return res.json({
+    success: true,
+    synced,
+    failed,
+    total_processed: inquiries?.length || 0,
+    message: `Synced ${synced} YPEC leads to MFS Central Database`
+  });
+}
+
+async function getCrossPortfolioLeads(req, res) {
+  console.log(`[${BOT_INFO.name}] Fetching cross-portfolio lead opportunities`);
+
+  const result = await mfsDb.getCrossPortfolioLeads({ limit: 50 });
+
+  if (result.error) {
+    return res.status(500).json({
+      success: false,
+      error: result.error
+    });
+  }
+
+  // Filter for leads that might be interested in YPEC
+  const opportunities = result.data?.filter(lead => {
+    // High-net-worth individuals from Steading Home or Timber Homestead
+    return lead.income_level === 'high_net_worth' ||
+           lead.income_level === 'ultra_high_net_worth';
+  }) || [];
+
+  return res.json({
+    success: true,
+    total_opportunities: opportunities.length,
+    leads: opportunities.map(lead => ({
+      id: lead.id,
+      source: lead.source,
+      name: lead.name,
+      email: lead.email,
+      location: lead.location,
+      income_level: lead.income_level,
+      created_at: lead.created_at,
+      opportunity_reason: lead.source === 'SH_osm'
+        ? 'Estate owner - likely needs private chef'
+        : 'Luxury homeowner - potential YPEC client'
+    })),
+    message: 'Cross-portfolio opportunities from Steading Home and Timber Homestead'
   });
 }
