@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Your Experience - Your Private Estate Chef</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@300;400;600&family=Italiana&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --midnight: #0f1419;
+            --charcoal: #1a1a2e;
+            --candlelight: #d4af37;
+            --cream: #f5f5f5;
+            --blush: #e8d5c4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant', serif;
+            background: linear-gradient(135deg, var(--midnight) 0%, var(--charcoal) 100%);
+            color: var(--cream);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .monogram {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border: 1px solid var(--candlelight);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Italiana', serif;
+            font-size: 1.2rem;
+            color: var(--candlelight);
+            letter-spacing: 0.1em;
+        }
+
+        h1 {
+            font-family: 'Italiana', serif;
+            font-size: 2.5em;
+            font-weight: 400;
+            color: var(--candlelight);
+            margin-bottom: 10px;
+            letter-spacing: 0.05em;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: var(--blush);
+            font-style: italic;
+        }
+
+        .booking-container {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(212, 175, 55, 0.2);
+            z-index: 0;
+        }
+
+        .step {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-circle {
+            background: var(--candlelight);
+            border-color: var(--candlelight);
+            color: var(--midnight);
+        }
+
+        .step.completed .step-circle {
+            background: rgba(212, 175, 55, 0.3);
+            border-color: var(--candlelight);
+        }
+
+        .step-label {
+            font-size: 0.9em;
+            color: rgba(245, 245, 245, 0.6);
+        }
+
+        .step.active .step-label {
+            color: var(--candlelight);
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: var(--candlelight);
+            margin-bottom: 10px;
+        }
+
+        .section-description {
+            color: var(--blush);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--candlelight);
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            color: var(--cream);
+            font-family: 'Cormorant', serif;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--candlelight);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .service-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .service-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover {
+            border-color: var(--candlelight);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .service-card.selected {
+            border-color: var(--candlelight);
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .service-card input[type="radio"] {
+            display: none;
+        }
+
+        .service-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--candlelight);
+            margin-bottom: 8px;
+        }
+
+        .service-description {
+            font-size: 0.9em;
+            color: var(--blush);
+            margin-bottom: 12px;
+        }
+
+        .service-price {
+            font-size: 1.1em;
+            color: var(--candlelight);
+            font-weight: bold;
+        }
+
+        .calendar-container {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .calendar-day:hover:not(.disabled) {
+            border-color: var(--candlelight);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .calendar-day.selected {
+            background: var(--candlelight);
+            border-color: var(--candlelight);
+            color: var(--midnight);
+            font-weight: bold;
+        }
+
+        .calendar-day.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+        }
+
+        .time-slot {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .time-slot:hover:not(.disabled) {
+            border-color: var(--candlelight);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .time-slot.selected {
+            background: var(--candlelight);
+            border-color: var(--candlelight);
+            color: var(--midnight);
+            font-weight: bold;
+        }
+
+        .time-slot.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .summary-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .summary-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .summary-label {
+            font-size: 0.9em;
+            color: var(--blush);
+            margin-bottom: 4px;
+        }
+
+        .summary-value {
+            font-size: 1.1em;
+            color: var(--candlelight);
+            font-weight: bold;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Cormorant', serif;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--candlelight) 0%, #c9a237 100%);
+            color: var(--midnight);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: var(--cream);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: var(--candlelight);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+        }
+
+        .success-title {
+            font-size: 2em;
+            color: var(--candlelight);
+            margin-bottom: 16px;
+        }
+
+        .success-text {
+            color: var(--blush);
+            margin-bottom: 32px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 32px;
+            color: var(--candlelight);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .booking-container {
+                padding: 24px;
+            }
+
+            .service-options {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="monogram">
+                <span>YPEC</span>
+            </div>
+            <h1>Book Your Experience</h1>
+            <p class="subtitle">Begin your journey to five-star dining at home</p>
+        </header>
+
+        <div class="booking-container">
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Service</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Details</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Schedule</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Confirm</div>
+                </div>
+            </div>
+
+            <!-- Step 1: Service Selection -->
+            <div class="form-section active" data-section="1">
+                <h2 class="section-title">Select Your Service</h2>
+                <p class="section-description">Choose the experience that best fits your needs</p>
+
+                <div class="service-options">
+                    <label class="service-card">
+                        <input type="radio" name="service" value="consultation" data-price="0">
+                        <div class="service-name">Complimentary Consultation</div>
+                        <div class="service-description">30-minute call to discuss your needs and preferences</div>
+                        <div class="service-price">Free</div>
+                    </label>
+
+                    <label class="service-card">
+                        <input type="radio" name="service" value="private_dinner" data-price="800">
+                        <div class="service-name">Private Dinner</div>
+                        <div class="service-description">Intimate dinner service for 6-12 guests</div>
+                        <div class="service-price">From $800</div>
+                    </label>
+
+                    <label class="service-card">
+                        <input type="radio" name="service" value="weekly_service" data-price="1500">
+                        <div class="service-name">Weekly Chef Service</div>
+                        <div class="service-description">10 hours per week of personal chef service</div>
+                        <div class="service-price">From $1,500/month</div>
+                    </label>
+
+                    <label class="service-card">
+                        <input type="radio" name="service" value="full_time" data-price="6000">
+                        <div class="service-name">Full-Time Chef</div>
+                        <div class="service-description">40 hours per week dedicated to your household</div>
+                        <div class="service-price">From $6,000/month</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Step 2: Details -->
+            <div class="form-section" data-section="2">
+                <h2 class="section-title">Your Details</h2>
+                <p class="section-description">Help us understand your culinary preferences</p>
+
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="city">City *</label>
+                    <select id="city" required>
+                        <option value="">Select city...</option>
+                        <option value="Austin">Austin</option>
+                        <option value="Dallas">Dallas</option>
+                        <option value="Houston">Houston</option>
+                        <option value="San Antonio">San Antonio</option>
+                        <option value="other">Other Texas Location</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="household_size">Household Size</label>
+                    <input type="number" id="household_size" min="1" max="20">
+                </div>
+
+                <div class="form-group">
+                    <label for="cuisine_preferences">Cuisine Preferences</label>
+                    <textarea id="cuisine_preferences" placeholder="Italian, French, Mediterranean, etc."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="dietary_requirements">Dietary Requirements</label>
+                    <textarea id="dietary_requirements" placeholder="Gluten-free, dairy-free, vegan, etc."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="special_requests">Special Requests or Questions</label>
+                    <textarea id="special_requests"></textarea>
+                </div>
+            </div>
+
+            <!-- Step 3: Schedule -->
+            <div class="form-section" data-section="3">
+                <h2 class="section-title">Choose Date & Time</h2>
+                <p class="section-description">Select your preferred date and time</p>
+
+                <div class="form-group">
+                    <label>Preferred Date *</label>
+                    <input type="date" id="preferred_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Preferred Time *</label>
+                    <div class="time-slots" id="timeSlots">
+                        <div class="time-slot" data-time="10:00">10:00 AM</div>
+                        <div class="time-slot" data-time="11:00">11:00 AM</div>
+                        <div class="time-slot" data-time="12:00">12:00 PM</div>
+                        <div class="time-slot" data-time="13:00">1:00 PM</div>
+                        <div class="time-slot" data-time="14:00">2:00 PM</div>
+                        <div class="time-slot" data-time="15:00">3:00 PM</div>
+                        <div class="time-slot" data-time="16:00">4:00 PM</div>
+                        <div class="time-slot" data-time="17:00">5:00 PM</div>
+                        <div class="time-slot" data-time="18:00">6:00 PM</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Confirmation -->
+            <div class="form-section" data-section="4">
+                <h2 class="section-title">Confirm Your Booking</h2>
+                <p class="section-description">Please review your information</p>
+
+                <div class="summary-grid" id="summary">
+                    <!-- Summary will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Success Message -->
+            <div class="form-section" data-section="5">
+                <div class="success-message">
+                    <div class="success-icon">✓</div>
+                    <h2 class="success-title">Booking Confirmed</h2>
+                    <p class="success-text">
+                        Thank you for choosing Your Private Estate Chef. We've received your booking request and will contact you within 24 hours to confirm the details.
+                        <br><br>
+                        A confirmation email has been sent to <span id="confirmedEmail"></span>
+                    </p>
+                    <a href="index.html" class="btn btn-primary">Return to Home</a>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="button-group" id="navigation">
+                <button class="btn btn-secondary" id="prevBtn" style="display: none;">Back</button>
+                <button class="btn btn-primary" id="nextBtn">Continue</button>
+            </div>
+        </div>
+
+        <a href="index.html" class="back-link">← Back to Home</a>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+        const bookingData = {};
+
+        // Service card selection
+        document.querySelectorAll('.service-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                const radio = card.querySelector('input[type="radio"]');
+                radio.checked = true;
+            });
+        });
+
+        // Time slot selection
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            slot.addEventListener('click', function() {
+                if (!this.classList.contains('disabled')) {
+                    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                    this.classList.add('selected');
+                    bookingData.preferredTime = this.dataset.time;
+                }
+            });
+        });
+
+        // Date picker - set minimum date to tomorrow
+        const dateInput = document.getElementById('preferred_date');
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        dateInput.min = tomorrow.toISOString().split('T')[0];
+
+        // Navigation
+        document.getElementById('nextBtn').addEventListener('click', async () => {
+            if (currentStep < totalSteps) {
+                if (validateStep(currentStep)) {
+                    saveStepData(currentStep);
+                    currentStep++;
+                    updateStep();
+                }
+            } else {
+                // Submit booking
+                await submitBooking();
+            }
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStep();
+            }
+        });
+
+        function updateStep() {
+            // Update step indicator
+            document.querySelectorAll('.step').forEach(step => {
+                const stepNum = parseInt(step.dataset.step);
+                step.classList.remove('active', 'completed');
+                if (stepNum === currentStep) {
+                    step.classList.add('active');
+                } else if (stepNum < currentStep) {
+                    step.classList.add('completed');
+                }
+            });
+
+            // Update form sections
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${currentStep}"]`).classList.add('active');
+
+            // Update buttons
+            document.getElementById('prevBtn').style.display = currentStep > 1 ? 'block' : 'none';
+            document.getElementById('nextBtn').textContent = currentStep === totalSteps ? 'Confirm Booking' : 'Continue';
+
+            // Populate summary on step 4
+            if (currentStep === 4) {
+                populateSummary();
+            }
+        }
+
+        function validateStep(step) {
+            if (step === 1) {
+                const selected = document.querySelector('input[name="service"]:checked');
+                if (!selected) {
+                    alert('Please select a service');
+                    return false;
+                }
+                return true;
+            }
+
+            if (step === 2) {
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const city = document.getElementById('city').value;
+
+                if (!name || !email || !phone || !city) {
+                    alert('Please fill in all required fields');
+                    return false;
+                }
+                return true;
+            }
+
+            if (step === 3) {
+                const date = document.getElementById('preferred_date').value;
+                const time = bookingData.preferredTime;
+
+                if (!date || !time) {
+                    alert('Please select a date and time');
+                    return false;
+                }
+                return true;
+            }
+
+            return true;
+        }
+
+        function saveStepData(step) {
+            if (step === 1) {
+                const selected = document.querySelector('input[name="service"]:checked');
+                bookingData.service = selected.value;
+                bookingData.servicePrice = selected.dataset.price;
+                bookingData.serviceName = selected.closest('.service-card').querySelector('.service-name').textContent;
+            }
+
+            if (step === 2) {
+                bookingData.name = document.getElementById('name').value.trim();
+                bookingData.email = document.getElementById('email').value.trim();
+                bookingData.phone = document.getElementById('phone').value.trim();
+                bookingData.city = document.getElementById('city').value;
+                bookingData.householdSize = document.getElementById('household_size').value;
+                bookingData.cuisinePreferences = document.getElementById('cuisine_preferences').value;
+                bookingData.dietaryRequirements = document.getElementById('dietary_requirements').value;
+                bookingData.specialRequests = document.getElementById('special_requests').value;
+            }
+
+            if (step === 3) {
+                bookingData.preferredDate = document.getElementById('preferred_date').value;
+            }
+        }
+
+        function populateSummary() {
+            const summary = document.getElementById('summary');
+            summary.innerHTML = `
+                <div class="summary-item">
+                    <div class="summary-label">Service</div>
+                    <div class="summary-value">${bookingData.serviceName}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Name</div>
+                    <div class="summary-value">${bookingData.name}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Email</div>
+                    <div class="summary-value">${bookingData.email}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Phone</div>
+                    <div class="summary-value">${bookingData.phone}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Location</div>
+                    <div class="summary-value">${bookingData.city}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Preferred Date</div>
+                    <div class="summary-value">${new Date(bookingData.preferredDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Preferred Time</div>
+                    <div class="summary-value">${formatTime(bookingData.preferredTime)}</div>
+                </div>
+                ${bookingData.cuisinePreferences ? `
+                <div class="summary-item">
+                    <div class="summary-label">Cuisine Preferences</div>
+                    <div class="summary-value">${bookingData.cuisinePreferences}</div>
+                </div>
+                ` : ''}
+                ${bookingData.dietaryRequirements ? `
+                <div class="summary-item">
+                    <div class="summary-label">Dietary Requirements</div>
+                    <div class="summary-value">${bookingData.dietaryRequirements}</div>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        function formatTime(time) {
+            const hour = parseInt(time.split(':')[0]);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour > 12 ? hour - 12 : hour;
+            return `${displayHour}:00 ${ampm}`;
+        }
+
+        async function submitBooking() {
+            try {
+                const response = await fetch('/api/ypec/concierge', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'schedule',
+                        data: {
+                            ...bookingData,
+                            service_interest: bookingData.serviceName,
+                            message: `${bookingData.serviceName} - ${bookingData.specialRequests || ''}`,
+                            referral_source: 'Website Booking System',
+                            consultation_date: bookingData.preferredDate,
+                            consultation_time: formatTime(bookingData.preferredTime)
+                        }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success || result.household_id) {
+                    // Show success message
+                    currentStep = 5;
+                    document.querySelectorAll('.form-section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    document.querySelector('[data-section="5"]').classList.add('active');
+                    document.getElementById('navigation').style.display = 'none';
+                    document.getElementById('confirmedEmail').textContent = bookingData.email;
+                } else {
+                    throw new Error(result.error || 'Booking failed');
+                }
+            } catch (error) {
+                console.error('Booking error:', error);
+                alert('We apologize, but there was an error processing your booking. Please email us at concierge@yourprivateestatechef.com and we\'ll assist you personally.');
+            }
+        }
+    </script>
+</body>
+</html>

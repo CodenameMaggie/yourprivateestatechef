@@ -1,0 +1,20 @@
+# Your Private Estate Chef - Robots.txt
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://yourprivateestatechef.com/sitemap.xml
+
+# Common crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Block admin areas
+User-agent: *
+Disallow: /admin/
+Disallow: /api/

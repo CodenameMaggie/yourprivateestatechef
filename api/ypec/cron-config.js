@@ -1,0 +1,220 @@
+// ============================================================================
+// YPEC CRON JOB CONFIGURATION
+// Add these to Forbes Command's cron scheduler
+// ============================================================================
+
+const cron = require('node-cron');
+const axios = require('axios');
+
+const YPEC_BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+
+// Helper function to call bot endpoints
+async function callBot(endpoint, action, company) {
+  try {
+    console.log(`[CRON] Calling ${endpoint} - action: ${action}`);
+
+    const response = await axios.post(`${YPEC_BASE_URL}${endpoint}`, {
+      action: action,
+      data: {}
+    });
+
+    console.log(`[CRON] ${endpoint} completed:`, response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`[CRON] Error calling ${endpoint}:`, error.message);
+    return { error: error.message };
+  }
+}
+
+// ============================================================================
+// YPEC CRON JOBS
+// ============================================================================
+
+module.exports = {
+  // Daily 6:00 AM - Lead scraper daily run
+  leadScraperRun: cron.schedule('0 6 * * *', () => {
+    console.log('[YPEC] Lead scraper daily run (6am daily)');
+    callBot('/api/ypec/lead-scraper', 'run', 'YPEC');
+  }),
+
+  // Daily 7:00 AM - Process new inquiries, send acknowledgments
+  processInquiries: cron.schedule('0 7 * * *', () => {
+    console.log('[YPEC] Processing new inquiries (7am daily)');
+    callBot('/api/ypec/concierge', 'process_inquiries', 'YPEC');
+  }),
+
+  // Daily 8:00 AM - Chef availability sync
+  syncChefAvailability: cron.schedule('0 8 * * *', () => {
+    console.log('[YPEC] Syncing chef availability (8am daily)');
+    callBot('/api/ypec/chef-relations', 'sync_availability', 'YPEC');
+  }),
+
+  // Daily 9:00 AM - Send consultation reminders (tomorrow's consultations)
+  consultationReminders: cron.schedule('0 9 * * *', () => {
+    console.log('[YPEC] Sending consultation reminders (9am daily)');
+    callBot('/api/ypec/concierge', 'send_reminders', 'YPEC');
+  }),
+
+  // Daily 10:00 AM - Check upcoming events (next 7 days)
+  upcomingEvents: cron.schedule('0 10 * * *', () => {
+    console.log('[YPEC] Reviewing upcoming events (10am daily)');
+    callBot('/api/ypec/operations', 'upcoming_events', 'YPEC');
+  }),
+
+  // Daily 6:00 PM - Daily YPEC summary to HENRY
+  dailySummary: cron.schedule('0 18 * * *', () => {
+    console.log('[YPEC] Daily summary to HENRY (6pm daily)');
+    callBot('/api/ypec/operations', 'daily_summary', 'YPEC');
+  }),
+
+  // Monday 9:00 AM - Weekly chef recruitment outreach
+  chefRecruitment: cron.schedule('0 9 * * 1', () => {
+    console.log('[YPEC] Chef recruitment outreach (Monday 9am)');
+    callBot('/api/ypec/chef-relations', 'recruit', 'YPEC');
+  }),
+
+  // Friday 4:00 PM - Weekly revenue report to DAVE
+  weeklyRevenueReport: cron.schedule('0 16 * * 5', () => {
+    console.log('[YPEC] Weekly revenue report to DAVE (Friday 4pm)');
+    callBot('/api/ypec/revenue', 'weekly_report', 'YPEC');
+  }),
+
+  // 1st of Month 8:00 AM - Generate monthly invoices
+  monthlyInvoices: cron.schedule('0 8 1 * *', () => {
+    console.log('[YPEC] Monthly invoice generation (1st of month 8am)');
+    callBot('/api/ypec/revenue', 'generate_invoices', 'YPEC');
+  }),
+
+  // Daily 11:00 PM - Marketing daily run (waitlist check, referral follow-ups)
+  marketingDailyRun: cron.schedule('0 23 * * *', () => {
+    console.log('[YPEC] Marketing daily run (11pm daily)');
+    callBot('/api/ypec/marketing', 'run', 'YPEC');
+  }),
+
+  // Daily Midnight - Revenue daily run (check overdue invoices)
+  revenueDailyRun: cron.schedule('0 0 * * *', () => {
+    console.log('[YPEC] Revenue daily run (midnight daily)');
+    callBot('/api/ypec/revenue', 'run', 'YPEC');
+  })
+};
+
+// ============================================================================
+// ALTERNATIVE: SINGLE CONFIGURATION EXPORT
+// Use this if Forbes Command expects a different format
+// ============================================================================
+
+/*
+module.exports = [
+  {
+    name: 'YPEC Lead Scraper',
+    schedule: '0 6 * * *',
+    endpoint: '/api/ypec/lead-scraper',
+    action: 'run',
+    company: 'YPEC',
+    enabled: true
+  },
+  {
+    name: 'YPEC Process Inquiries',
+    schedule: '0 7 * * *',
+    endpoint: '/api/ypec/concierge',
+    action: 'process_inquiries',
+    company: 'YPEC',
+    enabled: true
+  },
+  {
+    name: 'YPEC Sync Chef Availability',
+    schedule: '0 8 * * *',
+    endpoint: '/api/ypec/chef-relations',
+    action: 'sync_availability',
+    company: 'YPEC',
+    enabled: true
+  },
+  {
+    name: 'YPEC Consultation Reminders',
+    schedule: '0 9 * * *',
+    endpoint: '/api/ypec/concierge',
+    action: 'send_reminders',
+    company: 'YPEC',
+    enabled: true
+  },
+  {
+    name: 'YPEC Upcoming Events Check',
+    schedule: '0 10 * * *',
+    endpoint: '/api/ypec/operations',
+    action: 'upcoming_events',
+    company: 'YPEC',
+    enabled: true
+  },
+  {
+    name: 'YPEC Daily Summary to HENRY',
+    schedule: '0 18 * * *',
+    endpoint: '/api/ypec/operations',
+    action: 'daily_summary',
+    company: 'YPEC',
+    enabled: true
+  },
+  {
+    name: 'YPEC Chef Recruitment',
+    schedule: '0 9 * * 1',
+    endpoint: '/api/ypec/chef-relations',
+    action: 'recruit',
+    company: 'YPEC',
+    enabled: true
+  },
+  {
+    name: 'YPEC Weekly Revenue Report',
+    schedule: '0 16 * * 5',
+    endpoint: '/api/ypec/revenue',
+    action: 'weekly_report',
+    company: 'YPEC',
+    enabled: true
+  },
+  {
+    name: 'YPEC Monthly Invoices',
+    schedule: '0 8 1 * *',
+    endpoint: '/api/ypec/revenue',
+    action: 'generate_invoices',
+    company: 'YPEC',
+    enabled: true
+  },
+  {
+    name: 'YPEC Marketing Daily Run',
+    schedule: '0 23 * * *',
+    endpoint: '/api/ypec/marketing',
+    action: 'run',
+    company: 'YPEC',
+    enabled: true
+  },
+  {
+    name: 'YPEC Revenue Daily Run',
+    schedule: '0 0 * * *',
+    endpoint: '/api/ypec/revenue',
+    action: 'run',
+    company: 'YPEC',
+    enabled: true
+  }
+];
+*/
+
+// ============================================================================
+// CRON SCHEDULE REFERENCE
+// ============================================================================
+/*
+Format: minute hour day month weekday
+
+*     *     *     *     *
+│     │     │     │     │
+│     │     │     │     └─ Day of Week (0-6, 0=Sunday)
+│     │     │     └─────── Month (1-12)
+│     │     └───────────── Day of Month (1-31)
+│     └─────────────────── Hour (0-23)
+└───────────────────────── Minute (0-59)
+
+Examples:
+- '0 7 * * *'       Every day at 7:00 AM
+- '0 8 * * 1'       Every Monday at 8:00 AM
+- '0 16 * * 5'      Every Friday at 4:00 PM
+- '0 0 1 * *'       First day of every month at midnight
+- '*/15 * * * *'    Every 15 minutes
+- '0 */2 * * *'     Every 2 hours
+*/

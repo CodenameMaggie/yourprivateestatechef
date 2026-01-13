@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YPEC Lead Upload - Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f5f5f5;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #d4af37;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 40px;
+            font-size: 0.9em;
+        }
+
+        .upload-section {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px dashed #d4af37;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #f4cf67;
+        }
+
+        .upload-section.dragover {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: #f4cf67;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #d4af37 0%, #c9a237 100%);
+            color: #1a1a2e;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .file-label:hover {
+            background: linear-gradient(135deg, #f4cf67 0%, #d4af37 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #d4af37;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            color: #f5f5f5;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #d4af37;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .upload-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #d4af37 0%, #c9a237 100%);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #f4cf67 0%, #d4af37 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .upload-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results h3 {
+            color: #d4af37;
+            margin-bottom: 15px;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat:last-child {
+            border-bottom: none;
+        }
+
+        .stat-value {
+            color: #d4af37;
+            font-weight: bold;
+        }
+
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff4444;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #ffaaaa;
+        }
+
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #44ff44;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #aaffaa;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 0.9em;
+        }
+
+        .instructions h3 {
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+            color: #ccc;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: #d4af37;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #f4cf67;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>YPEC Lead Upload</h1>
+        <p class="subtitle">Upload CSV or JSON files with lead data</p>
+
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="upload-section" id="dropZone">
+                <label for="fileInput" class="file-label">
+                    Choose File or Drag & Drop
+                </label>
+                <input type="file" id="fileInput" name="file" accept=".csv,.json" required>
+                <p id="fileName" style="margin-top: 10px; color: #aaa;">No file selected</p>
+            </div>
+
+            <div class="form-group">
+                <label for="source">Lead Source</label>
+                <select id="source" name="source" required>
+                    <option value="">Select source...</option>
+                    <option value="LinkedIn Export">LinkedIn Export</option>
+                    <option value="Event Attendees">Event Attendees</option>
+                    <option value="Real Estate List">Real Estate List</option>
+                    <option value="Partnership">Partnership</option>
+                    <option value="Manual Research">Manual Research</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="validateEmails" name="validate_emails" checked>
+                <label for="validateEmails" style="margin-bottom: 0;">Validate email addresses</label>
+            </div>
+
+            <button type="submit" class="upload-btn" id="uploadBtn">
+                Upload Leads
+            </button>
+        </form>
+
+        <div id="results" class="results">
+            <h3>Upload Results</h3>
+            <div class="stat">
+                <span>Total Uploaded:</span>
+                <span class="stat-value" id="totalUploaded">0</span>
+            </div>
+            <div class="stat">
+                <span>Successfully Stored:</span>
+                <span class="stat-value" id="stored">0</span>
+            </div>
+            <div class="stat">
+                <span>Duplicates:</span>
+                <span class="stat-value" id="duplicates">0</span>
+            </div>
+            <div class="stat">
+                <span>Invalid:</span>
+                <span class="stat-value" id="invalid">0</span>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>CSV Format Requirements</h3>
+            <ul>
+                <li><strong>Required columns:</strong> email, name (or first_name + last_name)</li>
+                <li><strong>Optional columns:</strong> phone, city, state, company, title, notes, service_interest</li>
+                <li><strong>Email format:</strong> Must be valid email addresses (will be validated)</li>
+                <li><strong>Duplicates:</strong> Existing emails in database will be skipped</li>
+            </ul>
+
+            <h3 style="margin-top: 20px;">JSON Format Example</h3>
+            <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; overflow-x: auto; color: #aaa;">
+[
+  {
+    "name": "John Smith",
+    "email": "john@example.com",
+    "phone": "555-1234",
+    "city": "Austin",
+    "state": "TX",
+    "company": "Tech Corp",
+    "title": "CEO",
+    "service_interest": "Personal Chef"
+  }
+]
+            </pre>
+        </div>
+
+        <a href="../index.html" class="back-link">← Back to Home</a>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        const uploadForm = document.getElementById('uploadForm');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const results = document.getElementById('results');
+        const dropZone = document.getElementById('dropZone');
+
+        // File selection
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileName.textContent = e.target.files[0].name;
+                fileName.style.color = '#d4af37';
+            }
+        });
+
+        // Drag and drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                fileName.textContent = files[0].name;
+                fileName.style.color = '#d4af37';
+            }
+        });
+
+        // Form submission
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(uploadForm);
+
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = 'Uploading...';
+            results.classList.remove('show');
+
+            try {
+                const response = await fetch('/api/ypec/lead-upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('totalUploaded').textContent = data.total_uploaded;
+                    document.getElementById('stored').textContent = data.stored;
+                    document.getElementById('duplicates').textContent = data.duplicates;
+                    document.getElementById('invalid').textContent = data.invalid;
+                    results.classList.add('show');
+
+                    // Show success message
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'success';
+                    successDiv.textContent = `Successfully uploaded ${data.stored} new leads!`;
+                    uploadForm.appendChild(successDiv);
+
+                    setTimeout(() => successDiv.remove(), 5000);
+
+                    // Reset form
+                    uploadForm.reset();
+                    fileName.textContent = 'No file selected';
+                    fileName.style.color = '#aaa';
+                } else {
+                    throw new Error(data.error || 'Upload failed');
+                }
+            } catch (error) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error';
+                errorDiv.textContent = `Error: ${error.message}`;
+                uploadForm.appendChild(errorDiv);
+
+                setTimeout(() => errorDiv.remove(), 5000);
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'Upload Leads';
+            }
+        });
+    </script>
+</body>
+</html>
