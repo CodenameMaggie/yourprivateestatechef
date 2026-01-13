@@ -10,7 +10,8 @@ const mfs = require('./mfs-integration');
 
 const BOT_INFO = {
   name: 'YPEC-Operations',
-  reports_to: 'HENRY (COO)',
+  reports_to: 'DAN (CMO)',
+  supports: 'HENRY (CEO - Operations) & ANNIE (Customer Service - Events/Bookings)',
   company: 'Your Private Estate Chef',
   company_number: 7,
   purpose: 'Engagement management, scheduling, logistics, event coordination',

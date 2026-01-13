@@ -9,7 +9,8 @@ const mfs = require('./mfs-integration');
 
 const BOT_INFO = {
   name: 'YPEC-Concierge',
-  reports_to: 'ANNIE (CSO)',
+  reports_to: 'DAN (CMO)',
+  supports: 'ANNIE (Customer Service) & HENRY (CEO - Customer Relationships)',
   company: 'Your Private Estate Chef',
   company_number: 7,
   purpose: 'Client inquiries, consultations, household onboarding',

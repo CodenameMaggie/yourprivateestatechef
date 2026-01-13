@@ -10,7 +10,8 @@ const mfs = require('./mfs-integration');
 
 const BOT_INFO = {
   name: 'YPEC-Revenue',
-  reports_to: 'DAVE (CFO)',
+  reports_to: 'DAN (CMO)',
+  supports: 'DAVE (Accountant/CFO)',
   company: 'Your Private Estate Chef',
   company_number: 7,
   purpose: 'Revenue tracking, invoicing, payments, financial reporting',

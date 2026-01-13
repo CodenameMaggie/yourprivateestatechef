@@ -14,7 +14,7 @@ const BOT_INFO = {
   reports_to: 'DAN (CMO)',
   company: 'Your Private Estate Chef',
   company_number: 7,
-  purpose: 'Referral tracking, content creation, waitlist management, growth',
+  purpose: 'Lead generation (FREE until revenue), referral tracking, content, waitlist, growth',
   actions: ['status', 'referrals', 'content', 'waitlist', 'sources', 'run', 'test_mfs_connection', 'sync_mfs_leads', 'cross_portfolio_leads']
 };
 
