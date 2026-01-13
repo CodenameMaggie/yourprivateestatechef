@@ -75,12 +75,13 @@ async function getStatus(req, res) {
     inactive: chefs?.filter(c => c.status === 'inactive').length || 0
   };
 
-  // Get available chefs
-  const { data: availableChefs } = await getSupabase()
+  // Get available chefs (filter where current_households < max_households)
+  const { data: allChefs } = await getSupabase()
     .from('ypec_chefs')
     .select('id, full_name, current_households, max_households')
-    .eq('status', 'active')
-    .lt('current_households', getSupabase().raw('max_households'));
+    .eq('status', 'active');
+
+  const availableChefs = allChefs?.filter(chef => chef.current_households < chef.max_households) || [];
 
   return res.json({
     bot: BOT_INFO,
@@ -214,12 +215,13 @@ async function matchChefToHousehold(req, res, data) {
   // Extract region from address (simplified - you may need geocoding)
   const householdState = household.primary_address?.split(',').pop()?.trim();
 
-  // Find available chefs in the region
-  const { data: chefs } = await getSupabase()
+  // Find available chefs in the region (filter where current_households < max_households)
+  const { data: allRegionChefs } = await getSupabase()
     .from('ypec_chefs')
     .select('*')
-    .eq('status', 'active')
-    .lt('current_households', getSupabase().raw('max_households'));
+    .eq('status', 'active');
+
+  const chefs = allRegionChefs?.filter(chef => chef.current_households < chef.max_households) || [];
 
   if (!chefs || chefs.length === 0) {
     return res.json({
