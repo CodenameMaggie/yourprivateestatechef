@@ -10,6 +10,13 @@
 
 ## Calendly Configuration
 
+### Public Booking Link
+```
+https://calendly.com/maggie-maggieforbesstrategies/podcast-your-private-estate-chef
+```
+
+Share this link with potential podcast guests. Calendly is configured to only show Friday time slots.
+
 ### Webhook URL
 ```
 https://yourprivateestatechef.com/api/ypec/calendly-webhook
@@ -173,7 +180,8 @@ Thank you for your interest in Foodie Fridays!
 
 We noticed you tried to book on a [Day]. Our podcast recordings only take place on FRIDAYS (hence the name 😊).
 
-Please visit our Calendly link again and select a Friday that works for you.
+Please visit our Calendly link again and select a Friday that works for you:
+https://calendly.com/maggie-maggieforbesstrategies/podcast-your-private-estate-chef
 
 We'd love to have you on the show!
 ```

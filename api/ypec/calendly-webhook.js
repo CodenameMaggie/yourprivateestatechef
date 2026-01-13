@@ -267,7 +267,7 @@ Thank you for your interest in Foodie Fridays!
 We noticed you tried to book on a ${attemptedDay}. Our podcast recordings only take place on FRIDAYS (hence the name 😊).
 
 Please visit our Calendly link again and select a Friday that works for you:
-[Calendly Link]
+https://calendly.com/maggie-maggieforbesstrategies/podcast-your-private-estate-chef
 
 Available Fridays typically include:
 - Morning slots: 9:00 AM - 12:00 PM
