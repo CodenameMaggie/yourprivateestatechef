@@ -188,15 +188,14 @@ const SCRAPER_SOURCES = {
     notes: 'Scrape contact forms and member services'
   },
 
-  // ======= MANUAL UPLOAD SOURCES (FREE) =======
-
-  linkedin_export: {
+  // 16. Publicly traded company executives - SEC filings
+  sec_executives: {
     enabled: true,
     cost: 'FREE',
-    upload_endpoint: '/api/ypec/lead-upload',
-    frequency: 'manual',
-    fields: ['name', 'title', 'company', 'email', 'location'],
-    notes: 'CSV upload from LinkedIn basic account'
+    source_url: 'https://www.sec.gov/cgi-bin/browse-edgar',
+    frequency: 'monthly',
+    fields: ['executive_name', 'title', 'company', 'location'],
+    notes: 'C-suite executives from public company filings'
   }
 };
 
