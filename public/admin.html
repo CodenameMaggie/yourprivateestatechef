@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Your Private Estate Chef</title>
+    <style>
+        :root {
+            --midnight: #0A0A0A;
+            --charcoal: #1A1A1A;
+            --candlelight: #D4AF37;
+            --blush: #E8D5C4;
+            --cream: #F5F5F0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            background: linear-gradient(135deg, var(--midnight) 0%, var(--charcoal) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--cream);
+        }
+
+        .login-container {
+            background: rgba(26, 26, 26, 0.95);
+            border: 1px solid var(--candlelight);
+            border-radius: 8px;
+            padding: 50px 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.15);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo h1 {
+            font-size: 2em;
+            color: var(--candlelight);
+            font-weight: 400;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            font-size: 0.95em;
+            color: var(--blush);
+            font-style: italic;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--blush);
+            font-size: 0.95em;
+            letter-spacing: 1px;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            background: rgba(10, 10, 10, 0.7);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 4px;
+            color: var(--cream);
+            font-size: 1em;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: var(--candlelight);
+            background: rgba(10, 10, 10, 0.9);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--candlelight) 0%, #C4961A 100%);
+            border: none;
+            border-radius: 4px;
+            color: var(--midnight);
+            font-size: 1.1em;
+            font-weight: 600;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid rgba(220, 53, 69, 0.5);
+            color: #ff6b6b;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .links {
+            margin-top: 30px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .links a {
+            color: var(--candlelight);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.3s ease;
+        }
+
+        .links a:hover {
+            color: var(--blush);
+        }
+
+        .divider {
+            margin: 0 15px;
+            color: rgba(212, 175, 55, 0.4);
+        }
+
+        @media (max-width: 500px) {
+            .login-container {
+                padding: 40px 25px;
+            }
+
+            .logo h1 {
+                font-size: 1.6em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>YPEC ADMIN</h1>
+            <p>Forbes Command Control</p>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="btn-login">Access Dashboard</button>
+        </form>
+
+        <div class="links">
+            <a href="/">← Back to Home</a>
+            <span class="divider">|</span>
+            <a href="/booking.html">Book Service</a>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Hide previous errors
+            errorMessage.style.display = 'none';
+
+            try {
+                // Admin authentication via Supabase
+                const response = await fetch('/api/ypec/operations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'admin_login',
+                        data: {
+                            email: email,
+                            password: password
+                        }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Store session
+                    localStorage.setItem('ypec_admin_session', result.session_token);
+                    localStorage.setItem('ypec_admin_email', email);
+
+                    // Redirect to dashboard
+                    window.location.href = '/dashboard.html';
+                } else {
+                    showError(result.message || 'Invalid credentials');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Connection error. Please check your internet connection.');
+            }
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        // Check if already logged in
+        if (localStorage.getItem('ypec_admin_session')) {
+            window.location.href = '/dashboard.html';
+        }
+    </script>
+</body>
+</html>

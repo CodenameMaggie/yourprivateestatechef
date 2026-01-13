@@ -14,7 +14,7 @@ const BOT_INFO = {
   company: 'Your Private Estate Chef',
   company_number: 7,
   purpose: 'Engagement management, scheduling, logistics, event coordination',
-  actions: ['status', 'engagements', 'schedule', 'upcoming', 'overdue', 'upcoming_events', 'daily_summary', 'run']
+  actions: ['status', 'engagements', 'schedule', 'upcoming', 'overdue', 'upcoming_events', 'daily_summary', 'run', 'admin_login']
 };
 
 module.exports = async (req, res) => {
@@ -45,6 +45,9 @@ module.exports = async (req, res) => {
 
       case 'run':
         return await dailyRun(req, res);
+
+      case 'admin_login':
+        return await adminLogin(req, res, data);
 
       default:
         return res.status(400).json({
@@ -344,6 +347,65 @@ async function dailyRun(req, res) {
     success: true,
     message: 'Daily run completed',
     timestamp: new Date().toISOString()
+  });
+}
+
+// ============================================================================
+// ADMIN LOGIN
+// ============================================================================
+
+async function adminLogin(req, res, data) {
+  const { email, password } = data;
+
+  console.log(`[${BOT_INFO.name}] Admin login attempt: ${email}`);
+
+  // Check against ypec_staff table (admin users)
+  const { data: staff, error } = await getSupabase()
+    .from('ypec_staff')
+    .select('*')
+    .eq('email', email)
+    .eq('role', 'admin')
+    .single();
+
+  if (error || !staff) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid credentials'
+    });
+  }
+
+  // TODO: Implement proper password hashing with bcrypt
+  // For now, using simple comparison (REPLACE THIS IN PRODUCTION)
+  if (staff.password_hash !== password) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid credentials'
+    });
+  }
+
+  // Generate session token (simple UUID-like for now)
+  const sessionToken = `ypec_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+
+  // Store session in database
+  await getSupabase()
+    .from('ypec_admin_sessions')
+    .insert({
+      staff_id: staff.id,
+      session_token: sessionToken,
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+      created_at: new Date().toISOString()
+    });
+
+  console.log(`[${BOT_INFO.name}] Admin login successful: ${staff.full_name}`);
+
+  return res.json({
+    success: true,
+    session_token: sessionToken,
+    user: {
+      name: staff.full_name,
+      email: staff.email,
+      role: staff.role
+    }
   });
 }
 
