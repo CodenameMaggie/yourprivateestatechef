@@ -1,10 +1,11 @@
 // ============================================================================
-// YPEC LEAD SCRAPER SYSTEM
-// Purpose: Automated lead generation from free public sources
-// Reports to: DAN (CMO) via Marketing bot
+// DAN - CMO LEAD SCRAPING ENGINE
+// Purpose: Automated lead generation from 16+ free public sources
+// DAN IS the marketing bot - 100% automated, 0% manual
 // ============================================================================
 
 const axios = require('axios');
+const { getSupabase } = require('./database');
 
 
 const BOT_INFO = {
