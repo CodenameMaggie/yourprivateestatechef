@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - YPEC</title>
+    <style>
+        :root {
+            --midnight: #0A0A0A;
+            --charcoal: #1A1A1A;
+            --candlelight: #D4AF37;
+            --blush: #E8D5C4;
+            --cream: #F5F5F0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            background: var(--midnight);
+            color: var(--cream);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--charcoal) 0%, var(--midnight) 100%);
+            border-bottom: 2px solid var(--candlelight);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: var(--candlelight);
+            font-size: 1.8em;
+            font-weight: 400;
+            letter-spacing: 2px;
+        }
+
+        .header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header .user-name {
+            color: var(--blush);
+            font-size: 1em;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--candlelight);
+            color: var(--candlelight);
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: var(--candlelight);
+            color: var(--midnight);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--candlelight);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+        }
+
+        .card h2 {
+            color: var(--candlelight);
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            font-weight: 400;
+        }
+
+        .card .metric {
+            font-size: 2.5em;
+            color: var(--cream);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .card .label {
+            color: var(--blush);
+            font-size: 0.95em;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .link-btn {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: var(--candlelight);
+            padding: 15px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .link-btn:hover {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.1) 100%);
+            border-color: var(--candlelight);
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--blush);
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-links {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>YPEC COMMAND CENTER</h1>
+        <div class="user-info">
+            <span class="user-name" id="userName">Loading...</span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="loadingMessage" class="loading">
+            <h2>Loading dashboard metrics...</h2>
+        </div>
+
+        <div id="dashboardContent" style="display: none;">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h2>Active Households</h2>
+                    <div class="metric" id="activeHouseholds">-</div>
+                    <div class="label">Engaged clients</div>
+                </div>
+
+                <div class="card">
+                    <h2>Active Chefs</h2>
+                    <div class="metric" id="activeChefs">-</div>
+                    <div class="label">Available professionals</div>
+                </div>
+
+                <div class="card">
+                    <h2>Upcoming Events</h2>
+                    <div class="metric" id="upcomingEvents">-</div>
+                    <div class="label">Next 7 days</div>
+                </div>
+
+                <div class="card">
+                    <h2>Pending Inquiries</h2>
+                    <div class="metric" id="pendingInquiries">-</div>
+                    <div class="label">Awaiting response</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Quick Actions</h2>
+                <div class="quick-links">
+                    <a href="/booking.html" class="link-btn">View Bookings</a>
+                    <a href="/chef-resources.html" class="link-btn">Chef Resources</a>
+                    <a href="#" class="link-btn" onclick="alert('Coming soon: Full household management'); return false;">Manage Households</a>
+                    <a href="#" class="link-btn" onclick="alert('Coming soon: Chef recruitment portal'); return false;">Recruit Chefs</a>
+                    <a href="#" class="link-btn" onclick="alert('Coming soon: Revenue analytics'); return false;">Revenue Reports</a>
+                    <a href="#" class="link-btn" onclick="alert('Coming soon: Marketing dashboard'); return false;">Marketing</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        const sessionToken = localStorage.getItem('ypec_admin_session');
+        const userEmail = localStorage.getItem('ypec_admin_email');
+
+        if (!sessionToken || !userEmail) {
+            window.location.href = '/admin.html';
+        }
+
+        // Display user name
+        document.getElementById('userName').textContent = userEmail;
+
+        // Load dashboard metrics
+        async function loadMetrics() {
+            try {
+                // Fetch metrics from all bots
+                const [concierge, chefRelations, operations] = await Promise.all([
+                    fetch('/api/ypec/concierge', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'status' })
+                    }).then(r => r.json()),
+
+                    fetch('/api/ypec/chef-relations', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'status' })
+                    }).then(r => r.json()),
+
+                    fetch('/api/ypec/operations', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'status' })
+                    }).then(r => r.json())
+                ]);
+
+                // Update metrics
+                document.getElementById('activeHouseholds').textContent =
+                    concierge.metrics?.active_households || 0;
+
+                document.getElementById('activeChefs').textContent =
+                    chefRelations.metrics?.active || 0;
+
+                document.getElementById('upcomingEvents').textContent =
+                    operations.metrics?.upcoming_events || 0;
+
+                document.getElementById('pendingInquiries').textContent =
+                    concierge.metrics?.pending_inquiries || 0;
+
+                // Show dashboard
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading metrics:', error);
+                document.getElementById('loadingMessage').innerHTML =
+                    '<h2 style="color: #ff6b6b;">Error loading dashboard. Please check your connection.</h2>';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('ypec_admin_session');
+            localStorage.removeItem('ypec_admin_email');
+            window.location.href = '/admin.html';
+        }
+
+        // Load metrics on page load
+        loadMetrics();
+
+        // Refresh metrics every 30 seconds
+        setInterval(loadMetrics, 30000);
+    </script>
+</body>
+</html>
