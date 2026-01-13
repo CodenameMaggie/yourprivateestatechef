@@ -48,6 +48,7 @@ const marketing = require('./ypec/marketing');
 const leadScraper = require('./ypec/lead-scraper');
 const leadUpload = require('./ypec/lead-upload');
 const emailRouter = require('./ypec/email-router');
+const payments = require('./ypec/payments');
 
 app.post('/api/ypec/concierge', concierge);
 app.post('/api/ypec/chef-relations', chefRelations);
@@ -57,6 +58,7 @@ app.post('/api/ypec/marketing', marketing);
 app.post('/api/ypec/lead-scraper', leadScraper);
 app.post('/api/ypec/lead-upload', leadUpload);
 app.post('/api/ypec/email-router', emailRouter);
+app.post('/api/ypec/payments', payments);
 
 // Initialize cron jobs
 const cronJobs = require('./ypec/cron-config');

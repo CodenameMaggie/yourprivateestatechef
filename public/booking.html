@@ -589,8 +589,24 @@
                 <div class="summary-grid" id="summary">
                     <!-- Summary will be populated by JavaScript -->
                 </div>
-            </div>
 
+                <div class="policy-section" style="margin-top: 30px; padding: 20px; border: 1px solid var(--candlelight); border-radius: 4px; background: rgba(212, 175, 55, 0.05);">
+                    <h3 style="color: var(--candlelight); margin-bottom: 15px; font-size: 1.2em;">Cancellation Policy</h3>
+                    <div style="font-size: 0.95em; line-height: 1.8; color: var(--blush);">
+                        <p style="margin-bottom: 10px;"><strong>Consultations:</strong> Complimentary consultations may be rescheduled with 24 hours notice. No-shows forfeit the consultation.</p>
+                        <p style="margin-bottom: 10px;"><strong>Private Dinners:</strong> Cancellations made 7+ days prior receive full refund. 3-6 days: 50% refund. Less than 3 days: no refund.</p>
+                        <p style="margin-bottom: 10px;"><strong>Weekly/Monthly Services:</strong> 30-day notice required for cancellation. Prorated refunds available for unused service after cancellation date.</p>
+                        <p style="margin-bottom: 15px;"><strong>Full-Time Chef Placement:</strong> 60-day notice required. Contract terms apply as outlined in your service agreement.</p>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label style="display: flex; align-items: flex-start; cursor: pointer;">
+                            <input type="checkbox" id="acceptPolicy" required style="margin-right: 10px; margin-top: 4px;">
+                            <span style="font-size: 0.95em;">I have read and agree to the cancellation policy and understand that Your Private Estate Chef operates by invitation only.</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
             <!-- Success Message -->
             <div class="form-section" data-section="5">
                 <div class="success-message">
@@ -725,6 +741,15 @@
 
                 if (!date || !time) {
                     alert('Please select a date and time');
+                    return false;
+                }
+                return true;
+            }
+
+            if (step === 4) {
+                const acceptPolicy = document.getElementById('acceptPolicy').checked;
+                if (!acceptPolicy) {
+                    alert('Please read and accept the cancellation policy to continue');
                     return false;
                 }
                 return true;
