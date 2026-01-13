@@ -4,13 +4,9 @@
 // Purpose: Chef recruitment, onboarding, availability management, chef matching
 // ============================================================================
 
-const { createClient } = require('@supabase/supabase-js');
+const { getSupabase } = require('./database');
 const mfs = require('./mfs-integration');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
 
 const BOT_INFO = {
   name: 'YPEC-ChefRelations',
@@ -67,7 +63,7 @@ module.exports = async (req, res) => {
 // ============================================================================
 
 async function getStatus(req, res) {
-  const { data: chefs } = await supabase
+  const { data: chefs } = await getSupabase()
     .from('ypec_chefs')
     .select('status');
 
@@ -80,11 +76,11 @@ async function getStatus(req, res) {
   };
 
   // Get available chefs
-  const { data: availableChefs } = await supabase
+  const { data: availableChefs } = await getSupabase()
     .from('ypec_chefs')
     .select('id, full_name, current_households, max_households')
     .eq('status', 'active')
-    .lt('current_households', supabase.raw('max_households'));
+    .lt('current_households', getSupabase().raw('max_households'));
 
   return res.json({
     bot: BOT_INFO,
@@ -107,13 +103,13 @@ async function recruitChefs(req, res) {
   console.log(`[${BOT_INFO.name}] Chef recruitment outreach (cron)`);
 
   // Get regions with high demand (more households than available chefs)
-  const { data: households } = await supabase
+  const { data: households } = await getSupabase()
     .from('ypec_households')
     .select('primary_address, status')
     .in('status', ['inquiry', 'consultation_scheduled', 'consultation_complete']);
 
   // Get active chefs by region
-  const { data: chefs } = await supabase
+  const { data: chefs } = await getSupabase()
     .from('ypec_chefs')
     .select('region, current_households, max_households')
     .eq('status', 'active');
@@ -143,7 +139,7 @@ async function onboardChef(req, res, data) {
   console.log(`[${BOT_INFO.name}] Onboarding chef: ${chef_id}`);
 
   // Update chef status
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from('ypec_chefs')
     .update({
       status: 'active',
@@ -154,7 +150,7 @@ async function onboardChef(req, res, data) {
   if (error) throw error;
 
   // Get chef details
-  const { data: chef } = await supabase
+  const { data: chef } = await getSupabase()
     .from('ypec_chefs')
     .select('*')
     .eq('id', chef_id)
@@ -180,7 +176,7 @@ async function onboardChef(req, res, data) {
 async function getChefAvailability(req, res, data) {
   const { chef_id } = data;
 
-  const { data: availability, error } = await supabase
+  const { data: availability, error } = await getSupabase()
     .from('ypec_chef_availability')
     .select('*')
     .eq('chef_id', chef_id)
@@ -205,7 +201,7 @@ async function matchChefToHousehold(req, res, data) {
   console.log(`[${BOT_INFO.name}] Finding chef match for household: ${household_id}`);
 
   // Get household details
-  const { data: household } = await supabase
+  const { data: household } = await getSupabase()
     .from('ypec_households')
     .select('*')
     .eq('id', household_id)
@@ -219,11 +215,11 @@ async function matchChefToHousehold(req, res, data) {
   const householdState = household.primary_address?.split(',').pop()?.trim();
 
   // Find available chefs in the region
-  const { data: chefs } = await supabase
+  const { data: chefs } = await getSupabase()
     .from('ypec_chefs')
     .select('*')
     .eq('status', 'active')
-    .lt('current_households', supabase.raw('max_households'));
+    .lt('current_households', getSupabase().raw('max_households'));
 
   if (!chefs || chefs.length === 0) {
     return res.json({
@@ -302,7 +298,7 @@ async function getChefFeedback(req, res, data) {
   const { chef_id } = data;
 
   // Get events for this chef with feedback
-  const { data: events } = await supabase
+  const { data: events } = await getSupabase()
     .from('ypec_events')
     .select('*, household:ypec_households(primary_contact_name)')
     .eq('chef_id', chef_id)
@@ -335,7 +331,7 @@ async function syncAvailability(req, res) {
   console.log(`[${BOT_INFO.name}] Syncing chef availability (cron)`);
 
   // Get all active chefs
-  const { data: chefs } = await supabase
+  const { data: chefs } = await getSupabase()
     .from('ypec_chefs')
     .select('id, full_name, current_households, max_households, region')
     .eq('status', 'active');
@@ -347,7 +343,7 @@ async function syncAvailability(req, res) {
 
   for (const chef of chefs || []) {
     // Count actual active engagements
-    const { data: engagements } = await supabase
+    const { data: engagements } = await getSupabase()
       .from('ypec_engagements')
       .select('id')
       .eq('chef_id', chef.id)
@@ -357,7 +353,7 @@ async function syncAvailability(req, res) {
 
     if (actualCount !== chef.current_households) {
       // Update count
-      await supabase
+      await getSupabase()
         .from('ypec_chefs')
         .update({ current_households: actualCount })
         .eq('id', chef.id);
@@ -375,7 +371,7 @@ async function syncAvailability(req, res) {
   }
 
   // Check waitlist
-  const { data: waitlist } = await supabase
+  const { data: waitlist } = await getSupabase()
     .from('ypec_households')
     .select('id')
     .eq('status', 'waitlist');

@@ -4,13 +4,9 @@
 // Purpose: Engagement management, event scheduling, logistics coordination
 // ============================================================================
 
-const { createClient } = require('@supabase/supabase-js');
+const { getSupabase } = require('./database');
 const mfs = require('./mfs-integration');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
 
 const BOT_INFO = {
   name: 'YPEC-Operations',
@@ -67,11 +63,11 @@ module.exports = async (req, res) => {
 // ============================================================================
 
 async function getStatus(req, res) {
-  const { data: engagements } = await supabase
+  const { data: engagements } = await getSupabase()
     .from('ypec_engagements')
     .select('status');
 
-  const { data: events } = await supabase
+  const { data: events } = await getSupabase()
     .from('ypec_events')
     .select('status, event_date')
     .gte('event_date', new Date().toISOString().split('T')[0]);
@@ -100,7 +96,7 @@ async function getStatus(req, res) {
 // ============================================================================
 
 async function getEngagements(req, res) {
-  const { data: engagements, error } = await supabase
+  const { data: engagements, error } = await getSupabase()
     .from('ypec_engagements')
     .select(`
       *,
@@ -138,7 +134,7 @@ async function scheduleEvent(req, res, data) {
 
   console.log(`[${BOT_INFO.name}] Scheduling event for ${event_date}`);
 
-  const { data: event, error } = await supabase
+  const { data: event, error } = await getSupabase()
     .from('ypec_events')
     .insert({
       engagement_id,
@@ -181,7 +177,7 @@ async function getUpcomingEvents(req, res) {
   nextWeek.setDate(nextWeek.getDate() + 7);
   const nextWeekStr = nextWeek.toISOString().split('T')[0];
 
-  const { data: events, error } = await supabase
+  const { data: events, error } = await getSupabase()
     .from('ypec_events')
     .select(`
       *,
@@ -218,7 +214,7 @@ async function getUpcomingEvents(req, res) {
 async function getOverdueEvents(req, res) {
   const today = new Date().toISOString().split('T')[0];
 
-  const { data: events, error } = await supabase
+  const { data: events, error } = await getSupabase()
     .from('ypec_events')
     .select(`
       *,
@@ -250,7 +246,7 @@ async function upcomingEventsCheck(req, res) {
   next7Days.setDate(next7Days.getDate() + 7);
   const next7DaysStr = next7Days.toISOString().split('T')[0];
 
-  const { data: events } = await supabase
+  const { data: events } = await getSupabase()
     .from('ypec_events')
     .select(`
       *,
@@ -296,13 +292,13 @@ async function sendDailySummary(req, res) {
   const today = new Date().toISOString().split('T')[0];
 
   // Today's events
-  const { data: todayEvents } = await supabase
+  const { data: todayEvents } = await getSupabase()
     .from('ypec_events')
     .select('*, household:ypec_households(primary_contact_name), chef:ypec_chefs(full_name)')
     .eq('event_date', today);
 
   // Active engagements
-  const { data: activeEngagements } = await supabase
+  const { data: activeEngagements } = await getSupabase()
     .from('ypec_engagements')
     .select('id')
     .eq('status', 'active');
@@ -310,7 +306,7 @@ async function sendDailySummary(req, res) {
   // Upcoming events (next 7 days)
   const next7Days = new Date();
   next7Days.setDate(next7Days.getDate() + 7);
-  const { data: upcomingEvents } = await supabase
+  const { data: upcomingEvents } = await getSupabase()
     .from('ypec_events')
     .select('id')
     .gte('event_date', today)

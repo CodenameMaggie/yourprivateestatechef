@@ -3,15 +3,10 @@
 // Purpose: Manual CSV/JSON upload for leads from LinkedIn, events, etc.
 // ============================================================================
 
-const { createClient } = require('@supabase/supabase-js');
 const multer = require('multer');
 const csv = require('csv-parser');
 const fs = require('fs');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
 
 // Configure multer for file uploads
 const upload = multer({ dest: '/tmp/ypec-uploads/' });
@@ -177,7 +172,7 @@ async function processLeads(leads, source, validateEmails) {
       }
 
       // Check for duplicate
-      const { data: existing } = await supabase
+      const { data: existing } = await getSupabase()
         .from('ypec_inquiries')
         .select('id')
         .eq('email', lead.email)
@@ -198,7 +193,7 @@ async function processLeads(leads, source, validateEmails) {
       const quality = calculateLeadQuality(lead);
 
       // Create inquiry
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from('ypec_inquiries')
         .insert({
           email: lead.email,

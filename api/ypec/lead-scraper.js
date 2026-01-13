@@ -4,13 +4,8 @@
 // Reports to: DAN (CMO) via Marketing bot
 // ============================================================================
 
-const { createClient } = require('@supabase/supabase-js');
 const axios = require('axios');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
 
 const BOT_INFO = {
   name: 'YPEC-LeadScraper',
@@ -102,7 +97,7 @@ module.exports = async (req, res) => {
 
 async function getStatus(req, res) {
   // Get scraping statistics
-  const { data: leads } = await supabase
+  const { data: leads } = await getSupabase()
     .from('ypec_inquiries')
     .select('id, status, created_at, referral_source')
     .eq('referral_source', 'Lead Scraper');
@@ -276,7 +271,7 @@ async function storeLeads(leads, source) {
       }
 
       // Check for duplicate
-      const { data: existing } = await supabase
+      const { data: existing } = await getSupabase()
         .from('ypec_inquiries')
         .select('id')
         .eq('email', lead.email)
@@ -289,7 +284,7 @@ async function storeLeads(leads, source) {
       }
 
       // Create inquiry
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from('ypec_inquiries')
         .insert({
           email: lead.email,
@@ -332,7 +327,7 @@ async function validateLeads(req, res) {
   console.log(`[${BOT_INFO.name}] Validating scraped leads...`);
 
   // Get all leads from scraper
-  const { data: leads } = await supabase
+  const { data: leads } = await getSupabase()
     .from('ypec_inquiries')
     .select('*')
     .eq('referral_source', 'Lead Scraper')
@@ -346,7 +341,7 @@ async function validateLeads(req, res) {
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(lead.email)) {
-        await supabase
+        await getSupabase()
           .from('ypec_inquiries')
           .update({ status: 'invalid', notes: 'Invalid email format' })
           .eq('id', lead.id);
@@ -355,7 +350,7 @@ async function validateLeads(req, res) {
       }
 
       // Mark as validated
-      await supabase
+      await getSupabase()
         .from('ypec_inquiries')
         .update({
           status: 'reviewing',

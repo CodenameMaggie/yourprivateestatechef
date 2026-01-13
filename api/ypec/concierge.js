@@ -4,13 +4,8 @@
 // Purpose: Client-facing communication, inquiry handling, consultation scheduling
 // ============================================================================
 
-const { createClient } = require('@supabase/supabase-js');
+const { getSupabase } = require('./database');
 const mfs = require('./mfs-integration');
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
 
 const BOT_INFO = {
   name: 'YPEC-Concierge',
@@ -67,17 +62,17 @@ module.exports = async (req, res) => {
 // ============================================================================
 
 async function getStatus(req, res) {
-  const { data: inquiries } = await supabase
+  const { data: inquiries } = await getSupabase()
     .from('ypec_inquiries')
     .select('status')
     .eq('status', 'new');
 
-  const { data: consultations } = await supabase
+  const { data: consultations } = await getSupabase()
     .from('ypec_households')
     .select('status')
     .eq('status', 'consultation_scheduled');
 
-  const { data: activeHouseholds } = await supabase
+  const { data: activeHouseholds } = await getSupabase()
     .from('ypec_households')
     .select('id')
     .eq('status', 'active');
@@ -99,7 +94,7 @@ async function getStatus(req, res) {
 // ============================================================================
 
 async function getInquiries(req, res) {
-  const { data: inquiries, error } = await supabase
+  const { data: inquiries, error } = await getSupabase()
     .from('ypec_inquiries')
     .select('*')
     .order('created_at', { ascending: false })
@@ -133,7 +128,7 @@ async function acknowledgeInquiry(req, res, data) {
   console.log(`[${BOT_INFO.name}] New inquiry from: ${name} <${email}>`);
 
   // Create inquiry record
-  const { data: inquiry, error } = await supabase
+  const { data: inquiry, error } = await getSupabase()
     .from('ypec_inquiries')
     .insert({
       name,
@@ -155,7 +150,7 @@ async function acknowledgeInquiry(req, res, data) {
   }
 
   // Log communication
-  await supabase.from('ypec_communications').insert({
+  await getSupabase().from('ypec_communications').insert({
     inquiry_id: inquiry.id,
     comm_type: 'email',
     direction: 'inbound',
@@ -169,7 +164,7 @@ async function acknowledgeInquiry(req, res, data) {
   await sendAcknowledgmentEmail(name, email);
 
   // Update inquiry status
-  await supabase
+  await getSupabase()
     .from('ypec_inquiries')
     .update({
       status: 'responded',
@@ -181,7 +176,7 @@ async function acknowledgeInquiry(req, res, data) {
   await mfs.notifyAnnieNewInquiry(inquiry);
 
   // Log outbound communication
-  await supabase.from('ypec_communications').insert({
+  await getSupabase().from('ypec_communications').insert({
     inquiry_id: inquiry.id,
     comm_type: 'email',
     direction: 'outbound',
@@ -211,7 +206,7 @@ async function scheduleConsultation(req, res, data) {
   console.log(`[${BOT_INFO.name}] Scheduling consultation for inquiry: ${inquiry_id}`);
 
   // Get inquiry details
-  const { data: inquiry } = await supabase
+  const { data: inquiry } = await getSupabase()
     .from('ypec_inquiries')
     .select('*')
     .eq('id', inquiry_id)
@@ -222,7 +217,7 @@ async function scheduleConsultation(req, res, data) {
   }
 
   // Create household record
-  const { data: household, error } = await supabase
+  const { data: household, error } = await getSupabase()
     .from('ypec_households')
     .insert({
       primary_contact_name: inquiry.name,
@@ -241,7 +236,7 @@ async function scheduleConsultation(req, res, data) {
   if (error) throw error;
 
   // Update inquiry
-  await supabase
+  await getSupabase()
     .from('ypec_inquiries')
     .update({
       status: 'consultation_scheduled',
@@ -253,7 +248,7 @@ async function scheduleConsultation(req, res, data) {
   await sendConsultationInvitation(inquiry.name, inquiry.email, consultation_date);
 
   // Log communication
-  await supabase.from('ypec_communications').insert({
+  await getSupabase().from('ypec_communications').insert({
     household_id: household.id,
     comm_type: 'email',
     direction: 'outbound',
@@ -294,7 +289,7 @@ async function assignChef(req, res, data) {
   console.log(`[${BOT_INFO.name}] Assigning chef ${chef_id} to household ${household_id}`);
 
   // Update household
-  const { error: householdError } = await supabase
+  const { error: householdError } = await getSupabase()
     .from('ypec_households')
     .update({
       chef_id: chef_id,
@@ -306,7 +301,7 @@ async function assignChef(req, res, data) {
   if (householdError) throw householdError;
 
   // Update chef household count
-  await supabase.rpc('increment', {
+  await getSupabase().rpc('increment', {
     table_name: 'ypec_chefs',
     row_id: chef_id,
     column_name: 'current_households',
@@ -314,13 +309,13 @@ async function assignChef(req, res, data) {
   });
 
   // Get household and chef details
-  const { data: household } = await supabase
+  const { data: household } = await getSupabase()
     .from('ypec_households')
     .select('*')
     .eq('id', household_id)
     .single();
 
-  const { data: chef } = await supabase
+  const { data: chef } = await getSupabase()
     .from('ypec_chefs')
     .select('*')
     .eq('id', chef_id)
@@ -344,7 +339,7 @@ async function assignChef(req, res, data) {
 async function processNewInquiries(req, res) {
   console.log(`[${BOT_INFO.name}] Processing new inquiries (cron)`);
 
-  const { data: newInquiries } = await supabase
+  const { data: newInquiries } = await getSupabase()
     .from('ypec_inquiries')
     .select('*')
     .eq('status', 'new')
@@ -389,7 +384,7 @@ async function sendConsultationReminders(req, res) {
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
-  const { data: households } = await supabase
+  const { data: households } = await getSupabase()
     .from('ypec_households')
     .select('*')
     .eq('status', 'consultation_scheduled')

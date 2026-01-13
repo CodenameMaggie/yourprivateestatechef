@@ -6,10 +6,17 @@
 const axios = require('axios');
 const { createClient } = require('@supabase/supabase-js');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
+// Lazy-load Supabase client to avoid startup crashes
+let supabase = null;
+function getSupabase() {
+  if (!supabase && process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
+    supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_KEY
+    );
+  }
+  return supabase;
+}
 
 const MFS_BASE_URL = process.env.MFS_BASE_URL || 'http://5.78.139.9:3000';
 

@@ -4,13 +4,9 @@
 // Purpose: Referrals, content creation, waitlist management, growth
 // ============================================================================
 
-const { createClient } = require('@supabase/supabase-js');
+const { getSupabase } = require('./database');
 const mfs = require('./mfs-integration');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
 
 const BOT_INFO = {
   name: 'YPEC-Marketing',
@@ -61,16 +57,16 @@ module.exports = async (req, res) => {
 // ============================================================================
 
 async function getStatus(req, res) {
-  const { data: referrals } = await supabase
+  const { data: referrals } = await getSupabase()
     .from('ypec_referrals')
     .select('status');
 
-  const { data: waitlist } = await supabase
+  const { data: waitlist } = await getSupabase()
     .from('ypec_households')
     .select('id')
     .eq('status', 'waitlist');
 
-  const { data: thisMonthInquiries } = await supabase
+  const { data: thisMonthInquiries } = await getSupabase()
     .from('ypec_inquiries')
     .select('id, referral_source')
     .gte('created_at', new Date(new Date().setDate(1)).toISOString());
@@ -93,7 +89,7 @@ async function getStatus(req, res) {
 // ============================================================================
 
 async function getReferrals(req, res) {
-  const { data: referrals, error } = await supabase
+  const { data: referrals, error } = await getSupabase()
     .from('ypec_referrals')
     .select(`
       *,
@@ -174,7 +170,7 @@ async function manageContent(req, res, data) {
 // ============================================================================
 
 async function getWaitlist(req, res) {
-  const { data: waitlist, error } = await supabase
+  const { data: waitlist, error } = await getSupabase()
     .from('ypec_households')
     .select('*')
     .eq('status', 'waitlist')
@@ -183,7 +179,7 @@ async function getWaitlist(req, res) {
   if (error) throw error;
 
   // Also get inquiries marked as waitlist
-  const { data: inquiries } = await supabase
+  const { data: inquiries } = await getSupabase()
     .from('ypec_inquiries')
     .select('*')
     .eq('status', 'waitlist')
@@ -204,7 +200,7 @@ async function getWaitlist(req, res) {
 // ============================================================================
 
 async function analyzeInquirySources(req, res) {
-  const { data: inquiries } = await supabase
+  const { data: inquiries } = await getSupabase()
     .from('ypec_inquiries')
     .select('referral_source, status, created_at');
 
@@ -294,7 +290,7 @@ async function dailyRun(req, res) {
   console.log(`[${BOT_INFO.name}] Daily run started`);
 
   // Check for referrals that need follow-up
-  const { data: pendingReferrals } = await supabase
+  const { data: pendingReferrals } = await getSupabase()
     .from('ypec_referrals')
     .select('*')
     .eq('status', 'pending')
@@ -303,14 +299,14 @@ async function dailyRun(req, res) {
   // Get today's leads
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const { data: todayLeads } = await supabase
+  const { data: todayLeads } = await getSupabase()
     .from('ypec_inquiries')
     .select('*')
     .gte('created_at', today.toISOString());
 
   // Get conversion rate (last 30 days)
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  const { data: recentInquiries } = await supabase
+  const { data: recentInquiries } = await getSupabase()
     .from('ypec_inquiries')
     .select('status')
     .gte('created_at', thirtyDaysAgo.toISOString());
@@ -324,19 +320,19 @@ async function dailyRun(req, res) {
   const bestSource = sourcesResponse?.sources?.[0] || null;
 
   // Check waitlist for capacity openings
-  const { data: availableChefs } = await supabase
+  const { data: availableChefs } = await getSupabase()
     .from('ypec_chefs')
     .select('id, current_households, max_households')
     .eq('status', 'active')
-    .lt('current_households', supabase.raw('max_households'));
+    .lt('current_households', getSupabase().raw('max_households'));
 
-  const { data: waitlist } = await supabase
+  const { data: waitlist } = await getSupabase()
     .from('ypec_households')
     .select('id')
     .eq('status', 'waitlist');
 
   // Get referral stats
-  const { data: allReferrals } = await supabase
+  const { data: allReferrals } = await getSupabase()
     .from('ypec_referrals')
     .select('status');
 

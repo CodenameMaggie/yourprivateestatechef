@@ -4,13 +4,9 @@
 // Purpose: Revenue tracking, invoicing, payments, financial reporting
 // ============================================================================
 
-const { createClient } = require('@supabase/supabase-js');
+const { getSupabase } = require('./database');
 const mfs = require('./mfs-integration');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
 
 const BOT_INFO = {
   name: 'YPEC-Revenue',
@@ -73,7 +69,7 @@ async function getStatus(req, res) {
   // This month's revenue
   const thisMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
 
-  const { data: invoices } = await supabase
+  const { data: invoices } = await getSupabase()
     .from('ypec_invoices')
     .select('total, status, invoice_date')
     .gte('invoice_date', `${thisMonth}-01`);
@@ -124,7 +120,7 @@ async function getRevenue(req, res, data) {
     startDate = new Date('2020-01-01'); // All time
   }
 
-  const { data: invoices } = await supabase
+  const { data: invoices } = await getSupabase()
     .from('ypec_invoices')
     .select('*')
     .gte('invoice_date', startDate.toISOString().split('T')[0])
@@ -161,7 +157,7 @@ async function getRevenue(req, res, data) {
 // ============================================================================
 
 async function getInvoices(req, res) {
-  const { data: invoices, error } = await supabase
+  const { data: invoices, error } = await getSupabase()
     .from('ypec_invoices')
     .select(`
       *,
@@ -192,7 +188,7 @@ async function getInvoices(req, res) {
 // ============================================================================
 
 async function getPayments(req, res) {
-  const { data: payments, error } = await supabase
+  const { data: payments, error } = await getSupabase()
     .from('ypec_chef_payments')
     .select(`
       *,
@@ -218,7 +214,7 @@ async function forecastRevenue(req, res) {
   console.log(`[${BOT_INFO.name}] Forecasting revenue`);
 
   // Get all active engagements
-  const { data: engagements } = await supabase
+  const { data: engagements } = await getSupabase()
     .from('ypec_engagements')
     .select('*')
     .eq('status', 'active');
@@ -240,7 +236,7 @@ async function forecastRevenue(req, res) {
   const next30Days = new Date();
   next30Days.setDate(next30Days.getDate() + 30);
 
-  const { data: upcomingEvents } = await supabase
+  const { data: upcomingEvents } = await getSupabase()
     .from('ypec_events')
     .select('*, engagement:ypec_engagements(rate, rate_type)')
     .gte('event_date', today)
@@ -305,7 +301,7 @@ async function generateMonthlyInvoices(req, res) {
   const thisMonth = new Date().toISOString().slice(0, 7);
 
   // Get active weekly/monthly engagements
-  const { data: engagements } = await supabase
+  const { data: engagements } = await getSupabase()
     .from('ypec_engagements')
     .select(`
       *,
@@ -318,7 +314,7 @@ async function generateMonthlyInvoices(req, res) {
 
   for (const eng of engagements || []) {
     // Check if invoice already exists for this month
-    const { data: existing } = await supabase
+    const { data: existing } = await getSupabase()
       .from('ypec_invoices')
       .select('id')
       .eq('engagement_id', eng.id)
@@ -343,7 +339,7 @@ async function generateMonthlyInvoices(req, res) {
     const invoiceNumber = `YPEC-${thisMonth}-${String(created + 1).padStart(4, '0')}`;
 
     // Create invoice
-    const { error } = await supabase
+    const { error } = await getSupabase()
       .from('ypec_invoices')
       .insert({
         household_id: eng.household_id,
@@ -390,7 +386,7 @@ async function sendWeeklyReport(req, res) {
   startOfWeek.setDate(startOfWeek.getDate() - 7);
   const weekStart = startOfWeek.toISOString().split('T')[0];
 
-  const { data: invoices } = await supabase
+  const { data: invoices } = await getSupabase()
     .from('ypec_invoices')
     .select('*')
     .gte('invoice_date', weekStart);
@@ -437,7 +433,7 @@ async function dailyRun(req, res) {
   // Check for overdue invoices
   const today = new Date().toISOString().split('T')[0];
 
-  const { data: overdueInvoices } = await supabase
+  const { data: overdueInvoices } = await getSupabase()
     .from('ypec_invoices')
     .select(`
       *,
@@ -448,7 +444,7 @@ async function dailyRun(req, res) {
 
   if (overdueInvoices && overdueInvoices.length > 0) {
     // Mark as overdue
-    await supabase
+    await getSupabase()
       .from('ypec_invoices')
       .update({ status: 'overdue' })
       .in('id', overdueInvoices.map(i => i.id));
