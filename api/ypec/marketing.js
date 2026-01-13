@@ -10,12 +10,13 @@ const mfsDb = require('./mfs-database');
 
 
 const BOT_INFO = {
-  name: 'YPEC-Marketing',
-  reports_to: 'DAN (CMO)',
+  name: 'DAN (CMO Marketing Bot)',
+  alias: 'YPEC-Marketing',
+  reports_to: 'Self (DAN is the bot)',
   company: 'Your Private Estate Chef',
   company_number: 7,
-  purpose: 'Lead generation (FREE until revenue), referral tracking, content, waitlist, growth',
-  actions: ['status', 'referrals', 'content', 'waitlist', 'sources', 'run', 'test_mfs_connection', 'sync_mfs_leads', 'cross_portfolio_leads']
+  purpose: '🤖 FREE LEAD SCRAPING EVERYWHERE - Pinterest, LinkedIn, Google, forums, directories. Also: referral tracking, content, waitlist, growth',
+  actions: ['status', 'referrals', 'content', 'waitlist', 'sources', 'run', 'test_mfs_connection', 'sync_mfs_leads', 'cross_portfolio_leads', 'scrape_leads_everywhere']
 };
 
 module.exports = async (req, res) => {
