@@ -232,11 +232,42 @@ async function testRoute(toEmail, testData) {
   return await routeEmail(testEmail);
 }
 
-module.exports = {
-  routeEmail,
-  parseEmailData,
-  detectServiceInterest,
-  getRoutes,
-  testRoute,
-  EMAIL_ROUTES
+// Express route handler
+module.exports = async (req, res) => {
+  const { action, data } = req.body;
+
+  try {
+    switch (action) {
+      case 'route':
+        const result = await routeEmail(data);
+        return res.json(result);
+
+      case 'test':
+        const testResult = await testRoute(data.email);
+        return res.json(testResult);
+
+      case 'routes':
+        return res.json({ routes: EMAIL_ROUTES });
+
+      default:
+        return res.status(400).json({
+          error: 'Invalid action',
+          available_actions: ['route', 'test', 'routes']
+        });
+    }
+  } catch (error) {
+    console.error('[EmailRouter] Error:', error);
+    return res.status(500).json({
+      error: 'Email routing failed',
+      message: error.message
+    });
+  }
 };
+
+// Export helper functions for direct use
+module.exports.routeEmail = routeEmail;
+module.exports.parseEmailData = parseEmailData;
+module.exports.detectServiceInterest = detectServiceInterest;
+module.exports.getRoutes = () => EMAIL_ROUTES;
+module.exports.testRoute = testRoute;
+module.exports.EMAIL_ROUTES = EMAIL_ROUTES;

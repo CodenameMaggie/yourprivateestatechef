@@ -211,10 +211,10 @@ Format: minute hour day month weekday
 └───────────────────────── Minute (0-59)
 
 Examples:
-- '0 7 * * *'       Every day at 7:00 AM
-- '0 8 * * 1'       Every Monday at 8:00 AM
-- '0 16 * * 5'      Every Friday at 4:00 PM
-- '0 0 1 * *'       First day of every month at midnight
-- '*/15 * * * *'    Every 15 minutes
-- '0 */2 * * *'     Every 2 hours
+  0 7 * * *        - Every day at 7:00 AM
+  0 8 * * 1        - Every Monday at 8:00 AM
+  0 16 * * 5       - Every Friday at 4:00 PM
+  0 0 1 * *        - First day of every month at midnight
+  star/15 * * * *  - Every 15 minutes (replace 'star' with *)
+  0 star/2 * * *   - Every 2 hours (replace 'star' with *)
 */

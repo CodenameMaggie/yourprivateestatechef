@@ -3,8 +3,12 @@
  * Express server for all Forbes Command bots and lead systems
  */
 
-const express = require('express');
 const path = require('path');
+
+// Load environment variables first
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
+
+const express = require('express');
 const cron = require('node-cron');
 
 const app = express();
@@ -55,9 +59,9 @@ app.post('/api/ypec/lead-upload', leadUpload);
 app.post('/api/ypec/email-router', emailRouter);
 
 // Initialize cron jobs
-const cronConfig = require('./ypec/cron-config');
+const cronJobs = require('./ypec/cron-config');
 console.log('🕐 Starting cron jobs...');
-cronConfig.initializeCronJobs();
+console.log(`📅 ${Object.keys(cronJobs).length} cron jobs initialized`);
 
 // 404 handler - serve 404.html for missing routes
 app.use((req, res) => {
