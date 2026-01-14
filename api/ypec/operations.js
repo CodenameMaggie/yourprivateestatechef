@@ -15,7 +15,7 @@ const BOT_INFO = {
   company: 'Your Private Estate Chef',
   company_number: 7,
   purpose: 'Engagement management, scheduling, logistics, event coordination',
-  actions: ['status', 'engagements', 'schedule', 'upcoming', 'overdue', 'upcoming_events', 'daily_summary', 'run', 'admin_login', 'client_login', 'client_dashboard']
+  actions: ['status', 'engagements', 'schedule', 'upcoming', 'overdue', 'upcoming_events', 'daily_summary', 'run', 'admin_login', 'client_login', 'client_dashboard', 'chef_login', 'chef_dashboard', 'chef_application', 'chef_update_availability']
 };
 
 module.exports = async (req, res) => {
@@ -55,6 +55,18 @@ module.exports = async (req, res) => {
 
       case 'client_dashboard':
         return await clientDashboard(req, res, data);
+
+      case 'chef_login':
+        return await chefLogin(req, res, data);
+
+      case 'chef_dashboard':
+        return await chefDashboard(req, res, data);
+
+      case 'chef_application':
+        return await chefApplication(req, res, data);
+
+      case 'chef_update_availability':
+        return await chefUpdateAvailability(req, res, data);
 
       default:
         return res.status(400).json({
@@ -584,6 +596,327 @@ async function clientDashboard(req, res, data) {
     return res.status(500).json({
       success: false,
       error: 'Failed to load dashboard data'
+    });
+  }
+}
+
+// ============================================================================
+// CHEF PORTAL AUTHENTICATION
+// ============================================================================
+
+async function chefLogin(req, res, data) {
+  try {
+    const { email, password } = data;
+
+    console.log(`[${BOT_INFO.name}] Chef login attempt for: ${email}`);
+
+    // Find chef with matching email and login enabled
+    const { data: chef, error } = await getSupabase()
+      .from('ypec_chefs')
+      .select('*')
+      .eq('email', email)
+      .eq('login_enabled', true)
+      .eq('status', 'active')
+      .single();
+
+    if (error || !chef) {
+      console.warn(`[${BOT_INFO.name}] Chef login failed - chef not found or login disabled:`, error?.message);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    // TODO: Implement proper password hashing with bcrypt
+    // For now, using simple comparison (REPLACE THIS IN PRODUCTION)
+    if (chef.password_hash !== password) {
+      console.warn(`[${BOT_INFO.name}] Chef login failed - invalid password`);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    // Generate session token
+    const sessionToken = `ypec_chef_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+
+    // Store session in database
+    const { error: sessionError } = await getSupabase()
+      .from('ypec_chef_sessions')
+      .insert({
+        chef_id: chef.id,
+        session_token: sessionToken,
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+        ip_address: (req.ip || req.connection?.remoteAddress || 'unknown'),
+        user_agent: (req.headers?.['user-agent'] || 'unknown'),
+        created_at: new Date().toISOString()
+      });
+
+    if (sessionError) {
+      console.error(`[${BOT_INFO.name}] Chef session creation failed:`, sessionError);
+      throw sessionError;
+    }
+
+    // Update last login timestamp
+    const { error: updateError } = await getSupabase()
+      .from('ypec_chefs')
+      .update({ last_login: new Date().toISOString() })
+      .eq('id', chef.id);
+
+    if (updateError) {
+      console.warn(`[${BOT_INFO.name}] Last login update failed:`, updateError.message);
+      // Don't fail the login if we can't update last_login
+    }
+
+    console.log(`[${BOT_INFO.name}] Chef login successful: ${chef.full_name}`);
+
+    return res.json({
+      success: true,
+      session_token: sessionToken,
+      chef_id: chef.id,
+      chef_name: chef.full_name,
+      message: 'Login successful'
+    });
+  } catch (error) {
+    console.error(`[${BOT_INFO.name}] Chef login error:`, error);
+    return res.status(500).json({
+      success: false,
+      message: 'Login failed',
+      error: error.message
+    });
+  }
+}
+
+async function chefDashboard(req, res, data) {
+  const { chef_id } = data;
+
+  console.log(`[${BOT_INFO.name}] Loading dashboard for chef: ${chef_id}`);
+
+  try {
+    // Get chef info
+    const { data: chef } = await getSupabase()
+      .from('ypec_chefs')
+      .select('*')
+      .eq('id', chef_id)
+      .single();
+
+    // Get assigned households
+    const { data: householdEngagements } = await getSupabase()
+      .from('ypec_engagements')
+      .select(`
+        household:ypec_households(id, household_name, primary_contact_name, city, state)
+      `)
+      .eq('chef_id', chef_id)
+      .eq('status', 'active');
+
+    // Extract unique households
+    const households = [];
+    const householdIds = new Set();
+    if (householdEngagements) {
+      householdEngagements.forEach(eng => {
+        if (eng.household && !householdIds.has(eng.household.id)) {
+          householdIds.add(eng.household.id);
+          households.push({
+            id: eng.household.id,
+            name: eng.household.household_name || eng.household.primary_contact_name,
+            location: eng.household.city && eng.household.state ? `${eng.household.city}, ${eng.household.state}` : null,
+            frequency: 'Weekly' // TODO: Get actual frequency from engagement
+          });
+        }
+      });
+    }
+
+    // Get upcoming engagements
+    const { data: engagements } = await getSupabase()
+      .from('ypec_engagements')
+      .select(`
+        *,
+        household:ypec_households(household_name, primary_contact_name)
+      `)
+      .eq('chef_id', chef_id)
+      .gte('service_date', new Date().toISOString().split('T')[0])
+      .order('service_date', { ascending: true })
+      .limit(5);
+
+    // Format engagements
+    const formattedEngagements = engagements ? engagements.map(eng => ({
+      date: eng.service_date,
+      household_name: eng.household?.household_name || eng.household?.primary_contact_name || 'Unknown',
+      service_type: eng.service_type,
+      time: '6:00 PM' // TODO: Add time field to engagements
+    })) : [];
+
+    // Get earnings (from completed engagements)
+    const { data: completedEngagements } = await getSupabase()
+      .from('ypec_engagements')
+      .select('*')
+      .eq('chef_id', chef_id)
+      .eq('status', 'completed')
+      .order('service_date', { ascending: false })
+      .limit(10);
+
+    const earnings = completedEngagements ? completedEngagements.map(eng => ({
+      service_name: eng.service_name || 'Private Chef Service',
+      date: eng.service_date,
+      amount: eng.amount || 0
+    })) : [];
+
+    // Calculate stats
+    const monthlyEarnings = completedEngagements
+      ? completedEngagements
+          .filter(eng => {
+            const engDate = new Date(eng.service_date);
+            const now = new Date();
+            return engDate.getMonth() === now.getMonth() && engDate.getFullYear() === now.getFullYear();
+          })
+          .reduce((sum, eng) => sum + (parseFloat(eng.amount) || 0), 0)
+      : 0;
+
+    const weeklyServices = engagements
+      ? engagements.filter(eng => {
+          const engDate = new Date(eng.service_date);
+          const weekFromNow = new Date();
+          weekFromNow.setDate(weekFromNow.getDate() + 7);
+          return engDate <= weekFromNow;
+        }).length
+      : 0;
+
+    return res.json({
+      success: true,
+      data: {
+        stats: {
+          households: households.length,
+          weeklyServices: weeklyServices,
+          monthlyEarnings: monthlyEarnings.toFixed(2),
+          rating: chef?.rating || 5.0
+        },
+        households: households,
+        engagements: formattedEngagements,
+        earnings: earnings
+      }
+    });
+
+  } catch (error) {
+    console.error(`[${BOT_INFO.name}] Error loading chef dashboard:`, error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to load dashboard data'
+    });
+  }
+}
+
+async function chefApplication(req, res, data) {
+  try {
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      location,
+      yearsExperience,
+      specialties,
+      culinaryEducation,
+      previousPositions,
+      bio,
+      backgroundConsent,
+      termsConsent,
+      files
+    } = data;
+
+    console.log(`[${BOT_INFO.name}] Processing chef application for: ${email}`);
+
+    // Check if chef already exists
+    const { data: existing } = await getSupabase()
+      .from('ypec_chefs')
+      .select('id')
+      .eq('email', email)
+      .single();
+
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message: 'An application with this email already exists'
+      });
+    }
+
+    // Create chef record
+    const { data: newChef, error: insertError } = await getSupabase()
+      .from('ypec_chefs')
+      .insert({
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        phone: phone,
+        region: location,
+        years_experience: parseInt(yearsExperience),
+        specialties: specialties,
+        certifications: [culinaryEducation],
+        bio: bio,
+        previous_positions: previousPositions,
+        status: 'pending', // Application needs to be reviewed
+        login_enabled: false, // Enable after approval
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error(`[${BOT_INFO.name}] Chef application insert error:`, insertError);
+      throw insertError;
+    }
+
+    // TODO: Store uploaded files in cloud storage (S3, etc.)
+    // TODO: Send notification to admin about new application
+    // TODO: Send confirmation email to chef
+
+    console.log(`[${BOT_INFO.name}] Chef application created: ${newChef.id}`);
+
+    return res.json({
+      success: true,
+      message: 'Application submitted successfully',
+      chef_id: newChef.id
+    });
+
+  } catch (error) {
+    console.error(`[${BOT_INFO.name}] Chef application error:`, error);
+    return res.status(500).json({
+      success: false,
+      message: 'Application submission failed',
+      error: error.message
+    });
+  }
+}
+
+async function chefUpdateAvailability(req, res, data) {
+  try {
+    const { chef_id, available } = data;
+
+    console.log(`[${BOT_INFO.name}] Updating availability for chef ${chef_id}: ${available}`);
+
+    const { error } = await getSupabase()
+      .from('ypec_chefs')
+      .update({
+        available: available,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', chef_id);
+
+    if (error) {
+      console.error(`[${BOT_INFO.name}] Availability update error:`, error);
+      throw error;
+    }
+
+    return res.json({
+      success: true,
+      message: 'Availability updated successfully'
+    });
+
+  } catch (error) {
+    console.error(`[${BOT_INFO.name}] Availability update error:`, error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update availability',
+      error: error.message
     });
   }
 }
