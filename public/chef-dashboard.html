@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chef Dashboard - Your Private Estate Chef</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Italiana&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --plum-deep: #2d1f2b;
+            --plum: #3d2a3a;
+            --plum-light: #4d3a4a;
+            --plum-soft: #5d4a5a;
+            --blush: #c9a8a0;
+            --blush-light: #d9bbb4;
+            --blush-soft: #e8d0ca;
+            --blush-pale: #f5e8e5;
+            --candlelight: #d4a855;
+            --candlelight-soft: #e0be7a;
+            --candlelight-glow: #ebd09a;
+            --cream: #fffdf9;
+            --ivory: #faf7f2;
+            --warm-white: #f5f0ea;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant', Georgia, serif;
+            background-color: var(--cream);
+            color: var(--plum-deep);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--plum-deep) 0%, var(--plum) 100%);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(45, 31, 43, 0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .monogram {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--candlelight);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Italiana', serif;
+            font-size: 0.9rem;
+            color: var(--candlelight);
+            letter-spacing: 0.1em;
+        }
+
+        .header h1 {
+            font-family: 'Italiana', serif;
+            font-size: 1.5em;
+            color: var(--cream);
+            font-weight: 400;
+            letter-spacing: 0.04em;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .welcome-text {
+            color: var(--blush-soft);
+            font-size: 0.95em;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--candlelight);
+            color: var(--candlelight);
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: var(--candlelight);
+            color: var(--plum-deep);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--blush);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(45, 31, 43, 0.08);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--blush-soft);
+        }
+
+        .card-title {
+            font-family: 'Italiana', serif;
+            font-size: 1.4em;
+            color: var(--plum-deep);
+            font-weight: 400;
+        }
+
+        .card-badge {
+            background: var(--candlelight);
+            color: var(--plum-deep);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 16px;
+            background: var(--ivory);
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-family: 'Italiana', serif;
+            font-size: 2em;
+            color: var(--candlelight);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--plum-soft);
+        }
+
+        .engagement-item {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--blush-pale);
+        }
+
+        .engagement-item:last-child {
+            border-bottom: none;
+        }
+
+        .engagement-date {
+            font-size: 1.1em;
+            color: var(--candlelight);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .engagement-details {
+            color: var(--plum-soft);
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .household-card {
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            background: var(--ivory);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .household-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--blush);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            color: var(--plum-deep);
+            font-weight: 600;
+        }
+
+        .household-info h3 {
+            font-size: 1.1em;
+            color: var(--plum-deep);
+            margin-bottom: 4px;
+        }
+
+        .household-info p {
+            font-size: 0.9em;
+            color: var(--plum-soft);
+        }
+
+        .earnings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--blush-pale);
+        }
+
+        .earnings-item:last-child {
+            border-bottom: none;
+        }
+
+        .earnings-info {
+            flex: 1;
+        }
+
+        .earnings-service {
+            font-size: 0.95em;
+            color: var(--plum-deep);
+            font-weight: 600;
+        }
+
+        .earnings-date {
+            font-size: 0.85em;
+            color: var(--plum-soft);
+        }
+
+        .earnings-amount {
+            font-size: 1.1em;
+            color: var(--candlelight);
+            font-weight: 600;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .action-btn {
+            padding: 16px;
+            background: var(--ivory);
+            border: 1px solid var(--blush);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--plum-deep);
+            display: block;
+        }
+
+        .action-btn:hover {
+            border-color: var(--candlelight);
+            background: var(--warm-white);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 168, 85, 0.2);
+        }
+
+        .action-btn-icon {
+            font-size: 1.5em;
+            margin-bottom: 8px;
+        }
+
+        .action-btn-text {
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--plum-soft);
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        .availability-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: var(--ivory);
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .availability-label {
+            font-size: 1em;
+            color: var(--plum-deep);
+            font-weight: 600;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: #ccc;
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: var(--candlelight);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .header-left,
+            .header-right {
+                flex-direction: column;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="monogram">
+                <span>YPEC</span>
+            </div>
+            <h1>Chef Dashboard</h1>
+        </div>
+        <div class="header-right">
+            <span class="welcome-text" id="welcomeText">Welcome, Chef</span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Stats Overview -->
+        <div class="card" style="margin-bottom: 30px;">
+            <div class="card-header">
+                <h2 class="card-title">Overview</h2>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="householdCount">0</div>
+                    <div class="stat-label">Active Households</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="weeklyServices">0</div>
+                    <div class="stat-label">This Week</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="monthlyEarnings">$0</div>
+                    <div class="stat-label">Month Earnings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="rating">5.0</div>
+                    <div class="stat-label">Rating</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card" style="margin-bottom: 30px;">
+            <div class="card-header">
+                <h2 class="card-title">Quick Actions</h2>
+            </div>
+
+            <div class="availability-toggle" onclick="toggleAvailability()">
+                <span class="availability-label">Available for New Bookings</span>
+                <div class="toggle-switch active" id="availabilityToggle">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <a href="#" class="action-btn" onclick="alert('Calendar feature coming soon!'); return false;">
+                    <div class="action-btn-icon">📅</div>
+                    <div class="action-btn-text">View Calendar</div>
+                </a>
+                <a href="#" class="action-btn" onclick="alert('Earnings report coming soon!'); return false;">
+                    <div class="action-btn-icon">💰</div>
+                    <div class="action-btn-text">Earnings Report</div>
+                </a>
+                <a href="#" class="action-btn" onclick="alert('Profile settings coming soon!'); return false;">
+                    <div class="action-btn-icon">👤</div>
+                    <div class="action-btn-text">Edit Profile</div>
+                </a>
+                <a href="#" class="action-btn" onclick="alert('Contact support via ANNIE chat widget'); return false;">
+                    <div class="action-btn-icon">💬</div>
+                    <div class="action-btn-text">Support</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Assigned Households -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Your Households</h2>
+                    <span class="card-badge" id="householdBadge">0</span>
+                </div>
+                <div id="householdsList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏡</div>
+                        <p>No households assigned yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Engagements -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Upcoming Services</h2>
+                    <span class="card-badge" id="engagementCount">0</span>
+                </div>
+                <div id="engagementsList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📅</div>
+                        <p>No upcoming services scheduled</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Earnings -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Recent Earnings</h2>
+                </div>
+                <div id="earningsList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💵</div>
+                        <p>No earnings recorded yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ANNIE Chat Widget -->
+    <script src="/js/annie-chat-widget.js"></script>
+
+    <script>
+        // Check authentication
+        const chefSession = sessionStorage.getItem('ypec_chef_session');
+        const chefId = sessionStorage.getItem('ypec_chef_id');
+        const chefName = sessionStorage.getItem('ypec_chef_name');
+
+        if (!chefSession || !chefId) {
+            window.location.href = '/chef-login.html';
+        }
+
+        // Update welcome text
+        if (chefName) {
+            document.getElementById('welcomeText').textContent = `Welcome, Chef ${chefName}`;
+        }
+
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('ypec_chef_session');
+            sessionStorage.removeItem('ypec_chef_id');
+            sessionStorage.removeItem('ypec_chef_name');
+            window.location.href = '/chef-login.html';
+        }
+
+        // Toggle availability
+        function toggleAvailability() {
+            const toggle = document.getElementById('availabilityToggle');
+            toggle.classList.toggle('active');
+
+            const isAvailable = toggle.classList.contains('active');
+
+            // TODO: Send availability update to API
+            fetch('/api/ypec/operations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'chef_update_availability',
+                    data: {
+                        chef_id: chefId,
+                        session_token: chefSession,
+                        available: isAvailable
+                    }
+                })
+            }).then(response => response.json())
+              .then(result => {
+                  if (result.success) {
+                      console.log('Availability updated');
+                  }
+              })
+              .catch(error => {
+                  console.error('Error updating availability:', error);
+                  // Revert toggle on error
+                  toggle.classList.toggle('active');
+              });
+        }
+
+        // Load chef dashboard data
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/api/ypec/operations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'chef_dashboard',
+                        data: {
+                            chef_id: chefId,
+                            session_token: chefSession
+                        }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    populateDashboard(result.data);
+                } else {
+                    console.error('Failed to load dashboard:', result.message);
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        function populateDashboard(data) {
+            // Update stats
+            if (data.stats) {
+                document.getElementById('householdCount').textContent = data.stats.households || 0;
+                document.getElementById('weeklyServices').textContent = data.stats.weeklyServices || 0;
+                document.getElementById('monthlyEarnings').textContent = `$${data.stats.monthlyEarnings || 0}`;
+                document.getElementById('rating').textContent = data.stats.rating || '5.0';
+            }
+
+            // Populate households
+            if (data.households && data.households.length > 0) {
+                document.getElementById('householdBadge').textContent = data.households.length;
+                const householdsList = document.getElementById('householdsList');
+                householdsList.innerHTML = data.households.map(household => `
+                    <div class="household-card">
+                        <div class="household-avatar">${household.name.charAt(0)}</div>
+                        <div class="household-info">
+                            <h3>${household.name}</h3>
+                            <p>${household.location || 'Location not specified'}</p>
+                            <p style="font-size: 0.85em; color: var(--candlelight);">
+                                ${household.frequency || 'As needed'}
+                            </p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Populate engagements
+            if (data.engagements && data.engagements.length > 0) {
+                document.getElementById('engagementCount').textContent = data.engagements.length;
+                const engagementsList = document.getElementById('engagementsList');
+                engagementsList.innerHTML = data.engagements.map(engagement => `
+                    <div class="engagement-item">
+                        <div class="engagement-date">${formatDate(engagement.date)}</div>
+                        <div class="engagement-details">
+                            <strong>${engagement.household_name}</strong><br>
+                            ${engagement.service_type || 'Private Chef Service'}<br>
+                            ${engagement.time || 'Time TBD'}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Populate earnings
+            if (data.earnings && data.earnings.length > 0) {
+                const earningsList = document.getElementById('earningsList');
+                earningsList.innerHTML = data.earnings.map(earning => `
+                    <div class="earnings-item">
+                        <div class="earnings-info">
+                            <div class="earnings-service">${earning.service_name || 'Service'}</div>
+                            <div class="earnings-date">${formatDate(earning.date)}</div>
+                        </div>
+                        <div class="earnings-amount">$${earning.amount}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        // Load data on page load
+        loadDashboardData();
+    </script>
+</body>
+</html>
