@@ -429,7 +429,7 @@ async function clientLogin(req, res, data) {
   const { data: household, error } = await getSupabase()
     .from('ypec_households')
     .select('*')
-    .eq('primary_email', email)
+    .eq('email', email)
     .eq('login_enabled', true)
     .eq('status', 'active')
     .single();

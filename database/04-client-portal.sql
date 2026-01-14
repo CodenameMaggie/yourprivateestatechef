@@ -85,9 +85,10 @@ CREATE INDEX IF NOT EXISTS idx_household_documents_household_id ON ypec_househol
 CREATE INDEX IF NOT EXISTS idx_household_documents_type ON ypec_household_documents(document_type);
 CREATE INDEX IF NOT EXISTS idx_household_documents_date ON ypec_household_documents(document_date);
 
--- Add password field to existing ypec_households table
+-- Add password and household name fields to existing ypec_households table
 -- This allows clients to login to their portal
 ALTER TABLE ypec_households
+ADD COLUMN IF NOT EXISTS household_name VARCHAR(255),
 ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255),
 ADD COLUMN IF NOT EXISTS password_reset_token VARCHAR(255),
 ADD COLUMN IF NOT EXISTS password_reset_expires TIMESTAMPTZ,
@@ -136,12 +137,9 @@ CREATE TRIGGER update_household_documents_updated_at
 INSERT INTO ypec_households (
     household_name,
     primary_contact_name,
-    primary_email,
-    primary_phone,
-    address,
-    city,
-    state,
-    zip_code,
+    email,
+    phone,
+    primary_address,
     password_hash,
     login_enabled,
     status
@@ -151,15 +149,12 @@ VALUES (
     'Test Client',
     'test@example.com',
     '555-0100',
-    '123 Test Street',
-    'Austin',
-    'TX',
-    '78701',
+    '123 Test Street, Austin, TX 78701',
     'TestClient123!',  -- TEMPORARY: Replace with bcrypt hash in production
     TRUE,
     'active'
 )
-ON CONFLICT (primary_email) DO NOTHING;
+ON CONFLICT (email) DO NOTHING;
 
 -- ============================================================================
 -- NOTES:
