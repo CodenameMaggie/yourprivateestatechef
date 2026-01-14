@@ -77,7 +77,8 @@ app.use((err, req, res, next) => {
   console.error('Server error:', err);
   res.status(500).json({
     error: 'Internal server error',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    message: err.message, // Show error message for debugging
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
   });
 });
 
