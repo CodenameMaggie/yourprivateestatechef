@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chef Application - Your Private Estate Chef</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Italiana&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --plum-deep: #2d1f2b;
+            --plum: #3d2a3a;
+            --plum-soft: #5d4a5a;
+            --blush: #c9a8a0;
+            --blush-soft: #e8d0ca;
+            --blush-pale: #f5e8e5;
+            --candlelight: #d4a855;
+            --candlelight-soft: #e0be7a;
+            --cream: #fffdf9;
+            --ivory: #faf7f2;
+            --warm-white: #f5f0ea;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant', Georgia, serif;
+            background-color: var(--cream);
+            color: var(--plum-deep);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--plum-deep) 0%, var(--plum) 100%);
+            color: var(--cream);
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .monogram {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border: 1px solid var(--candlelight);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Italiana', serif;
+            font-size: 1.2rem;
+            color: var(--candlelight);
+            letter-spacing: 0.1em;
+        }
+
+        h1 {
+            font-family: 'Italiana', serif;
+            font-size: 2.5em;
+            font-weight: 400;
+            margin-bottom: 10px;
+            letter-spacing: 0.05em;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: var(--blush-soft);
+            font-style: italic;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--blush-soft);
+            z-index: 0;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--warm-white);
+            border: 2px solid var(--blush-soft);
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--plum-soft);
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active .progress-circle {
+            background: var(--candlelight);
+            border-color: var(--candlelight);
+            color: var(--plum-deep);
+        }
+
+        .progress-step.completed .progress-circle {
+            background: var(--plum-deep);
+            border-color: var(--plum-deep);
+            color: var(--cream);
+        }
+
+        .progress-label {
+            font-size: 0.9em;
+            color: var(--plum-soft);
+        }
+
+        .progress-step.active .progress-label {
+            color: var(--plum-deep);
+            font-weight: 600;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--blush);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(45, 31, 43, 0.08);
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .step-title {
+            font-family: 'Italiana', serif;
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: var(--plum-deep);
+        }
+
+        .step-description {
+            font-size: 1.1em;
+            color: var(--plum-soft);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--plum-deep);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--blush);
+            border-radius: 8px;
+            font-family: 'Cormorant', Georgia, serif;
+            font-size: 1em;
+            background: var(--cream);
+            color: var(--plum-deep);
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--candlelight);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .file-upload-group {
+            margin-bottom: 20px;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 20px;
+            border: 2px dashed var(--blush);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--warm-white);
+        }
+
+        .file-upload-label:hover {
+            border-color: var(--candlelight);
+            background: var(--ivory);
+        }
+
+        .file-upload-label.required::after {
+            content: ' *';
+            color: var(--candlelight);
+        }
+
+        .file-name {
+            font-size: 0.9em;
+            color: var(--plum-soft);
+            margin-top: 5px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-top: 4px;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: 400;
+        }
+
+        .specialty-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .specialty-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .specialty-checkbox input[type="checkbox"] {
+            width: auto;
+        }
+
+        .specialty-checkbox label {
+            margin-bottom: 0;
+            font-weight: 400;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Cormorant', Georgia, serif;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--candlelight) 0%, #c9a237 100%);
+            color: var(--plum-deep);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 168, 85, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--warm-white);
+            color: var(--plum-deep);
+            border: 1px solid var(--blush);
+        }
+
+        .btn-secondary:hover {
+            background: var(--ivory);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #c94040;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .success-container {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .success-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            font-family: 'Italiana', serif;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: var(--plum-deep);
+        }
+
+        .success-message {
+            font-size: 1.2em;
+            color: var(--plum-soft);
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--candlelight);
+            text-decoration: none;
+            font-size: 1.1em;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .step-title {
+                font-size: 1.5em;
+            }
+
+            .form-container {
+                padding: 30px 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .specialty-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="monogram">YPEC</div>
+        <h1>Chef Application</h1>
+        <p class="subtitle">Join our network of elite private estate chefs</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-step active" data-step="1">
+                <div class="progress-circle">1</div>
+                <div class="progress-label">Personal Info</div>
+            </div>
+            <div class="progress-step" data-step="2">
+                <div class="progress-circle">2</div>
+                <div class="progress-label">Experience</div>
+            </div>
+            <div class="progress-step" data-step="3">
+                <div class="progress-circle">3</div>
+                <div class="progress-label">Documents</div>
+            </div>
+            <div class="progress-step" data-step="4">
+                <div class="progress-circle">4</div>
+                <div class="progress-label">Review</div>
+            </div>
+        </div>
+
+        <!-- Form Container -->
+        <div class="form-container">
+            <form id="chefApplicationForm">
+                <!-- Step 1: Personal Information -->
+                <div class="step active" data-step="1">
+                    <h2 class="step-title">Personal Information</h2>
+                    <p class="step-description">Tell us about yourself</p>
+
+                    <div class="form-group">
+                        <label for="first_name">First Name *</label>
+                        <input type="text" id="first_name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last_name">Last Name *</label>
+                        <input type="text" id="last_name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" required placeholder="(555) 555-5555">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">Current Location *</label>
+                        <select id="location" required>
+                            <option value="">Select your location...</option>
+                            <optgroup label="Texas, USA">
+                                <option value="Austin, TX">Austin, TX</option>
+                                <option value="Dallas, TX">Dallas, TX</option>
+                                <option value="Houston, TX">Houston, TX</option>
+                                <option value="San Antonio, TX">San Antonio, TX</option>
+                            </optgroup>
+                            <optgroup label="British Columbia, Canada">
+                                <option value="Vancouver, BC">Vancouver, BC</option>
+                                <option value="Kelowna, BC">Kelowna, BC</option>
+                            </optgroup>
+                            <optgroup label="Other">
+                                <option value="other">Other Location</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="customLocationGroup" style="display: none;">
+                        <label for="custom_location">Please specify your location *</label>
+                        <input type="text" id="custom_location" placeholder="City, State/Province, Country">
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Professional Experience -->
+                <div class="step" data-step="2">
+                    <h2 class="step-title">Professional Experience</h2>
+                    <p class="step-description">Share your culinary background</p>
+
+                    <div class="form-group">
+                        <label for="years_experience">Years of Professional Experience *</label>
+                        <input type="number" id="years_experience" min="0" max="50" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Culinary Specialties * (Select all that apply)</label>
+                        <div class="specialty-grid">
+                            <div class="specialty-checkbox">
+                                <input type="checkbox" id="specialty_french" value="French Cuisine">
+                                <label for="specialty_french">French Cuisine</label>
+                            </div>
+                            <div class="specialty-checkbox">
+                                <input type="checkbox" id="specialty_italian" value="Italian Cuisine">
+                                <label for="specialty_italian">Italian Cuisine</label>
+                            </div>
+                            <div class="specialty-checkbox">
+                                <input type="checkbox" id="specialty_asian" value="Asian Cuisine">
+                                <label for="specialty_asian">Asian Cuisine</label>
+                            </div>
+                            <div class="specialty-checkbox">
+                                <input type="checkbox" id="specialty_mediterranean" value="Mediterranean">
+                                <label for="specialty_mediterranean">Mediterranean</label>
+                            </div>
+                            <div class="specialty-checkbox">
+                                <input type="checkbox" id="specialty_vegan" value="Vegan/Vegetarian">
+                                <label for="specialty_vegan">Vegan/Vegetarian</label>
+                            </div>
+                            <div class="specialty-checkbox">
+                                <input type="checkbox" id="specialty_pastry" value="Pastry/Baking">
+                                <label for="specialty_pastry">Pastry/Baking</label>
+                            </div>
+                            <div class="specialty-checkbox">
+                                <input type="checkbox" id="specialty_molecular" value="Molecular Gastronomy">
+                                <label for="specialty_molecular">Molecular Gastronomy</label>
+                            </div>
+                            <div class="specialty-checkbox">
+                                <input type="checkbox" id="specialty_farm" value="Farm-to-Table">
+                                <label for="specialty_farm">Farm-to-Table</label>
+                            </div>
+                        </div>
+                        <span class="error-message" id="specialty_error">Please select at least one specialty</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="culinary_education">Culinary Education *</label>
+                        <select id="culinary_education" required>
+                            <option value="">Select your education level...</option>
+                            <option value="culinary_degree">Culinary Degree/Diploma</option>
+                            <option value="apprenticeship">Professional Apprenticeship</option>
+                            <option value="certification">Culinary Certification</option>
+                            <option value="self_taught">Self-Taught Professional</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="previous_positions">Previous Notable Positions</label>
+                        <textarea id="previous_positions" placeholder="List your previous roles, restaurants, or estates you've worked at..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bio">Professional Bio *</label>
+                        <textarea id="bio" required placeholder="Tell us about your culinary philosophy, approach, and what makes you unique..."></textarea>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Documents & Certifications -->
+                <div class="step" data-step="3">
+                    <h2 class="step-title">Documents & Certifications</h2>
+                    <p class="step-description">Upload your credentials and certifications</p>
+
+                    <div class="file-upload-group">
+                        <label class="file-upload-label required" for="resume">
+                            <div>📄 Upload Resume/CV</div>
+                            <small>PDF or Word document (Max 5MB)</small>
+                        </label>
+                        <input type="file" id="resume" accept=".pdf,.doc,.docx" style="display: none;" required>
+                        <div class="file-name" id="resume_name"></div>
+                    </div>
+
+                    <div class="file-upload-group">
+                        <label class="file-upload-label required" for="food_handlers">
+                            <div>🏥 Food Handler's Certification</div>
+                            <small>Current certification required</small>
+                        </label>
+                        <input type="file" id="food_handlers" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" required>
+                        <div class="file-name" id="food_handlers_name"></div>
+                    </div>
+
+                    <div class="file-upload-group">
+                        <label class="file-upload-label" for="culinary_cert">
+                            <div>🎓 Culinary Degree/Certifications</div>
+                            <small>Optional - Upload any culinary certifications</small>
+                        </label>
+                        <input type="file" id="culinary_cert" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                        <div class="file-name" id="culinary_cert_name"></div>
+                    </div>
+
+                    <div class="file-upload-group">
+                        <label class="file-upload-label" for="photo">
+                            <div>📸 Professional Photo</div>
+                            <small>Optional - Headshot for your profile</small>
+                        </label>
+                        <input type="file" id="photo" accept=".jpg,.jpeg,.png" style="display: none;">
+                        <div class="file-name" id="photo_name"></div>
+                    </div>
+
+                    <div class="file-upload-group">
+                        <label class="file-upload-label" for="portfolio">
+                            <div>🍽️ Portfolio/Food Photos</div>
+                            <small>Optional - Showcase your culinary work</small>
+                        </label>
+                        <input type="file" id="portfolio" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" multiple>
+                        <div class="file-name" id="portfolio_name"></div>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Review & Submit -->
+                <div class="step" data-step="4">
+                    <h2 class="step-title">Review & Submit</h2>
+                    <p class="step-description">Please review your information before submitting</p>
+
+                    <div id="reviewContent"></div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="background_consent" required>
+                            <label for="background_consent">
+                                I consent to a background check as part of the application process. I understand this is required for all chef placements. *
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="terms_consent" required>
+                            <label for="terms_consent">
+                                I certify that all information provided is accurate and complete. I understand that misrepresentation may result in disqualification. *
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
+                        <button type="submit" class="btn btn-primary">Submit Application</button>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <div class="step" data-step="5">
+                    <div class="success-container">
+                        <div class="success-icon">✓</div>
+                        <h2 class="success-title">Application Submitted!</h2>
+                        <p class="success-message">
+                            Thank you for applying to join our culinary team. We've received your application and will review it within 48 hours.
+                            If your qualifications match our needs, HENRY will contact you to schedule an interview.
+                        </p>
+                        <a href="/chef-careers.html" class="back-link">← Back to Careers Page</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ANNIE Chat Widget -->
+    <script src="/js/annie-chat-widget.js"></script>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+        let applicationData = {};
+
+        // Handle custom location field
+        document.getElementById('location').addEventListener('change', function() {
+            const customLocationGroup = document.getElementById('customLocationGroup');
+            const customLocationInput = document.getElementById('custom_location');
+
+            if (this.value === 'other') {
+                customLocationGroup.style.display = 'block';
+                customLocationInput.required = true;
+            } else {
+                customLocationGroup.style.display = 'none';
+                customLocationInput.required = false;
+                customLocationInput.value = '';
+            }
+        });
+
+        // File upload handlers
+        const fileInputs = ['resume', 'food_handlers', 'culinary_cert', 'photo', 'portfolio'];
+        fileInputs.forEach(inputId => {
+            const input = document.getElementById(inputId);
+            const label = document.querySelector(`label[for="${inputId}"]`);
+            const nameDiv = document.getElementById(`${inputId}_name`);
+
+            label.addEventListener('click', () => input.click());
+
+            input.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    if (this.multiple) {
+                        nameDiv.textContent = `${this.files.length} file(s) selected`;
+                    } else {
+                        nameDiv.textContent = `✓ ${this.files[0].name}`;
+                    }
+                    label.style.borderColor = 'var(--candlelight)';
+                }
+            });
+        });
+
+        function nextStep() {
+            if (!validateStep(currentStep)) {
+                return;
+            }
+
+            collectStepData(currentStep);
+
+            // Update progress
+            document.querySelector(`.progress-step[data-step="${currentStep}"]`).classList.add('completed');
+            document.querySelector(`.progress-step[data-step="${currentStep}"]`).classList.remove('active');
+            document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+
+            currentStep++;
+
+            document.querySelector(`.progress-step[data-step="${currentStep}"]`).classList.add('active');
+            document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+
+            // If we're on the review step, populate it
+            if (currentStep === 4) {
+                populateReview();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function prevStep() {
+            document.querySelector(`.progress-step[data-step="${currentStep}"]`).classList.remove('active');
+            document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+
+            currentStep--;
+
+            document.querySelector(`.progress-step[data-step="${currentStep}"]`).classList.remove('completed');
+            document.querySelector(`.progress-step[data-step="${currentStep}"]`).classList.add('active');
+            document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function validateStep(step) {
+            const currentStepEl = document.querySelector(`.step[data-step="${step}"]`);
+            const inputs = currentStepEl.querySelectorAll('input[required], select[required], textarea[required]');
+            let isValid = true;
+
+            inputs.forEach(input => {
+                if (!input.value && input.type !== 'checkbox' && input.type !== 'file') {
+                    isValid = false;
+                    input.style.borderColor = '#c94040';
+                } else if (input.type === 'checkbox' && !input.checked) {
+                    isValid = false;
+                } else if (input.type === 'file' && input.required && input.files.length === 0) {
+                    isValid = false;
+                    const label = document.querySelector(`label[for="${input.id}"]`);
+                    if (label) label.style.borderColor = '#c94040';
+                } else {
+                    input.style.borderColor = 'var(--blush)';
+                }
+            });
+
+            // Special validation for specialties
+            if (step === 2) {
+                const specialties = document.querySelectorAll('input[id^="specialty_"]:checked');
+                if (specialties.length === 0) {
+                    document.getElementById('specialty_error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('specialty_error').style.display = 'none';
+                }
+            }
+
+            if (!isValid) {
+                alert('Please fill in all required fields before continuing.');
+            }
+
+            return isValid;
+        }
+
+        function collectStepData(step) {
+            if (step === 1) {
+                applicationData.firstName = document.getElementById('first_name').value.trim();
+                applicationData.lastName = document.getElementById('last_name').value.trim();
+                applicationData.email = document.getElementById('email').value.trim();
+                applicationData.phone = document.getElementById('phone').value.trim();
+
+                const locationValue = document.getElementById('location').value;
+                if (locationValue === 'other') {
+                    applicationData.location = document.getElementById('custom_location').value.trim();
+                } else {
+                    applicationData.location = locationValue;
+                }
+            } else if (step === 2) {
+                applicationData.yearsExperience = document.getElementById('years_experience').value;
+
+                const specialties = [];
+                document.querySelectorAll('input[id^="specialty_"]:checked').forEach(cb => {
+                    specialties.push(cb.value);
+                });
+                applicationData.specialties = specialties;
+
+                applicationData.culinaryEducation = document.getElementById('culinary_education').value;
+                applicationData.previousPositions = document.getElementById('previous_positions').value.trim();
+                applicationData.bio = document.getElementById('bio').value.trim();
+            } else if (step === 3) {
+                applicationData.resume = document.getElementById('resume').files[0];
+                applicationData.foodHandlers = document.getElementById('food_handlers').files[0];
+                applicationData.culinaryCert = document.getElementById('culinary_cert').files[0];
+                applicationData.photo = document.getElementById('photo').files[0];
+
+                const portfolioFiles = document.getElementById('portfolio').files;
+                applicationData.portfolio = Array.from(portfolioFiles);
+            }
+        }
+
+        function populateReview() {
+            const reviewContent = document.getElementById('reviewContent');
+
+            const educationLabels = {
+                'culinary_degree': 'Culinary Degree/Diploma',
+                'apprenticeship': 'Professional Apprenticeship',
+                'certification': 'Culinary Certification',
+                'self_taught': 'Self-Taught Professional'
+            };
+
+            reviewContent.innerHTML = `
+                <div style="background: var(--warm-white); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                    <h3 style="font-family: 'Italiana', serif; margin-bottom: 15px;">Personal Information</h3>
+                    <p><strong>Name:</strong> ${applicationData.firstName} ${applicationData.lastName}</p>
+                    <p><strong>Email:</strong> ${applicationData.email}</p>
+                    <p><strong>Phone:</strong> ${applicationData.phone}</p>
+                    <p><strong>Location:</strong> ${applicationData.location}</p>
+                </div>
+
+                <div style="background: var(--warm-white); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                    <h3 style="font-family: 'Italiana', serif; margin-bottom: 15px;">Professional Experience</h3>
+                    <p><strong>Years of Experience:</strong> ${applicationData.yearsExperience}</p>
+                    <p><strong>Specialties:</strong> ${applicationData.specialties.join(', ')}</p>
+                    <p><strong>Education:</strong> ${educationLabels[applicationData.culinaryEducation]}</p>
+                    ${applicationData.previousPositions ? `<p><strong>Previous Positions:</strong><br>${applicationData.previousPositions}</p>` : ''}
+                    <p><strong>Bio:</strong><br>${applicationData.bio}</p>
+                </div>
+
+                <div style="background: var(--warm-white); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                    <h3 style="font-family: 'Italiana', serif; margin-bottom: 15px;">Documents Uploaded</h3>
+                    <p>✓ Resume: ${applicationData.resume.name}</p>
+                    <p>✓ Food Handler's Certification: ${applicationData.foodHandlers.name}</p>
+                    ${applicationData.culinaryCert ? `<p>✓ Culinary Certifications: ${applicationData.culinaryCert.name}</p>` : ''}
+                    ${applicationData.photo ? `<p>✓ Professional Photo: ${applicationData.photo.name}</p>` : ''}
+                    ${applicationData.portfolio.length > 0 ? `<p>✓ Portfolio: ${applicationData.portfolio.length} file(s)</p>` : ''}
+                </div>
+            `;
+        }
+
+        document.getElementById('chefApplicationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!document.getElementById('background_consent').checked || !document.getElementById('terms_consent').checked) {
+                alert('Please agree to both consent statements to submit your application.');
+                return;
+            }
+
+            // Prepare form data for submission
+            const formData = new FormData();
+
+            // Add all text fields
+            formData.append('firstName', applicationData.firstName);
+            formData.append('lastName', applicationData.lastName);
+            formData.append('email', applicationData.email);
+            formData.append('phone', applicationData.phone);
+            formData.append('location', applicationData.location);
+            formData.append('yearsExperience', applicationData.yearsExperience);
+            formData.append('specialties', JSON.stringify(applicationData.specialties));
+            formData.append('culinaryEducation', applicationData.culinaryEducation);
+            formData.append('previousPositions', applicationData.previousPositions);
+            formData.append('bio', applicationData.bio);
+            formData.append('backgroundConsent', true);
+            formData.append('termsConsent', true);
+
+            // Add files
+            formData.append('resume', applicationData.resume);
+            formData.append('foodHandlers', applicationData.foodHandlers);
+            if (applicationData.culinaryCert) {
+                formData.append('culinaryCert', applicationData.culinaryCert);
+            }
+            if (applicationData.photo) {
+                formData.append('photo', applicationData.photo);
+            }
+            if (applicationData.portfolio.length > 0) {
+                applicationData.portfolio.forEach((file, index) => {
+                    formData.append(`portfolio_${index}`, file);
+                });
+            }
+
+            try {
+                const response = await fetch('/api/ypec/operations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'chef_application',
+                        data: {
+                            firstName: applicationData.firstName,
+                            lastName: applicationData.lastName,
+                            email: applicationData.email,
+                            phone: applicationData.phone,
+                            location: applicationData.location,
+                            yearsExperience: applicationData.yearsExperience,
+                            specialties: applicationData.specialties,
+                            culinaryEducation: applicationData.culinaryEducation,
+                            previousPositions: applicationData.previousPositions,
+                            bio: applicationData.bio,
+                            backgroundConsent: true,
+                            termsConsent: true,
+                            // Note: File uploads will be handled separately in production
+                            files: {
+                                resume: applicationData.resume.name,
+                                foodHandlers: applicationData.foodHandlers.name,
+                                culinaryCert: applicationData.culinaryCert?.name,
+                                photo: applicationData.photo?.name,
+                                portfolio: applicationData.portfolio.map(f => f.name)
+                            }
+                        }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Show success step
+                    document.querySelector(`.progress-step[data-step="${currentStep}"]`).classList.add('completed');
+                    document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+                    document.querySelector(`.step[data-step="5"]`).classList.add('active');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    alert('There was an error submitting your application. Please try again or contact us directly.');
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                alert('There was an error submitting your application. Please try again or contact us directly at careers@yourprivateestatechef.com');
+            }
+        });
+    </script>
+</body>
+</html>
