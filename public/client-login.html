@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Portal - Your Private Estate Chef</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Italiana&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* On-Brand Colors - Matching Landing Page */
+            --plum-deep: #2d1f2b;
+            --plum: #3d2a3a;
+            --plum-light: #4d3a4a;
+            --plum-soft: #5d4a5a;
+            --blush: #c9a8a0;
+            --blush-light: #d9bbb4;
+            --blush-soft: #e8d0ca;
+            --blush-pale: #f5e8e5;
+            --candlelight: #d4a855;
+            --candlelight-soft: #e0be7a;
+            --candlelight-glow: #ebd09a;
+            --cream: #fffdf9;
+            --ivory: #faf7f2;
+            --warm-white: #f5f0ea;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant', Georgia, serif;
+            background-color: var(--cream);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--plum-deep);
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--blush);
+            border-radius: 16px;
+            padding: 50px 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(45, 31, 43, 0.1);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .monogram {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border: 1px solid var(--candlelight);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Italiana', serif;
+            font-size: 1.2rem;
+            color: var(--candlelight);
+            letter-spacing: 0.1em;
+        }
+
+        .logo h1 {
+            font-family: 'Italiana', serif;
+            font-size: 1.8em;
+            color: var(--plum-deep);
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+
+        .logo p {
+            font-size: 0.95em;
+            color: var(--plum-soft);
+            font-style: italic;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--plum-deep);
+            font-size: 0.95em;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            background: var(--ivory);
+            border: 1px solid var(--blush);
+            border-radius: 8px;
+            color: var(--plum-deep);
+            font-family: 'Cormorant', serif;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--candlelight);
+            background: var(--warm-white);
+            box-shadow: 0 0 0 3px rgba(212, 168, 85, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--candlelight) 0%, #c9a237 100%);
+            border: none;
+            border-radius: 8px;
+            color: var(--plum-deep);
+            font-family: 'Cormorant', serif;
+            font-size: 1.1em;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid var(--blush-soft);
+        }
+
+        .links a {
+            color: var(--plum-soft);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.3s ease;
+        }
+
+        .links a:hover {
+            color: var(--candlelight);
+        }
+
+        .divider {
+            margin: 0 10px;
+            color: var(--blush);
+        }
+
+        .error-message {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #a94442;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        .success-message {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #3c763d;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <div class="monogram">
+                <span>YPEC</span>
+            </div>
+            <h1>Client Portal</h1>
+            <p>Welcome back</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    autocomplete="email"
+                    placeholder="your.email@example.com"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    autocomplete="current-password"
+                    placeholder="Enter your password"
+                >
+            </div>
+
+            <button type="submit" class="btn-login">Access Portal</button>
+        </form>
+
+        <div class="links">
+            <a href="/">← Back to Home</a>
+            <span class="divider">|</span>
+            <a href="/booking.html">New Booking</a>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/ypec/operations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'client_login',
+                        data: {
+                            email: email,
+                            password: password
+                        }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.session_token) {
+                    // Store session token
+                    sessionStorage.setItem('ypec_client_session', result.session_token);
+                    sessionStorage.setItem('ypec_household_id', result.household_id);
+                    sessionStorage.setItem('ypec_household_name', result.household_name);
+
+                    // Show success message
+                    successMessage.textContent = 'Login successful! Redirecting...';
+                    successMessage.style.display = 'block';
+
+                    // Redirect to client dashboard
+                    setTimeout(() => {
+                        window.location.href = '/client-dashboard.html';
+                    }, 1000);
+                } else {
+                    errorMessage.textContent = result.message || 'Invalid email or password. Please try again.';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMessage.textContent = 'An error occurred. Please try again or contact support.';
+                errorMessage.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

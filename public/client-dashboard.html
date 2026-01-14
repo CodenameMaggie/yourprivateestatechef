@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - Your Private Estate Chef</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Italiana&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --plum-deep: #2d1f2b;
+            --plum: #3d2a3a;
+            --plum-light: #4d3a4a;
+            --plum-soft: #5d4a5a;
+            --blush: #c9a8a0;
+            --blush-light: #d9bbb4;
+            --blush-soft: #e8d0ca;
+            --blush-pale: #f5e8e5;
+            --candlelight: #d4a855;
+            --candlelight-soft: #e0be7a;
+            --candlelight-glow: #ebd09a;
+            --cream: #fffdf9;
+            --ivory: #faf7f2;
+            --warm-white: #f5f0ea;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant', Georgia, serif;
+            background-color: var(--cream);
+            color: var(--plum-deep);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--plum-deep) 0%, var(--plum) 100%);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(45, 31, 43, 0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .monogram {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--candlelight);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Italiana', serif;
+            font-size: 0.9rem;
+            color: var(--candlelight);
+            letter-spacing: 0.1em;
+        }
+
+        .header h1 {
+            font-family: 'Italiana', serif;
+            font-size: 1.5em;
+            color: var(--cream);
+            font-weight: 400;
+            letter-spacing: 0.04em;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .welcome-text {
+            color: var(--blush-soft);
+            font-size: 0.95em;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--candlelight);
+            color: var(--candlelight);
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: var(--candlelight);
+            color: var(--plum-deep);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--blush);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(45, 31, 43, 0.08);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--blush-soft);
+        }
+
+        .card-title {
+            font-family: 'Italiana', serif;
+            font-size: 1.4em;
+            color: var(--plum-deep);
+            font-weight: 400;
+        }
+
+        .card-badge {
+            background: var(--candlelight);
+            color: var(--plum-deep);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .engagement-item {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--blush-pale);
+        }
+
+        .engagement-item:last-child {
+            border-bottom: none;
+        }
+
+        .engagement-date {
+            font-size: 1.1em;
+            color: var(--candlelight);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .engagement-details {
+            color: var(--plum-soft);
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .chef-card {
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            background: var(--ivory);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .chef-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--blush);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            color: var(--plum-deep);
+            font-weight: 600;
+        }
+
+        .chef-info h3 {
+            font-size: 1.1em;
+            color: var(--plum-deep);
+            margin-bottom: 4px;
+        }
+
+        .chef-info p {
+            font-size: 0.9em;
+            color: var(--plum-soft);
+        }
+
+        .invoice-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--blush-pale);
+        }
+
+        .invoice-item:last-child {
+            border-bottom: none;
+        }
+
+        .invoice-info {
+            flex: 1;
+        }
+
+        .invoice-number {
+            font-size: 0.95em;
+            color: var(--plum-deep);
+            font-weight: 600;
+        }
+
+        .invoice-date {
+            font-size: 0.85em;
+            color: var(--plum-soft);
+        }
+
+        .invoice-amount {
+            font-size: 1.1em;
+            color: var(--candlelight);
+            font-weight: 600;
+        }
+
+        .invoice-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+
+        .status-paid {
+            background: rgba(40, 167, 69, 0.15);
+            color: #28a745;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.15);
+            color: #d39e00;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .action-btn {
+            padding: 16px;
+            background: var(--ivory);
+            border: 1px solid var(--blush);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--plum-deep);
+            display: block;
+        }
+
+        .action-btn:hover {
+            border-color: var(--candlelight);
+            background: var(--warm-white);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 168, 85, 0.2);
+        }
+
+        .action-btn-icon {
+            font-size: 1.5em;
+            margin-bottom: 8px;
+        }
+
+        .action-btn-text {
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--plum-soft);
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .header-left,
+            .header-right {
+                flex-direction: column;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="monogram">
+                <span>YPEC</span>
+            </div>
+            <h1>My Dashboard</h1>
+        </div>
+        <div class="header-right">
+            <span class="welcome-text" id="welcomeText">Welcome</span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Quick Actions -->
+        <div class="card" style="margin-bottom: 30px;">
+            <div class="card-header">
+                <h2 class="card-title">Quick Actions</h2>
+            </div>
+            <div class="quick-actions">
+                <a href="/booking.html" class="action-btn">
+                    <div class="action-btn-icon">📅</div>
+                    <div class="action-btn-text">Book Service</div>
+                </a>
+                <a href="#" class="action-btn" onclick="alert('Preferences feature coming soon!'); return false;">
+                    <div class="action-btn-icon">⚙️</div>
+                    <div class="action-btn-text">Preferences</div>
+                </a>
+                <a href="#" class="action-btn" onclick="alert('Contact concierge via ANNIE chat widget'); return false;">
+                    <div class="action-btn-icon">💬</div>
+                    <div class="action-btn-text">Message Concierge</div>
+                </a>
+                <a href="#" class="action-btn" onclick="alert('Payment methods coming soon!'); return false;">
+                    <div class="action-btn-icon">💳</div>
+                    <div class="action-btn-text">Payment Methods</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Upcoming Engagements -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Upcoming Services</h2>
+                    <span class="card-badge" id="engagementCount">0</span>
+                </div>
+                <div id="engagementsList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📅</div>
+                        <p>No upcoming services scheduled</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Your Chefs -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Your Chefs</h2>
+                </div>
+                <div id="chefsList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👨‍🍳</div>
+                        <p>No chefs assigned yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Invoices -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Recent Invoices</h2>
+                </div>
+                <div id="invoicesList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📄</div>
+                        <p>No invoices yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ANNIE Chat Widget -->
+    <script src="/js/annie-chat-widget.js"></script>
+
+    <script>
+        // Check authentication
+        const sessionToken = sessionStorage.getItem('ypec_client_session');
+        const householdName = sessionStorage.getItem('ypec_household_name');
+        const householdId = sessionStorage.getItem('ypec_household_id');
+
+        if (!sessionToken || !householdId) {
+            window.location.href = '/client-login.html';
+        }
+
+        // Set welcome text
+        if (householdName) {
+            document.getElementById('welcomeText').textContent = `Welcome, ${householdName}`;
+        }
+
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('ypec_client_session');
+            sessionStorage.removeItem('ypec_household_id');
+            sessionStorage.removeItem('ypec_household_name');
+            window.location.href = '/client-login.html';
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                // Fetch household data from operations bot
+                const response = await fetch('/api/ypec/operations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionToken}`
+                    },
+                    body: JSON.stringify({
+                        action: 'client_dashboard',
+                        data: {
+                            household_id: householdId
+                        }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Update engagements
+                    if (result.engagements && result.engagements.length > 0) {
+                        document.getElementById('engagementCount').textContent = result.engagements.length;
+                        document.getElementById('engagementsList').innerHTML = result.engagements.map(eng => `
+                            <div class="engagement-item">
+                                <div class="engagement-date">${formatDate(eng.service_date)}</div>
+                                <div class="engagement-details">
+                                    ${eng.service_name || 'Chef Service'}<br>
+                                    ${eng.chef_name ? `Chef: ${eng.chef_name}` : 'Chef TBD'}<br>
+                                    ${formatTime(eng.service_time)}
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+
+                    // Update chefs
+                    if (result.chefs && result.chefs.length > 0) {
+                        document.getElementById('chefsList').innerHTML = result.chefs.map(chef => `
+                            <div class="chef-card">
+                                <div class="chef-avatar">${chef.first_name.charAt(0)}</div>
+                                <div class="chef-info">
+                                    <h3>${chef.first_name} ${chef.last_name}</h3>
+                                    <p>${chef.specialties || 'Private Estate Chef'}</p>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+
+                    // Update invoices
+                    if (result.invoices && result.invoices.length > 0) {
+                        document.getElementById('invoicesList').innerHTML = result.invoices.map(inv => `
+                            <div class="invoice-item">
+                                <div class="invoice-info">
+                                    <div class="invoice-number">${inv.invoice_number}</div>
+                                    <div class="invoice-date">${formatDate(inv.invoice_date)}</div>
+                                </div>
+                                <div class="invoice-amount">$${parseFloat(inv.amount).toFixed(2)}</div>
+                                <span class="invoice-status ${inv.paid ? 'status-paid' : 'status-pending'}">
+                                    ${inv.paid ? 'Paid' : 'Pending'}
+                                </span>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Helper functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function formatTime(timeString) {
+            if (!timeString) return '';
+            const time = new Date(`2000-01-01 ${timeString}`);
+            return time.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+        // Load data on page load
+        loadDashboardData();
+
+        // Auto-refresh every 5 minutes
+        setInterval(loadDashboardData, 5 * 60 * 1000);
+    </script>
+</body>
+</html>

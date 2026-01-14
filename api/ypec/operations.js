@@ -15,7 +15,7 @@ const BOT_INFO = {
   company: 'Your Private Estate Chef',
   company_number: 7,
   purpose: 'Engagement management, scheduling, logistics, event coordination',
-  actions: ['status', 'engagements', 'schedule', 'upcoming', 'overdue', 'upcoming_events', 'daily_summary', 'run', 'admin_login']
+  actions: ['status', 'engagements', 'schedule', 'upcoming', 'overdue', 'upcoming_events', 'daily_summary', 'run', 'admin_login', 'client_login', 'client_dashboard']
 };
 
 module.exports = async (req, res) => {
@@ -49,6 +49,12 @@ module.exports = async (req, res) => {
 
       case 'admin_login':
         return await adminLogin(req, res, data);
+
+      case 'client_login':
+        return await clientLogin(req, res, data);
+
+      case 'client_dashboard':
+        return await clientDashboard(req, res, data);
 
       default:
         return res.status(400).json({
@@ -408,6 +414,142 @@ async function adminLogin(req, res, data) {
       role: staff.role
     }
   });
+}
+
+// ============================================================================
+// CLIENT PORTAL AUTHENTICATION
+// ============================================================================
+
+async function clientLogin(req, res, data) {
+  const { email, password } = data;
+
+  console.log(`[${BOT_INFO.name}] Client login attempt for: ${email}`);
+
+  // Find household with matching email and login enabled
+  const { data: household, error } = await getSupabase()
+    .from('ypec_households')
+    .select('*')
+    .eq('primary_email', email)
+    .eq('login_enabled', true)
+    .eq('status', 'active')
+    .single();
+
+  if (error || !household) {
+    console.warn(`[${BOT_INFO.name}] Client login failed - household not found or login disabled`);
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid email or password'
+    });
+  }
+
+  // TODO: Implement proper password hashing with bcrypt
+  // For now, using simple comparison (REPLACE THIS IN PRODUCTION)
+  if (household.password_hash !== password) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid email or password'
+    });
+  }
+
+  // Generate session token
+  const sessionToken = `ypec_client_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+
+  // Store session in database
+  await getSupabase()
+    .from('ypec_household_sessions')
+    .insert({
+      household_id: household.id,
+      session_token: sessionToken,
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+      ip_address: req.ip || req.connection.remoteAddress,
+      user_agent: req.headers['user-agent'],
+      created_at: new Date().toISOString()
+    });
+
+  // Update last login timestamp
+  await getSupabase()
+    .from('ypec_households')
+    .update({ last_login: new Date().toISOString() })
+    .eq('id', household.id);
+
+  console.log(`[${BOT_INFO.name}] Client login successful: ${household.household_name}`);
+
+  return res.json({
+    success: true,
+    session_token: sessionToken,
+    household_id: household.id,
+    household_name: household.household_name,
+    message: 'Login successful'
+  });
+}
+
+async function clientDashboard(req, res, data) {
+  const { household_id } = data;
+
+  console.log(`[${BOT_INFO.name}] Loading dashboard for household: ${household_id}`);
+
+  try {
+    // Get upcoming engagements
+    const { data: engagements } = await getSupabase()
+      .from('ypec_engagements')
+      .select(`
+        *,
+        chef:ypec_chefs(first_name, last_name)
+      `)
+      .eq('household_id', household_id)
+      .gte('service_date', new Date().toISOString().split('T')[0])
+      .order('service_date', { ascending: true })
+      .limit(5);
+
+    // Get assigned chefs (chefs who have served this household)
+    const { data: chefs } = await getSupabase()
+      .from('ypec_engagements')
+      .select(`
+        chef:ypec_chefs(id, first_name, last_name, specialties)
+      `)
+      .eq('household_id', household_id)
+      .not('chef_id', 'is', null);
+
+    // Extract unique chefs
+    const uniqueChefs = [];
+    const chefIds = new Set();
+    if (chefs) {
+      chefs.forEach(eng => {
+        if (eng.chef && !chefIds.has(eng.chef.id)) {
+          chefIds.add(eng.chef.id);
+          uniqueChefs.push(eng.chef);
+        }
+      });
+    }
+
+    // Get recent invoices
+    const { data: invoices } = await getSupabase()
+      .from('ypec_invoices')
+      .select('*')
+      .eq('household_id', household_id)
+      .order('invoice_date', { ascending: false })
+      .limit(5);
+
+    // Format engagements with chef names
+    const formattedEngagements = engagements ? engagements.map(eng => ({
+      ...eng,
+      chef_name: eng.chef ? `${eng.chef.first_name} ${eng.chef.last_name}` : null
+    })) : [];
+
+    return res.json({
+      success: true,
+      engagements: formattedEngagements,
+      chefs: uniqueChefs,
+      invoices: invoices || []
+    });
+
+  } catch (error) {
+    console.error(`[${BOT_INFO.name}] Error loading dashboard:`, error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to load dashboard data'
+    });
+  }
 }
 
 // ============================================================================
