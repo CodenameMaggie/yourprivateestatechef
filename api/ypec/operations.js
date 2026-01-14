@@ -362,58 +362,74 @@ async function dailyRun(req, res) {
 // ============================================================================
 
 async function adminLogin(req, res, data) {
-  const { email, password } = data;
+  try {
+    const { email, password } = data;
 
-  console.log(`[${BOT_INFO.name}] Admin login attempt: ${email}`);
+    console.log(`[${BOT_INFO.name}] Admin login attempt: ${email}`);
 
-  // Check against ypec_staff table (admin users)
-  const { data: staff, error } = await getSupabase()
-    .from('ypec_staff')
-    .select('*')
-    .eq('email', email)
-    .eq('role', 'admin')
-    .single();
+    // Check against ypec_staff table (admin users)
+    const { data: staff, error } = await getSupabase()
+      .from('ypec_staff')
+      .select('*')
+      .eq('email', email)
+      .eq('role', 'admin')
+      .single();
 
-  if (error || !staff) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid credentials'
-    });
-  }
-
-  // TODO: Implement proper password hashing with bcrypt
-  // For now, using simple comparison (REPLACE THIS IN PRODUCTION)
-  if (staff.password_hash !== password) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid credentials'
-    });
-  }
-
-  // Generate session token (simple UUID-like for now)
-  const sessionToken = `ypec_${Date.now()}_${Math.random().toString(36).substring(2)}`;
-
-  // Store session in database
-  await getSupabase()
-    .from('ypec_admin_sessions')
-    .insert({
-      staff_id: staff.id,
-      session_token: sessionToken,
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
-      created_at: new Date().toISOString()
-    });
-
-  console.log(`[${BOT_INFO.name}] Admin login successful: ${staff.full_name}`);
-
-  return res.json({
-    success: true,
-    session_token: sessionToken,
-    user: {
-      name: staff.full_name,
-      email: staff.email,
-      role: staff.role
+    if (error || !staff) {
+      console.warn(`[${BOT_INFO.name}] Admin login failed - staff not found`);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
     }
-  });
+
+    // TODO: Implement proper password hashing with bcrypt
+    // For now, using simple comparison (REPLACE THIS IN PRODUCTION)
+    if (staff.password_hash !== password) {
+      console.warn(`[${BOT_INFO.name}] Admin login failed - invalid password`);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
+
+    // Generate session token (simple UUID-like for now)
+    const sessionToken = `ypec_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+
+    // Store session in database
+    const { error: sessionError } = await getSupabase()
+      .from('ypec_admin_sessions')
+      .insert({
+        staff_id: staff.id,
+        session_token: sessionToken,
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+        created_at: new Date().toISOString()
+      });
+
+    if (sessionError) {
+      console.error(`[${BOT_INFO.name}] Session creation failed:`, sessionError);
+      throw sessionError;
+    }
+
+    console.log(`[${BOT_INFO.name}] Admin login successful: ${staff.full_name}`);
+
+    return res.json({
+      success: true,
+      session_token: sessionToken,
+      user: {
+        name: staff.full_name,
+        email: staff.email,
+        role: staff.role
+      }
+    });
+  } catch (error) {
+    console.error(`[${BOT_INFO.name}] Admin login error:`, error);
+    return res.status(500).json({
+      success: false,
+      message: 'Login failed',
+      error: error.message
+    });
+  }
 }
 
 // ============================================================================
@@ -421,66 +437,86 @@ async function adminLogin(req, res, data) {
 // ============================================================================
 
 async function clientLogin(req, res, data) {
-  const { email, password } = data;
+  try {
+    const { email, password } = data;
 
-  console.log(`[${BOT_INFO.name}] Client login attempt for: ${email}`);
+    console.log(`[${BOT_INFO.name}] Client login attempt for: ${email}`);
 
-  // Find household with matching email and login enabled
-  const { data: household, error } = await getSupabase()
-    .from('ypec_households')
-    .select('*')
-    .eq('email', email)
-    .eq('login_enabled', true)
-    .eq('status', 'active')
-    .single();
+    // Find household with matching email and login enabled
+    const { data: household, error } = await getSupabase()
+      .from('ypec_households')
+      .select('*')
+      .eq('email', email)
+      .eq('login_enabled', true)
+      .eq('status', 'active')
+      .single();
 
-  if (error || !household) {
-    console.warn(`[${BOT_INFO.name}] Client login failed - household not found or login disabled`);
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid email or password'
-    });
-  }
+    if (error || !household) {
+      console.warn(`[${BOT_INFO.name}] Client login failed - household not found or login disabled:`, error?.message);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
 
-  // TODO: Implement proper password hashing with bcrypt
-  // For now, using simple comparison (REPLACE THIS IN PRODUCTION)
-  if (household.password_hash !== password) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid email or password'
-    });
-  }
+    // TODO: Implement proper password hashing with bcrypt
+    // For now, using simple comparison (REPLACE THIS IN PRODUCTION)
+    if (household.password_hash !== password) {
+      console.warn(`[${BOT_INFO.name}] Client login failed - invalid password`);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
 
-  // Generate session token
-  const sessionToken = `ypec_client_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+    // Generate session token
+    const sessionToken = `ypec_client_${Date.now()}_${Math.random().toString(36).substring(2)}`;
 
-  // Store session in database
-  await getSupabase()
-    .from('ypec_household_sessions')
-    .insert({
-      household_id: household.id,
+    // Store session in database
+    const { error: sessionError } = await getSupabase()
+      .from('ypec_household_sessions')
+      .insert({
+        household_id: household.id,
+        session_token: sessionToken,
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+        ip_address: (req.ip || req.connection?.remoteAddress || 'unknown'),
+        user_agent: (req.headers?.['user-agent'] || 'unknown'),
+        created_at: new Date().toISOString()
+      });
+
+    if (sessionError) {
+      console.error(`[${BOT_INFO.name}] Session creation failed:`, sessionError);
+      throw sessionError;
+    }
+
+    // Update last login timestamp
+    const { error: updateError } = await getSupabase()
+      .from('ypec_households')
+      .update({ last_login: new Date().toISOString() })
+      .eq('id', household.id);
+
+    if (updateError) {
+      console.warn(`[${BOT_INFO.name}] Last login update failed:`, updateError.message);
+      // Don't fail the login if we can't update last_login
+    }
+
+    console.log(`[${BOT_INFO.name}] Client login successful: ${household.household_name || household.primary_contact_name}`);
+
+    return res.json({
+      success: true,
       session_token: sessionToken,
-      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
-      ip_address: req.ip || req.connection.remoteAddress,
-      user_agent: req.headers['user-agent'],
-      created_at: new Date().toISOString()
+      household_id: household.id,
+      household_name: household.household_name || household.primary_contact_name,
+      message: 'Login successful'
     });
-
-  // Update last login timestamp
-  await getSupabase()
-    .from('ypec_households')
-    .update({ last_login: new Date().toISOString() })
-    .eq('id', household.id);
-
-  console.log(`[${BOT_INFO.name}] Client login successful: ${household.household_name}`);
-
-  return res.json({
-    success: true,
-    session_token: sessionToken,
-    household_id: household.id,
-    household_name: household.household_name,
-    message: 'Login successful'
-  });
+  } catch (error) {
+    console.error(`[${BOT_INFO.name}] Client login error:`, error);
+    return res.status(500).json({
+      success: false,
+      message: 'Login failed',
+      error: error.message
+    });
+  }
 }
 
 async function clientDashboard(req, res, data) {
