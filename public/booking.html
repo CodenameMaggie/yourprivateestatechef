@@ -536,15 +536,31 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="city">City *</label>
+                    <label for="city">Location *</label>
                     <select id="city" required>
-                        <option value="">Select city...</option>
-                        <option value="Austin">Austin</option>
-                        <option value="Dallas">Dallas</option>
-                        <option value="Houston">Houston</option>
-                        <option value="San Antonio">San Antonio</option>
-                        <option value="other">Other Texas Location</option>
+                        <option value="">Select location...</option>
+                        <optgroup label="Texas, USA">
+                            <option value="Austin, TX">Austin, TX</option>
+                            <option value="Dallas, TX">Dallas, TX</option>
+                            <option value="Houston, TX">Houston, TX</option>
+                            <option value="San Antonio, TX">San Antonio, TX</option>
+                        </optgroup>
+                        <optgroup label="British Columbia, Canada">
+                            <option value="Vancouver, BC">Vancouver, BC</option>
+                            <option value="Kelowna, BC">Kelowna, BC</option>
+                        </optgroup>
+                        <optgroup label="Other Locations">
+                            <option value="request-location">🌍 Request My Location</option>
+                        </optgroup>
                     </select>
+                </div>
+
+                <div class="form-group" id="customLocationGroup" style="display: none;">
+                    <label for="custom_location">Your Location *</label>
+                    <input type="text" id="custom_location" placeholder="Enter your city, state/province, country">
+                    <small style="color: var(--plum-soft); font-size: 0.9em; display: block; margin-top: 5px;">
+                        We'll review your location and contact you to discuss availability
+                    </small>
                 </div>
 
                 <div class="form-group">
@@ -676,6 +692,21 @@
         tomorrow.setDate(tomorrow.getDate() + 1);
         dateInput.min = tomorrow.toISOString().split('T')[0];
 
+        // Handle custom location request
+        document.getElementById('city').addEventListener('change', function() {
+            const customLocationGroup = document.getElementById('customLocationGroup');
+            const customLocationInput = document.getElementById('custom_location');
+
+            if (this.value === 'request-location') {
+                customLocationGroup.style.display = 'block';
+                customLocationInput.required = true;
+            } else {
+                customLocationGroup.style.display = 'none';
+                customLocationInput.required = false;
+                customLocationInput.value = '';
+            }
+        });
+
         // Navigation
         document.getElementById('nextBtn').addEventListener('click', async () => {
             if (currentStep < totalSteps) {
@@ -745,6 +776,16 @@
                     alert('Please fill in all required fields');
                     return false;
                 }
+
+                // If custom location is requested, make sure it's filled in
+                if (city === 'request-location') {
+                    const customLocation = document.getElementById('custom_location').value.trim();
+                    if (!customLocation) {
+                        alert('Please enter your location');
+                        return false;
+                    }
+                }
+
                 return true;
             }
 
@@ -783,7 +824,16 @@
                 bookingData.name = document.getElementById('name').value.trim();
                 bookingData.email = document.getElementById('email').value.trim();
                 bookingData.phone = document.getElementById('phone').value.trim();
-                bookingData.city = document.getElementById('city').value;
+
+                const cityValue = document.getElementById('city').value;
+                if (cityValue === 'request-location') {
+                    bookingData.city = document.getElementById('custom_location').value.trim();
+                    bookingData.locationRequested = true;
+                } else {
+                    bookingData.city = cityValue;
+                    bookingData.locationRequested = false;
+                }
+
                 bookingData.householdSize = document.getElementById('household_size').value;
                 bookingData.cuisinePreferences = document.getElementById('cuisine_preferences').value;
                 bookingData.dietaryRequirements = document.getElementById('dietary_requirements').value;
