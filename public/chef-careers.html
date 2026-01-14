@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Our Culinary Team - Your Private Estate Chef</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Italiana&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --plum-deep: #2d1f2b;
+            --plum: #3d2a3a;
+            --plum-soft: #5d4a5a;
+            --blush: #c9a8a0;
+            --blush-soft: #e8d0ca;
+            --blush-pale: #f5e8e5;
+            --candlelight: #d4a855;
+            --candlelight-soft: #e0be7a;
+            --cream: #fffdf9;
+            --ivory: #faf7f2;
+            --warm-white: #f5f0ea;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant', Georgia, serif;
+            background-color: var(--cream);
+            color: var(--plum-deep);
+            line-height: 1.6;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--plum-deep) 0%, var(--plum) 100%);
+            color: var(--cream);
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .monogram {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border: 1px solid var(--candlelight);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Italiana', serif;
+            font-size: 1.2rem;
+            color: var(--candlelight);
+            letter-spacing: 0.1em;
+        }
+
+        h1 {
+            font-family: 'Italiana', serif;
+            font-size: 3em;
+            font-weight: 400;
+            margin-bottom: 20px;
+            letter-spacing: 0.05em;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3em;
+            font-style: italic;
+            color: var(--blush-soft);
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        .cta-primary {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--candlelight) 0%, #c9a237 100%);
+            color: var(--plum-deep);
+            padding: 16px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cta-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 168, 85, 0.4);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        .section-title {
+            font-family: 'Italiana', serif;
+            font-size: 2.5em;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--plum-deep);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2em;
+            color: var(--plum-soft);
+            max-width: 700px;
+            margin: 0 auto 60px;
+            font-style: italic;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-bottom: 80px;
+        }
+
+        .benefit-card {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--blush);
+            border-radius: 12px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(45, 31, 43, 0.15);
+        }
+
+        .benefit-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .benefit-title {
+            font-family: 'Italiana', serif;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: var(--plum-deep);
+        }
+
+        .benefit-description {
+            font-size: 1.1em;
+            color: var(--plum-soft);
+            line-height: 1.8;
+        }
+
+        .compensation-section {
+            background: linear-gradient(135deg, var(--warm-white) 0%, var(--ivory) 100%);
+            border-radius: 16px;
+            padding: 60px 40px;
+            margin-bottom: 80px;
+            border: 1px solid var(--blush-soft);
+        }
+
+        .comp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .comp-item {
+            text-align: center;
+        }
+
+        .comp-value {
+            font-family: 'Italiana', serif;
+            font-size: 2.5em;
+            color: var(--candlelight);
+            margin-bottom: 10px;
+        }
+
+        .comp-label {
+            font-size: 1.1em;
+            color: var(--plum-deep);
+            font-weight: 600;
+        }
+
+        .comp-details {
+            font-size: 0.95em;
+            color: var(--plum-soft);
+            margin-top: 5px;
+        }
+
+        .requirements-section {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--blush);
+            border-radius: 16px;
+            padding: 60px 40px;
+            margin-bottom: 80px;
+        }
+
+        .requirements-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .requirement-item {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .requirement-check {
+            font-size: 1.5em;
+            color: var(--candlelight);
+            flex-shrink: 0;
+        }
+
+        .requirement-text {
+            font-size: 1.1em;
+            color: var(--plum-deep);
+        }
+
+        .process-section {
+            margin-bottom: 80px;
+        }
+
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .process-step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: var(--candlelight);
+            color: var(--plum-deep);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Italiana', serif;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .step-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--plum-deep);
+            margin-bottom: 10px;
+        }
+
+        .step-description {
+            font-size: 1em;
+            color: var(--plum-soft);
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, var(--plum-deep) 0%, var(--plum) 100%);
+            color: var(--cream);
+            padding: 80px 20px;
+            text-align: center;
+            border-radius: 16px;
+            margin-bottom: 40px;
+        }
+
+        .cta-section h2 {
+            font-family: 'Italiana', serif;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            color: var(--blush-soft);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--plum-soft);
+            font-size: 0.95em;
+        }
+
+        footer a {
+            color: var(--candlelight);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .section-title {
+                font-size: 1.8em;
+            }
+
+            .benefits-grid,
+            .comp-grid,
+            .requirements-list,
+            .process-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="monogram">YPEC</div>
+        <h1>Join Our Culinary Team</h1>
+        <p class="hero-subtitle">
+            Elevate your career with exclusive private estate placements and the support of a premier culinary network
+        </p>
+        <a href="/chef-application.html" class="cta-primary">Apply Now</a>
+    </section>
+
+    <!-- Benefits Section -->
+    <div class="container">
+        <h2 class="section-title">Why Join YPEC</h2>
+        <p class="section-subtitle">
+            We provide everything you need to focus on what you do best: creating extraordinary culinary experiences
+        </p>
+
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon">👨‍🍳</div>
+                <h3 class="benefit-title">Exclusive Clientele</h3>
+                <p class="benefit-description">
+                    Work with discerning clients who appreciate fine cuisine and value culinary excellence
+                </p>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon">💰</div>
+                <h3 class="benefit-title">Premium Compensation</h3>
+                <p class="benefit-description">
+                    Earn competitive rates with guaranteed payment, tips, and performance bonuses
+                </p>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon">📅</div>
+                <h3 class="benefit-title">Flexible Schedule</h3>
+                <p class="benefit-description">
+                    Choose your availability and manage your calendar with our intuitive chef portal
+                </p>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon">🏡</div>
+                <h3 class="benefit-title">Long-Term Placements</h3>
+                <p class="benefit-description">
+                    Build lasting relationships with recurring clients in beautiful estate settings
+                </p>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon">🎓</div>
+                <h3 class="benefit-title">Professional Growth</h3>
+                <p class="benefit-description">
+                    Access continuing education, culinary workshops, and networking opportunities
+                </p>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon">🤝</div>
+                <h3 class="benefit-title">Full Support</h3>
+                <p class="benefit-description">
+                    HENRY (our operations manager) handles logistics, scheduling, and client communication
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compensation Section -->
+    <div class="container">
+        <div class="compensation-section">
+            <h2 class="section-title">Compensation & Benefits</h2>
+            <p class="section-subtitle">
+                Transparent pay structure designed to reward excellence
+            </p>
+
+            <div class="comp-grid">
+                <div class="comp-item">
+                    <div class="comp-value">$75-150</div>
+                    <div class="comp-label">Per Hour</div>
+                    <div class="comp-details">Based on experience & specialties</div>
+                </div>
+
+                <div class="comp-item">
+                    <div class="comp-value">100%</div>
+                    <div class="comp-label">Tips Kept</div>
+                    <div class="comp-details">All gratuities go directly to you</div>
+                </div>
+
+                <div class="comp-item">
+                    <div class="comp-value">Bonus</div>
+                    <div class="comp-label">Performance Pay</div>
+                    <div class="comp-details">Client satisfaction incentives</div>
+                </div>
+
+                <div class="comp-item">
+                    <div class="comp-value">Weekly</div>
+                    <div class="comp-label">Guaranteed Payment</div>
+                    <div class="comp-details">Direct deposit every Friday</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Requirements Section -->
+    <div class="container">
+        <div class="requirements-section">
+            <h2 class="section-title">Who We're Looking For</h2>
+            <p class="section-subtitle">
+                Professional chefs who embody culinary excellence and exceptional service
+            </p>
+
+            <div class="requirements-list">
+                <div class="requirement-item">
+                    <span class="requirement-check">✓</span>
+                    <span class="requirement-text">5+ years professional culinary experience</span>
+                </div>
+
+                <div class="requirement-item">
+                    <span class="requirement-check">✓</span>
+                    <span class="requirement-text">Culinary degree or equivalent certification</span>
+                </div>
+
+                <div class="requirement-item">
+                    <span class="requirement-check">✓</span>
+                    <span class="requirement-text">Clean background check & references</span>
+                </div>
+
+                <div class="requirement-item">
+                    <span class="requirement-check">✓</span>
+                    <span class="requirement-text">Food handler's certification (current)</span>
+                </div>
+
+                <div class="requirement-item">
+                    <span class="requirement-check">✓</span>
+                    <span class="requirement-text">Reliable transportation & valid driver's license</span>
+                </div>
+
+                <div class="requirement-item">
+                    <span class="requirement-check">✓</span>
+                    <span class="requirement-text">Professional kitchen equipment & knife set</span>
+                </div>
+
+                <div class="requirement-item">
+                    <span class="requirement-check">✓</span>
+                    <span class="requirement-text">Excellent communication & interpersonal skills</span>
+                </div>
+
+                <div class="requirement-item">
+                    <span class="requirement-check">✓</span>
+                    <span class="requirement-text">Flexibility for evenings & weekends</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Process -->
+    <div class="container process-section">
+        <h2 class="section-title">Application Process</h2>
+        <p class="section-subtitle">
+            Join our culinary team in four simple steps
+        </p>
+
+        <div class="process-steps">
+            <div class="process-step">
+                <div class="step-number">1</div>
+                <div class="step-title">Apply Online</div>
+                <div class="step-description">Submit your application with credentials and experience</div>
+            </div>
+
+            <div class="process-step">
+                <div class="step-number">2</div>
+                <div class="step-title">Initial Review</div>
+                <div class="step-description">We review your application within 48 hours</div>
+            </div>
+
+            <div class="process-step">
+                <div class="step-number">3</div>
+                <div class="step-title">Interview</div>
+                <div class="step-description">Meet with HENRY to discuss your experience and goals</div>
+            </div>
+
+            <div class="process-step">
+                <div class="step-number">4</div>
+                <div class="step-title">Onboarding</div>
+                <div class="step-description">Background check, paperwork, and chef portal setup</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="container">
+        <div class="cta-section">
+            <h2>Ready to Elevate Your Culinary Career?</h2>
+            <p>Join the premier network of private estate chefs</p>
+            <a href="/chef-application.html" class="cta-primary">Submit Your Application</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            <a href="/">← Back to Home</a> |
+            <a href="/chef-login.html">Chef Login</a> |
+            Questions? Email us at <a href="mailto:careers@yourprivateestatechef.com">careers@yourprivateestatechef.com</a>
+        </p>
+        <p style="margin-top: 20px; opacity: 0.7;">
+            © 2026 Your Private Estate Chef. All rights reserved.
+        </p>
+    </footer>
+
+    <!-- ANNIE Chat Widget -->
+    <script src="/js/annie-chat-widget.js"></script>
+</body>
+</html>
