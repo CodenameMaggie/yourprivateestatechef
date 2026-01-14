@@ -35,25 +35,14 @@ CREATE INDEX IF NOT EXISTS idx_sessions_token ON ypec_admin_sessions(session_tok
 CREATE INDEX IF NOT EXISTS idx_sessions_staff_id ON ypec_admin_sessions(staff_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_expires ON ypec_admin_sessions(expires_at);
 
--- Insert default admin user (CHANGE PASSWORD IN PRODUCTION!)
--- Default password: "ypec2026" (MUST BE CHANGED IMMEDIATELY)
+-- Insert default admin user
 INSERT INTO ypec_staff (full_name, email, password_hash, role, phone)
 VALUES (
-    'Kristi Forbes',
-    'admin@yourprivateestatechef.com',
-    'ypec2026',  -- TEMPORARY: Replace with bcrypt hash in production
+    'Maggie Forbes',
+    'maggie@maggieforbesstrategies.com',
+    'Success@2026!',  -- TEMPORARY: Replace with bcrypt hash in production
     'admin',
     NULL
-)
-ON CONFLICT (email) DO NOTHING;
-
--- Add another admin for Maggie Forbes Strategies oversight
-INSERT INTO ypec_staff (full_name, email, password_hash, role)
-VALUES (
-    'System Admin',
-    'system@maggieforbesstrategies.com',
-    'mfs2026',  -- TEMPORARY: Replace with bcrypt hash in production
-    'admin'
 )
 ON CONFLICT (email) DO NOTHING;
 
@@ -89,9 +78,9 @@ CREATE TRIGGER update_staff_updated_at
 -- NOTES:
 -- ============================================================================
 --
--- 1. DEFAULT ADMIN CREDENTIALS (CHANGE IMMEDIATELY):
---    Email: admin@yourprivateestatechef.com
---    Password: ypec2026
+-- 1. DEFAULT ADMIN CREDENTIALS:
+--    Email: maggie@maggieforbesstrategies.com
+--    Password: Success@2026!
 --
 -- 2. SECURITY TODOS:
 --    - Replace password_hash with bcrypt hashed passwords
