@@ -13,8 +13,8 @@ const { trackReferral, processReferralBonus } = require('./chef-referral');
 
 const BOT_INFO = {
   name: 'YPEC-Operations',
-  reports_to: 'DAN (CMO)',
-  supports: 'HENRY (CEO - Operations) & ANNIE (Customer Service - Events/Bookings)',
+  reports_to: 'Henry (COO)',
+  supports: 'Annie (CSO) for customer service & Atlas (CEO) for operations oversight',
   company: 'Your Private Estate Chef',
   company_number: 7,
   purpose: 'Engagement management, scheduling, logistics, event coordination',

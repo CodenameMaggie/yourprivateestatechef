@@ -10,9 +10,9 @@ const mfsDb = require('./mfs-database');
 
 
 const BOT_INFO = {
-  name: 'DAN (CMO Marketing Bot)',
+  name: 'Dan (CMO Marketing Bot)',
   alias: 'YPEC-Marketing',
-  reports_to: 'Self (DAN is the bot)',
+  reports_to: 'Atlas (CEO)',
   company: 'Your Private Estate Chef',
   company_number: 7,
   purpose: '🤖 FREE LEAD SCRAPING EVERYWHERE - Pinterest, LinkedIn, Google, forums, directories. Also: referral tracking, content, waitlist, growth',

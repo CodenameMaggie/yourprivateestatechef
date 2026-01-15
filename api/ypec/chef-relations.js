@@ -10,8 +10,8 @@ const mfs = require('./mfs-integration');
 
 const BOT_INFO = {
   name: 'YPEC-ChefRelations',
-  reports_to: 'DAN (CMO)',
-  supports: 'HENRY (CEO - Operations & Customer Relationships)',
+  reports_to: 'Henry (COO)',
+  supports: 'Dan (CMO) for recruitment marketing & Annie (CSO) for chef experience',
   company: 'Your Private Estate Chef',
   company_number: 7,
   purpose: 'Chef recruitment, onboarding, availability, matching',
