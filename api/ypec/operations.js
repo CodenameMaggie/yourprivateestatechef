@@ -379,14 +379,19 @@ async function adminLogin(req, res, data) {
   try {
     let { email, password, encoded } = data;
 
+    console.log(`[${BOT_INFO.name}] Admin login attempt: ${email}, encoded: ${encoded}`);
+
     // Decode base64 password if encoded (to bypass Railway JSON parser issues)
     if (encoded) {
+      const originalEncoded = password;
       password = Buffer.from(password, 'base64').toString('utf-8');
+      console.log(`[${BOT_INFO.name}] Decoded password from base64: ${originalEncoded.substring(0, 10)}... -> ${password.length} chars`);
     }
 
     // Validate input
     const { error: validationError } = validate({ email, password }, loginSchema);
     if (validationError) {
+      console.warn(`[${BOT_INFO.name}] Validation failed: ${validationError.details.map(d => d.message).join(', ')}`);
       return res.status(400).json({
         success: false,
         message: 'Invalid input',
@@ -394,7 +399,7 @@ async function adminLogin(req, res, data) {
       });
     }
 
-    console.log(`[${BOT_INFO.name}] Admin login attempt: ${email}`);
+    console.log(`[${BOT_INFO.name}] Validation passed, querying database...`);
 
     // Check against ypec_staff table (admin users)
     const { data: staff, error } = await getSupabase()
@@ -404,18 +409,30 @@ async function adminLogin(req, res, data) {
       .eq('role', 'admin')
       .single();
 
-    if (error || !staff) {
-      console.warn(`[${BOT_INFO.name}] Admin login failed - staff not found`);
+    if (error) {
+      console.error(`[${BOT_INFO.name}] Database error:`, error);
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
       });
     }
 
+    if (!staff) {
+      console.warn(`[${BOT_INFO.name}] Admin login failed - staff not found for ${email}`);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
+
+    console.log(`[${BOT_INFO.name}] Staff found: ${staff.full_name}, verifying password...`);
+
     // Verify password using bcrypt
     const isValidPassword = await verifyPassword(password, staff.password_hash);
+    console.log(`[${BOT_INFO.name}] Password verification result: ${isValidPassword}`);
+
     if (!isValidPassword) {
-      console.warn(`[${BOT_INFO.name}] Admin login failed - invalid password`);
+      console.warn(`[${BOT_INFO.name}] Admin login failed - invalid password for ${email}`);
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
