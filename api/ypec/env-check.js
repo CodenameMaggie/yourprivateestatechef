@@ -4,13 +4,26 @@
 
 module.exports = async (req, res) => {
   try {
+    // Show first and last 20 chars to detect issues
+    const showPartial = (str) => {
+      if (!str) return 'NOT SET';
+      const len = str.length;
+      if (len < 40) return str;
+      return `${str.substring(0, 20)}...${str.substring(len - 20)} (${len} chars)`;
+    };
+
     const envVars = {
-      SUPABASE_URL: process.env.SUPABASE_URL ? 'SET (length: ' + process.env.SUPABASE_URL.length + ')' : 'NOT SET',
-      SUPABASE_SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY ? 'SET (length: ' + process.env.SUPABASE_SERVICE_KEY.length + ')' : 'NOT SET',
-      SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY ? 'SET (length: ' + process.env.SUPABASE_ANON_KEY.length + ')' : 'NOT SET',
+      SUPABASE_URL: showPartial(process.env.SUPABASE_URL),
+      SUPABASE_SERVICE_KEY: showPartial(process.env.SUPABASE_SERVICE_KEY),
+      SUPABASE_ANON_KEY: showPartial(process.env.SUPABASE_ANON_KEY),
       NODE_ENV: process.env.NODE_ENV || 'not set',
       PORT: process.env.PORT || 'not set',
-      SUPABASE_URL_value: process.env.SUPABASE_URL ? process.env.SUPABASE_URL.substring(0, 30) + '...' : 'N/A'
+
+      // Check for extra whitespace
+      url_has_leading_space: process.env.SUPABASE_URL ? process.env.SUPABASE_URL.startsWith(' ') : false,
+      url_has_trailing_space: process.env.SUPABASE_URL ? process.env.SUPABASE_URL.endsWith(' ') : false,
+      key_has_leading_space: process.env.SUPABASE_SERVICE_KEY ? process.env.SUPABASE_SERVICE_KEY.startsWith(' ') : false,
+      key_has_trailing_space: process.env.SUPABASE_SERVICE_KEY ? process.env.SUPABASE_SERVICE_KEY.endsWith(' ') : false
     };
 
     return res.json({
