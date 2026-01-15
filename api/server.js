@@ -112,6 +112,10 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Diagnostic endpoint - check admin account
+const diagnostic = require('./ypec/diagnostic');
+app.get('/api/diagnostic', diagnostic);
+
 // Bot endpoints
 const concierge = require('./ypec/concierge');
 const chefRelations = require('./ypec/chef-relations');
