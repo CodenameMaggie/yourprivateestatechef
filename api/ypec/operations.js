@@ -380,12 +380,12 @@ async function adminLogin(req, res, data) {
     const { email, password } = data;
 
     // Validate input
-    const validation = validate(loginSchema, { email, password });
-    if (!validation.valid) {
+    const { error } = validate({ email, password }, loginSchema);
+    if (error) {
       return res.status(400).json({
         success: false,
         message: 'Invalid input',
-        errors: validation.errors
+        error: error.details.map(d => d.message).join(', ')
       });
     }
 
@@ -465,12 +465,12 @@ async function clientLogin(req, res, data) {
     const { email, password } = data;
 
     // Validate input
-    const validation = validate(loginSchema, { email, password });
-    if (!validation.valid) {
+    const { error } = validate({ email, password }, loginSchema);
+    if (error) {
       return res.status(400).json({
         success: false,
         message: 'Invalid input',
-        errors: validation.errors
+        error: error.details.map(d => d.message).join(', ')
       });
     }
 
@@ -631,12 +631,12 @@ async function chefLogin(req, res, data) {
     const { email, password } = data;
 
     // Validate input
-    const validation = validate(loginSchema, { email, password });
-    if (!validation.valid) {
+    const { error } = validate({ email, password }, loginSchema);
+    if (error) {
       return res.status(400).json({
         success: false,
         message: 'Invalid input',
-        errors: validation.errors
+        error: error.details.map(d => d.message).join(', ')
       });
     }
 
