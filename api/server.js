@@ -17,8 +17,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Trust proxy - Required for Railway deployment (behind proxy)
-// This allows Express to trust X-Forwarded-* headers from Railway's proxy
-app.set('trust proxy', true);
+// Configure to trust only the first proxy (Railway's load balancer)
+app.set('trust proxy', 1);
 
 // Security headers with Helmet
 app.use(helmet({
