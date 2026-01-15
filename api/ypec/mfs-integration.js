@@ -270,6 +270,32 @@ async function alertHenryChefCapacity(alert) {
 }
 
 // ============================================================================
+// RECRUITMENT NEEDS ALERT TO HENRY
+// ============================================================================
+
+async function alertHenryRecruitmentNeeds(alert) {
+  return await sendReport('HENRY', {
+    bot_name: 'YPEC-ChefRelations',
+    type: 'recruitment_needs',
+    priority: alert.high_demand_regions?.length > 3 ? 'high' : 'normal',
+    subject: `YPEC Chef Recruitment Needs - ${alert.high_demand_regions?.length || 0} Regions`,
+    data: {
+      alert_type: alert.type,
+      total_regions_analyzed: alert.total_regions_analyzed || 0,
+      high_demand_regions: alert.high_demand_regions || [],
+      recommended_action: alert.recommended_action,
+      details: alert.details,
+      next_steps: [
+        'Post job listings in high-demand regions',
+        'Activate referral program for existing chefs',
+        'Contact culinary schools in target areas',
+        'Review chef application pipeline'
+      ]
+    }
+  });
+}
+
+// ============================================================================
 // OVERDUE INVOICE ALERT TO DAVE
 // ============================================================================
 
@@ -415,6 +441,7 @@ module.exports = {
   notifyAnnieConsultationScheduled,
   sendMarketingInsightsToDan,
   alertHenryChefCapacity,
+  alertHenryRecruitmentNeeds,
   alertDaveOverdueInvoices,
   handleCSuiteRequest,
   logCommunication

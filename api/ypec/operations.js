@@ -17,7 +17,7 @@ const BOT_INFO = {
   company: 'Your Private Estate Chef',
   company_number: 7,
   purpose: 'Engagement management, scheduling, logistics, event coordination',
-  actions: ['status', 'engagements', 'schedule', 'upcoming', 'overdue', 'upcoming_events', 'daily_summary', 'run', 'admin_login', 'client_login', 'client_dashboard', 'chef_login', 'chef_dashboard', 'chef_application', 'chef_update_availability']
+  actions: ['status', 'engagements', 'schedule', 'upcoming', 'overdue', 'upcoming_events', 'daily_summary', 'run', 'admin_login', 'client_login', 'client_dashboard', 'chef_login', 'chef_dashboard', 'chef_application', 'chef_update_availability', 'get_chef_applications', 'update_chef_status']
 };
 
 module.exports = async (req, res) => {
@@ -69,6 +69,12 @@ module.exports = async (req, res) => {
 
       case 'chef_update_availability':
         return await chefUpdateAvailability(req, res, data);
+
+      case 'get_chef_applications':
+        return await getChefApplications(req, res);
+
+      case 'update_chef_status':
+        return await updateChefStatus(req, res, data);
 
       default:
         return res.status(400).json({
@@ -980,6 +986,127 @@ async function chefUpdateAvailability(req, res, data) {
     return res.status(500).json({
       success: false,
       message: 'Failed to update availability',
+      error: error.message
+    });
+  }
+}
+
+// ============================================================================
+// CHEF APPLICATIONS MANAGEMENT
+// ============================================================================
+
+async function getChefApplications(req, res) {
+  try {
+    console.log(`[${BOT_INFO.name}] Fetching all chef applications`);
+
+    const { data: applications, error } = await getSupabase()
+      .from('ypec_chefs')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error(`[${BOT_INFO.name}] Error fetching applications:`, error);
+      throw error;
+    }
+
+    return res.json({
+      success: true,
+      applications: applications || [],
+      total: applications?.length || 0
+    });
+
+  } catch (error) {
+    console.error(`[${BOT_INFO.name}] Get applications error:`, error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch applications',
+      error: error.message
+    });
+  }
+}
+
+async function updateChefStatus(req, res, data) {
+  try {
+    const { chef_id, status, notes } = data;
+
+    console.log(`[${BOT_INFO.name}] Updating chef ${chef_id} status to: ${status}`);
+
+    // Validate status
+    const validStatuses = ['pending', 'screening', 'onboarding', 'active', 'rejected', 'inactive'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status. Must be one of: ${validStatuses.join(', ')}`
+      });
+    }
+
+    // Update chef record
+    const updates = {
+      status: status,
+      updated_at: new Date().toISOString()
+    };
+
+    // Set login_enabled based on status
+    if (status === 'active') {
+      updates.login_enabled = true;
+      updates.onboarding_date = new Date().toISOString();
+    } else if (status === 'rejected' || status === 'inactive') {
+      updates.login_enabled = false;
+    }
+
+    // Add notes if provided
+    if (notes) {
+      updates.admin_notes = notes;
+    }
+
+    const { error } = await getSupabase()
+      .from('ypec_chefs')
+      .update(updates)
+      .eq('id', chef_id);
+
+    if (error) {
+      console.error(`[${BOT_INFO.name}] Status update error:`, error);
+      throw error;
+    }
+
+    // Send notification to chef based on status
+    if (status === 'active') {
+      // TODO: Send welcome email and login credentials
+      console.log(`[${BOT_INFO.name}] Chef ${chef_id} activated - welcome email needed`);
+    } else if (status === 'rejected') {
+      // TODO: Send rejection email
+      console.log(`[${BOT_INFO.name}] Chef ${chef_id} rejected - notification email needed`);
+    } else if (status === 'screening') {
+      // TODO: Send screening instructions
+      console.log(`[${BOT_INFO.name}] Chef ${chef_id} moved to screening`);
+    }
+
+    // Alert HENRY if chef was activated
+    if (status === 'active') {
+      await mfs.sendReport('HENRY', {
+        bot_name: 'YPEC-Operations',
+        type: 'chef_activated',
+        priority: 'normal',
+        subject: 'New Chef Activated',
+        data: {
+          chef_id: chef_id,
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: `Chef status updated to: ${status}`,
+      chef_id: chef_id,
+      new_status: status
+    });
+
+  } catch (error) {
+    console.error(`[${BOT_INFO.name}] Update chef status error:`, error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update chef status',
       error: error.message
     });
   }

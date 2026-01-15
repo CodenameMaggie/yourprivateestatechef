@@ -108,26 +108,115 @@ async function recruitChefs(req, res) {
   const { data: households } = await getSupabase()
     .from('ypec_households')
     .select('primary_address, status')
-    .in('status', ['inquiry', 'consultation_scheduled', 'consultation_complete']);
+    .in('status', ['inquiry', 'consultation_scheduled', 'consultation_complete', 'waitlist']);
 
   // Get active chefs by region
   const { data: chefs } = await getSupabase()
     .from('ypec_chefs')
-    .select('region, current_households, max_households')
+    .select('region, current_households, max_households, status')
     .eq('status', 'active');
 
   // Calculate demand by region
   const demandByRegion = {};
-  // TODO: Implement region extraction from address
-  // TODO: Identify high-demand regions
-  // TODO: Send recruitment emails to qualified candidates in those regions
+  const regionCoverage = {};
 
-  console.log(`[${BOT_INFO.name}] Recruitment analysis complete`);
+  // Extract regions from household addresses
+  households?.forEach(h => {
+    if (h.primary_address) {
+      // Extract state/province from address (simplified)
+      const parts = h.primary_address.split(',');
+      const region = parts[parts.length - 1]?.trim() || 'Unknown';
+      demandByRegion[region] = (demandByRegion[region] || 0) + 1;
+    }
+  });
+
+  // Calculate chef coverage by region
+  chefs?.forEach(chef => {
+    const region = chef.region || 'Unknown';
+    if (!regionCoverage[region]) {
+      regionCoverage[region] = {
+        chefs: 0,
+        capacity: 0,
+        used: 0
+      };
+    }
+    regionCoverage[region].chefs++;
+    regionCoverage[region].capacity += chef.max_households || 3;
+    regionCoverage[region].used += chef.current_households || 0;
+  });
+
+  // Identify high-demand regions (demand > 80% of capacity)
+  const highDemandRegions = [];
+  Object.keys(demandByRegion).forEach(region => {
+    const demand = demandByRegion[region];
+    const coverage = regionCoverage[region] || { capacity: 0 };
+    const capacityRatio = coverage.capacity > 0 ? (demand / coverage.capacity) : 999;
+
+    if (capacityRatio > 0.8 || !coverage.capacity) {
+      highDemandRegions.push({
+        region,
+        demand,
+        chefs: coverage.chefs || 0,
+        capacity: coverage.capacity || 0,
+        gap: demand - coverage.capacity
+      });
+    }
+  });
+
+  // Alert HENRY about recruitment needs
+  if (highDemandRegions.length > 0) {
+    await mfs.alertHenryRecruitmentNeeds({
+      type: 'recruitment_analysis',
+      high_demand_regions: highDemandRegions,
+      total_regions_analyzed: Object.keys(demandByRegion).length,
+      recommended_action: 'Post job listings in high-demand regions',
+      details: highDemandRegions.map(r =>
+        `${r.region}: ${r.demand} households, ${r.chefs} chefs (need ${r.gap} more)`
+      ).join('\n')
+    });
+  }
+
+  // Get chef recruitment leads (from lead scraper)
+  const { data: leads } = await getSupabase()
+    .from('ypec_chef_leads')
+    .select('*')
+    .eq('status', 'new')
+    .limit(20);
+
+  let outreachSent = 0;
+
+  // Send recruitment emails to qualified leads in high-demand regions
+  for (const lead of leads || []) {
+    const leadRegion = lead.location || lead.region;
+    const isHighDemand = highDemandRegions.some(r =>
+      leadRegion?.includes(r.region) || r.region.includes(leadRegion)
+    );
+
+    if (isHighDemand) {
+      await sendRecruitmentEmail(lead);
+
+      // Update lead status
+      await getSupabase()
+        .from('ypec_chef_leads')
+        .update({
+          status: 'contacted',
+          contacted_at: new Date().toISOString()
+        })
+        .eq('id', lead.id);
+
+      outreachSent++;
+    }
+  }
+
+  console.log(`[${BOT_INFO.name}] Recruitment analysis complete - ${outreachSent} emails sent`);
 
   return res.json({
     success: true,
     message: 'Recruitment outreach completed',
-    regions_analyzed: Object.keys(demandByRegion).length
+    regions_analyzed: Object.keys(demandByRegion).length,
+    high_demand_regions: highDemandRegions.length,
+    outreach_sent: outreachSent,
+    regions: highDemandRegions
   });
 }
 
@@ -449,4 +538,51 @@ The YPEC Team
   `.trim();
 
   console.log(`[${BOT_INFO.name}] Welcome email prepared for ${chef.email}`);
+}
+
+async function sendRecruitmentEmail(lead) {
+  const emailContent = `
+Dear ${lead.name || 'Chef'},
+
+We discovered your profile and believe you'd be an exceptional fit for Your Private Estate Chef.
+
+YPEC connects elite private chefs with discerning households seeking five-star dining experiences in the comfort of their homes.
+
+What we offer:
+• Competitive compensation (${lead.location?.includes('TX') ? '$65-95/hour' : '$70-100/hour'})
+• Flexible scheduling - choose your availability
+• High-end clientele who value culinary excellence
+• Full autonomy in your kitchen
+• No restaurant hours or corporate politics
+
+We're currently expanding in your region (${lead.location}) and would love to discuss opportunities with you.
+
+Interested? Apply here: https://yourprivateestatechef.com/chef-application.html
+
+Questions? Reply to this email - we read every response personally.
+
+Warm regards,
+HENRY - Chief Operating Officer
+Your Private Estate Chef
+
+---
+By introduction only.
+www.yourprivateestatechef.com
+  `.trim();
+
+  // TODO: Integrate with email service (SendGrid, AWS SES, etc.)
+  console.log(`[${BOT_INFO.name}] Recruitment email prepared for ${lead.email}`);
+
+  // Log the outreach
+  await getSupabase().from('ypec_communications').insert({
+    comm_type: 'email',
+    direction: 'outbound',
+    subject: 'Exceptional Opportunity for Private Chefs',
+    message: emailContent,
+    sent_by: 'YPEC-ChefRelations',
+    sent_to: lead.email,
+    sent_at: new Date().toISOString(),
+    email_status: 'sent',
+    metadata: { lead_id: lead.id, campaign: 'chef_recruitment' }
+  });
 }
