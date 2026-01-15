@@ -159,12 +159,10 @@ app.use((err, req, res, next) => {
   });
 
   // Only send detailed errors in development
-  // TEMPORARY: Show error message in production for debugging admin login
   if (process.env.NODE_ENV === 'production') {
     res.status(500).json({
       success: false,
-      error: 'Internal server error',
-      debug_message: err.message // TEMPORARY DEBUG
+      error: 'Internal server error'
     });
   } else {
     res.status(500).json({

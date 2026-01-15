@@ -432,7 +432,7 @@ async function adminLogin(req, res, data) {
 
     if (sessionError) {
       console.error(`[${BOT_INFO.name}] Session creation failed:`, sessionError);
-      throw sessionError;
+      throw new Error(`Session creation failed: ${sessionError.message || 'Unknown error'}`);
     }
 
     console.log(`[${BOT_INFO.name}] Admin login successful: ${staff.full_name}`);
@@ -520,7 +520,7 @@ async function clientLogin(req, res, data) {
 
     if (sessionError) {
       console.error(`[${BOT_INFO.name}] Session creation failed:`, sessionError);
-      throw sessionError;
+      throw new Error(`Session creation failed: ${sessionError.message || 'Unknown error'}`);
     }
 
     // Update last login timestamp
