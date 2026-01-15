@@ -4,7 +4,7 @@
 // Purpose: Chef recruitment, onboarding, availability management, chef matching
 // ============================================================================
 
-const { getSupabase } = require('./database');
+const { getSupabase, tenantInsert, tenantUpdate, TENANT_ID, TABLES } = require('./database');
 const mfs = require('./mfs-integration');
 
 
@@ -65,8 +65,10 @@ module.exports = async (req, res) => {
 
 async function getStatus(req, res) {
   const { data: chefs } = await getSupabase()
-    .from('ypec_chefs')
-    .select('status');
+    .from(TABLES.USERS)
+    .select('status')
+    .eq('tenant_id', TENANT_ID)
+    .eq('user_type', 'chef');
 
   const grouped = {
     applicants: chefs?.filter(c => c.status === 'applicant').length || 0,
@@ -78,8 +80,10 @@ async function getStatus(req, res) {
 
   // Get available chefs (filter where current_households < max_households)
   const { data: allChefs } = await getSupabase()
-    .from('ypec_chefs')
-    .select('id, full_name, current_households, max_households')
+    .from(TABLES.USERS)
+    .select('id, first_name, last_name, current_households, max_households')
+    .eq('tenant_id', TENANT_ID)
+    .eq('user_type', 'chef')
     .eq('status', 'active');
 
   const availableChefs = allChefs?.filter(chef => chef.current_households < chef.max_households) || [];
@@ -106,14 +110,17 @@ async function recruitChefs(req, res) {
 
   // Get regions with high demand (more households than available chefs)
   const { data: households } = await getSupabase()
-    .from('ypec_households')
+    .from(TABLES.CLIENTS)
     .select('primary_address, status')
-    .in('status', ['inquiry', 'consultation_scheduled', 'consultation_complete', 'waitlist']);
+    .eq('tenant_id', TENANT_ID)
+    .in('status', ['inquiry', 'consultation_scheduled', 'waitlist']);
 
   // Get active chefs by region
   const { data: chefs } = await getSupabase()
-    .from('ypec_chefs')
+    .from(TABLES.USERS)
     .select('region, current_households, max_households, status')
+    .eq('tenant_id', TENANT_ID)
+    .eq('user_type', 'chef')
     .eq('status', 'active');
 
   // Calculate demand by region
@@ -178,8 +185,9 @@ async function recruitChefs(req, res) {
 
   // Get chef recruitment leads (from lead scraper)
   const { data: leads } = await getSupabase()
-    .from('ypec_chef_leads')
+    .from(TABLES.CHEF_LEADS)
     .select('*')
+    .eq('tenant_id', TENANT_ID)
     .eq('status', 'new')
     .limit(20);
 
@@ -196,13 +204,10 @@ async function recruitChefs(req, res) {
       await sendRecruitmentEmail(lead);
 
       // Update lead status
-      await getSupabase()
-        .from('ypec_chef_leads')
-        .update({
-          status: 'contacted',
-          contacted_at: new Date().toISOString()
-        })
-        .eq('id', lead.id);
+      await tenantUpdate(TABLES.CHEF_LEADS, {
+        status: 'contacted',
+        contacted_at: new Date().toISOString()
+      }).eq('id', lead.id);
 
       outreachSent++;
     }
@@ -230,20 +235,18 @@ async function onboardChef(req, res, data) {
   console.log(`[${BOT_INFO.name}] Onboarding chef: ${chef_id}`);
 
   // Update chef status
-  const { error } = await getSupabase()
-    .from('ypec_chefs')
-    .update({
-      status: 'active',
-      onboarding_date: new Date().toISOString()
-    })
-    .eq('id', chef_id);
+  const { error } = await tenantUpdate(TABLES.USERS, {
+    status: 'active',
+    onboarding_date: new Date().toISOString()
+  }).eq('id', chef_id);
 
   if (error) throw error;
 
   // Get chef details
   const { data: chef } = await getSupabase()
-    .from('ypec_chefs')
+    .from(TABLES.USERS)
     .select('*')
+    .eq('tenant_id', TENANT_ID)
     .eq('id', chef_id)
     .single();
 
@@ -268,8 +271,9 @@ async function getChefAvailability(req, res, data) {
   const { chef_id } = data;
 
   const { data: availability, error } = await getSupabase()
-    .from('ypec_chef_availability')
+    .from(TABLES.CHEF_AVAILABILITY)
     .select('*')
+    .eq('tenant_id', TENANT_ID)
     .eq('chef_id', chef_id)
     .order('day_of_week');
 
@@ -293,8 +297,9 @@ async function matchChefToHousehold(req, res, data) {
 
   // Get household details
   const { data: household } = await getSupabase()
-    .from('ypec_households')
+    .from(TABLES.CLIENTS)
     .select('*')
+    .eq('tenant_id', TENANT_ID)
     .eq('id', household_id)
     .single();
 
@@ -302,13 +307,15 @@ async function matchChefToHousehold(req, res, data) {
     return res.status(404).json({ error: 'Household not found' });
   }
 
-  // Extract region from address (simplified - you may need geocoding)
-  const householdState = household.primary_address?.split(',').pop()?.trim();
+  // Extract region from address
+  const householdState = household.state || household.primary_address?.split(',').pop()?.trim();
 
   // Find available chefs in the region (filter where current_households < max_households)
   const { data: allRegionChefs } = await getSupabase()
-    .from('ypec_chefs')
+    .from(TABLES.USERS)
     .select('*')
+    .eq('tenant_id', TENANT_ID)
+    .eq('user_type', 'chef')
     .eq('status', 'active');
 
   const chefs = allRegionChefs?.filter(chef => chef.current_households < chef.max_households) || [];
@@ -371,10 +378,10 @@ async function matchChefToHousehold(req, res, data) {
     household_id,
     top_matches: rankedChefs.map(c => ({
       chef_id: c.id,
-      name: c.full_name,
-      region: c.region,
+      name: `${c.first_name} ${c.last_name}`,
+      region: c.location || c.region,
       specialties: c.specialties,
-      experience_years: c.experience_years,
+      experience_years: c.years_experience,
       match_score: c.match_score,
       current_capacity: `${c.current_households}/${c.max_households}`
     })),
@@ -391,10 +398,11 @@ async function getChefFeedback(req, res, data) {
 
   // Get events for this chef with feedback
   const { data: events } = await getSupabase()
-    .from('ypec_events')
-    .select('*, household:ypec_households(primary_contact_name)')
+    .from(TABLES.EVENTS)
+    .select(`*, client:${TABLES.CLIENTS}(primary_contact_name)`)
+    .eq('tenant_id', TENANT_ID)
     .eq('chef_id', chef_id)
-    .not('client_feedback', 'is', null)
+    .not('metadata->client_feedback', 'is', null)
     .order('event_date', { ascending: false });
 
   // Calculate average rating
@@ -424,8 +432,10 @@ async function syncAvailability(req, res) {
 
   // Get all active chefs
   const { data: chefs } = await getSupabase()
-    .from('ypec_chefs')
-    .select('id, full_name, current_households, max_households, region')
+    .from(TABLES.USERS)
+    .select('id, first_name, last_name, current_households, max_households, location, region')
+    .eq('tenant_id', TENANT_ID)
+    .eq('user_type', 'chef')
     .eq('status', 'active');
 
   let updated = 0;
@@ -436,22 +446,22 @@ async function syncAvailability(req, res) {
   for (const chef of chefs || []) {
     // Count actual active engagements
     const { data: engagements } = await getSupabase()
-      .from('ypec_engagements')
+      .from(TABLES.ENGAGEMENTS)
       .select('id')
-      .eq('chef_id', chef.id)
+      .eq('tenant_id', TENANT_ID)
+      .eq('assigned_user_id', chef.id)
       .eq('status', 'active');
 
     const actualCount = engagements?.length || 0;
 
     if (actualCount !== chef.current_households) {
       // Update count
-      await getSupabase()
-        .from('ypec_chefs')
-        .update({ current_households: actualCount })
-        .eq('id', chef.id);
+      await tenantUpdate(TABLES.USERS, {
+        current_households: actualCount
+      }).eq('id', chef.id);
 
       updated++;
-      console.log(`[${BOT_INFO.name}] Updated ${chef.full_name}: ${chef.current_households} → ${actualCount}`);
+      console.log(`[${BOT_INFO.name}] Updated ${chef.first_name} ${chef.last_name}: ${chef.current_households} → ${actualCount}`);
     }
 
     // Track capacity
@@ -464,8 +474,9 @@ async function syncAvailability(req, res) {
 
   // Check waitlist
   const { data: waitlist } = await getSupabase()
-    .from('ypec_households')
+    .from(TABLES.CLIENTS)
     .select('id')
+    .eq('tenant_id', TENANT_ID)
     .eq('status', 'waitlist');
 
   const capacityUtilization = totalCapacity > 0 ? (usedCapacity / totalCapacity) * 100 : 0;
@@ -520,7 +531,7 @@ async function dailyRun(req, res) {
 
 async function sendChefWelcomeEmail(chef) {
   const emailContent = `
-Dear ${chef.full_name},
+Dear ${chef.first_name} ${chef.last_name},
 
 Welcome to Your Private Estate Chef.
 
@@ -574,15 +585,14 @@ www.yourprivateestatechef.com
   console.log(`[${BOT_INFO.name}] Recruitment email prepared for ${lead.email}`);
 
   // Log the outreach
-  await getSupabase().from('ypec_communications').insert({
-    comm_type: 'email',
+  await tenantInsert(TABLES.COMMUNICATIONS, {
     direction: 'outbound',
+    from_contact: 'YPEC-ChefRelations',
+    to_contact: lead.email,
     subject: 'Exceptional Opportunity for Private Chefs',
     message: emailContent,
-    sent_by: 'YPEC-ChefRelations',
-    sent_to: lead.email,
-    sent_at: new Date().toISOString(),
-    email_status: 'sent',
+    channel: 'email',
+    status: 'sent',
     metadata: { lead_id: lead.id, campaign: 'chef_recruitment' }
   });
 }

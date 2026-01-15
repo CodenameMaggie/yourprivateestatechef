@@ -26,7 +26,14 @@ const TABLES = {
   // YPEC-specific tables (still use ypec_ prefix for specialized data)
   CHEF_REFERRALS: 'ypec_chef_referrals',
   REFERRAL_BONUSES: 'ypec_referral_bonuses',
-  CHEF_LEADS: 'ypec_chef_leads',   // prospective chef leads from scraping
+  CHEF_LEADS: 'ypec_chef_leads',          // prospective chef leads from scraping
+  EVENTS: 'ypec_events',                  // YPEC events/bookings
+  ADMIN_SESSIONS: 'ypec_admin_sessions',  // admin login sessions
+  CLIENT_SESSIONS: 'ypec_household_sessions', // client login sessions
+  CHEF_SESSIONS: 'ypec_chef_sessions',    // chef login sessions
+  INVOICES: 'ypec_invoices',              // client invoices
+  CHEF_PAYMENTS: 'ypec_chef_payments',    // chef payroll
+  CHEF_AVAILABILITY: 'ypec_chef_availability', // chef scheduling
 };
 
 let supabase = null;

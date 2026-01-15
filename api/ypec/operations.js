@@ -4,7 +4,7 @@
 // Purpose: Engagement management, event scheduling, logistics coordination
 // ============================================================================
 
-const { getSupabase } = require('./database');
+const { getSupabase, tenantInsert, tenantUpdate, TENANT_ID, TABLES } = require('./database');
 const mfs = require('./mfs-integration');
 const { hashPassword, verifyPassword, generateSecureToken } = require('./security');
 const { validate, loginSchema } = require('./validation');
@@ -95,12 +95,14 @@ module.exports = async (req, res) => {
 
 async function getStatus(req, res) {
   const { data: engagements } = await getSupabase()
-    .from('ypec_engagements')
-    .select('status');
+    .from(TABLES.ENGAGEMENTS)
+    .select('status')
+    .eq('tenant_id', TENANT_ID);
 
   const { data: events } = await getSupabase()
-    .from('ypec_events')
+    .from(TABLES.EVENTS)
     .select('status, event_date')
+    .eq('tenant_id', TENANT_ID)
     .gte('event_date', new Date().toISOString().split('T')[0]);
 
   const grouped = {
@@ -128,12 +130,13 @@ async function getStatus(req, res) {
 
 async function getEngagements(req, res) {
   const { data: engagements, error } = await getSupabase()
-    .from('ypec_engagements')
+    .from(TABLES.ENGAGEMENTS)
     .select(`
       *,
-      household:ypec_households(primary_contact_name, email),
-      chef:ypec_chefs(full_name, email)
+      household:${TABLES.CLIENTS}(primary_contact_name, primary_contact_email),
+      chef:${TABLES.USERS}(first_name, last_name, email)
     `)
+    .eq('tenant_id', TENANT_ID)
     .order('start_date', { ascending: false });
 
   if (error) throw error;
@@ -165,23 +168,19 @@ async function scheduleEvent(req, res, data) {
 
   console.log(`[${BOT_INFO.name}] Scheduling event for ${event_date}`);
 
-  const { data: event, error } = await getSupabase()
-    .from('ypec_events')
-    .insert({
-      engagement_id,
-      household_id,
-      chef_id,
-      event_date,
-      start_time,
-      end_time,
-      event_type,
-      guest_count,
-      special_requests,
-      menu_id,
-      status: 'scheduled'
-    })
-    .select()
-    .single();
+  const { data: event, error } = await tenantInsert(TABLES.EVENTS, {
+    engagement_id,
+    household_id,
+    chef_id,
+    event_date,
+    start_time,
+    end_time,
+    event_type,
+    guest_count,
+    special_requests,
+    menu_id,
+    status: 'scheduled'
+  }).select().single();
 
   if (error) throw error;
 
@@ -209,12 +208,13 @@ async function getUpcomingEvents(req, res) {
   const nextWeekStr = nextWeek.toISOString().split('T')[0];
 
   const { data: events, error } = await getSupabase()
-    .from('ypec_events')
+    .from(TABLES.EVENTS)
     .select(`
       *,
-      household:ypec_households(primary_contact_name, email, phone),
-      chef:ypec_chefs(full_name, email, phone)
+      household:${TABLES.CLIENTS}(primary_contact_name, primary_contact_email, primary_contact_phone),
+      chef:${TABLES.USERS}(first_name, last_name, email, phone)
     `)
+    .eq('tenant_id', TENANT_ID)
     .gte('event_date', today)
     .lte('event_date', nextWeekStr)
     .in('status', ['scheduled', 'confirmed'])
@@ -246,12 +246,13 @@ async function getOverdueEvents(req, res) {
   const today = new Date().toISOString().split('T')[0];
 
   const { data: events, error } = await getSupabase()
-    .from('ypec_events')
+    .from(TABLES.EVENTS)
     .select(`
       *,
-      household:ypec_households(primary_contact_name),
-      chef:ypec_chefs(full_name)
+      household:${TABLES.CLIENTS}(primary_contact_name),
+      chef:${TABLES.USERS}(first_name, last_name)
     `)
+    .eq('tenant_id', TENANT_ID)
     .lt('event_date', today)
     .eq('status', 'scheduled')
     .order('event_date');
@@ -278,12 +279,13 @@ async function upcomingEventsCheck(req, res) {
   const next7DaysStr = next7Days.toISOString().split('T')[0];
 
   const { data: events } = await getSupabase()
-    .from('ypec_events')
+    .from(TABLES.EVENTS)
     .select(`
       *,
-      household:ypec_households(primary_contact_name, email),
-      chef:ypec_chefs(full_name, email)
+      household:${TABLES.CLIENTS}(primary_contact_name, primary_contact_email),
+      chef:${TABLES.USERS}(first_name, last_name, email)
     `)
+    .eq('tenant_id', TENANT_ID)
     .gte('event_date', today)
     .lte('event_date', next7DaysStr)
     .in('status', ['scheduled', 'confirmed']);
@@ -324,22 +326,25 @@ async function sendDailySummary(req, res) {
 
   // Today's events
   const { data: todayEvents } = await getSupabase()
-    .from('ypec_events')
-    .select('*, household:ypec_households(primary_contact_name), chef:ypec_chefs(full_name)')
+    .from(TABLES.EVENTS)
+    .select(`*, household:${TABLES.CLIENTS}(primary_contact_name), chef:${TABLES.USERS}(first_name, last_name)`)
+    .eq('tenant_id', TENANT_ID)
     .eq('event_date', today);
 
   // Active engagements
   const { data: activeEngagements } = await getSupabase()
-    .from('ypec_engagements')
+    .from(TABLES.ENGAGEMENTS)
     .select('id')
+    .eq('tenant_id', TENANT_ID)
     .eq('status', 'active');
 
   // Upcoming events (next 7 days)
   const next7Days = new Date();
   next7Days.setDate(next7Days.getDate() + 7);
   const { data: upcomingEvents } = await getSupabase()
-    .from('ypec_events')
+    .from(TABLES.EVENTS)
     .select('id')
+    .eq('tenant_id', TENANT_ID)
     .gte('event_date', today)
     .lte('event_date', next7Days.toISOString().split('T')[0])
     .in('status', ['scheduled', 'confirmed']);
@@ -408,10 +413,11 @@ async function adminLogin(req, res, data) {
 
     console.log(`[${BOT_INFO.name}] Validation passed, querying database...`);
 
-    // Check against ypec_staff table (admin users)
+    // Check against staff table (admin users)
     const { data: staff, error } = await getSupabase()
-      .from('ypec_staff')
+      .from(TABLES.STAFF)
       .select('*')
+      .eq('tenant_id', TENANT_ID)
       .eq('email', email)
       .eq('role', 'admin')
       .single();
@@ -450,14 +456,12 @@ async function adminLogin(req, res, data) {
     const sessionToken = generateSecureToken('ypec_admin');
 
     // Store session in database
-    const { error: sessionError } = await getSupabase()
-      .from('ypec_admin_sessions')
-      .insert({
-        staff_id: staff.id,
-        session_token: sessionToken,
-        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
-        created_at: new Date().toISOString()
-      });
+    const { error: sessionError } = await tenantInsert(TABLES.ADMIN_SESSIONS, {
+      staff_id: staff.id,
+      session_token: sessionToken,
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+      created_at: new Date().toISOString()
+    });
 
     if (sessionError) {
       console.error(`[${BOT_INFO.name}] Session creation failed:`, sessionError);
@@ -510,12 +514,12 @@ async function clientLogin(req, res, data) {
 
     console.log(`[${BOT_INFO.name}] Client login attempt for: ${email}`);
 
-    // Find household with matching email and login enabled
+    // Find client/household with matching email and login enabled
     const { data: household, error } = await getSupabase()
-      .from('ypec_households')
+      .from(TABLES.CLIENTS)
       .select('*')
-      .eq('email', email)
-      .eq('login_enabled', true)
+      .eq('tenant_id', TENANT_ID)
+      .eq('primary_contact_email', email)
       .eq('status', 'active')
       .single();
 
@@ -541,16 +545,14 @@ async function clientLogin(req, res, data) {
     const sessionToken = generateSecureToken('ypec_client');
 
     // Store session in database
-    const { error: sessionError } = await getSupabase()
-      .from('ypec_household_sessions')
-      .insert({
-        household_id: household.id,
-        session_token: sessionToken,
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
-        ip_address: (req.ip || req.connection?.remoteAddress || 'unknown'),
-        user_agent: (req.headers?.['user-agent'] || 'unknown'),
-        created_at: new Date().toISOString()
-      });
+    const { error: sessionError } = await tenantInsert(TABLES.CLIENT_SESSIONS, {
+      client_id: household.id,
+      session_token: sessionToken,
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+      ip_address: (req.ip || req.connection?.remoteAddress || 'unknown'),
+      user_agent: (req.headers?.['user-agent'] || 'unknown'),
+      created_at: new Date().toISOString()
+    });
 
     if (sessionError) {
       console.error(`[${BOT_INFO.name}] Session creation failed:`, sessionError);
@@ -558,10 +560,9 @@ async function clientLogin(req, res, data) {
     }
 
     // Update last login timestamp
-    const { error: updateError } = await getSupabase()
-      .from('ypec_households')
-      .update({ last_login: new Date().toISOString() })
-      .eq('id', household.id);
+    const { error: updateError } = await tenantUpdate(TABLES.CLIENTS, {
+      last_login: new Date().toISOString()
+    }).eq('id', household.id);
 
     if (updateError) {
       console.warn(`[${BOT_INFO.name}] Last login update failed:`, updateError.message);
@@ -595,30 +596,32 @@ async function clientDashboard(req, res, data) {
   try {
     // Get upcoming engagements
     const { data: engagements } = await getSupabase()
-      .from('ypec_engagements')
+      .from(TABLES.ENGAGEMENTS)
       .select(`
         *,
-        chef:ypec_chefs(first_name, last_name)
+        chef:${TABLES.USERS}(id, first_name, last_name)
       `)
-      .eq('household_id', household_id)
-      .gte('service_date', new Date().toISOString().split('T')[0])
-      .order('service_date', { ascending: true })
+      .eq('tenant_id', TENANT_ID)
+      .eq('client_id', household_id)
+      .gte('event_date', new Date().toISOString().split('T')[0])
+      .order('event_date', { ascending: true })
       .limit(5);
 
     // Get assigned chefs (chefs who have served this household)
-    const { data: chefs } = await getSupabase()
-      .from('ypec_engagements')
+    const { data: chefEngs } = await getSupabase()
+      .from(TABLES.ENGAGEMENTS)
       .select(`
-        chef:ypec_chefs(id, first_name, last_name, specialties)
+        chef:${TABLES.USERS}(id, first_name, last_name, specialties)
       `)
-      .eq('household_id', household_id)
-      .not('chef_id', 'is', null);
+      .eq('tenant_id', TENANT_ID)
+      .eq('client_id', household_id)
+      .not('assigned_user_id', 'is', null);
 
     // Extract unique chefs
     const uniqueChefs = [];
     const chefIds = new Set();
-    if (chefs) {
-      chefs.forEach(eng => {
+    if (chefEngs) {
+      chefEngs.forEach(eng => {
         if (eng.chef && !chefIds.has(eng.chef.id)) {
           chefIds.add(eng.chef.id);
           uniqueChefs.push(eng.chef);
@@ -628,8 +631,9 @@ async function clientDashboard(req, res, data) {
 
     // Get recent invoices
     const { data: invoices } = await getSupabase()
-      .from('ypec_invoices')
+      .from(TABLES.INVOICES)
       .select('*')
+      .eq('tenant_id', TENANT_ID)
       .eq('household_id', household_id)
       .order('invoice_date', { ascending: false })
       .limit(5);
@@ -683,8 +687,9 @@ async function chefLogin(req, res, data) {
 
     // Find chef with matching email and login enabled
     const { data: chef, error } = await getSupabase()
-      .from('ypec_chefs')
+      .from(TABLES.USERS)
       .select('*')
+      .eq('tenant_id', TENANT_ID)
       .eq('email', email)
       .eq('login_enabled', true)
       .eq('status', 'active')
@@ -712,16 +717,14 @@ async function chefLogin(req, res, data) {
     const sessionToken = generateSecureToken('ypec_chef');
 
     // Store session in database
-    const { error: sessionError } = await getSupabase()
-      .from('ypec_chef_sessions')
-      .insert({
-        chef_id: chef.id,
-        session_token: sessionToken,
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
-        ip_address: (req.ip || req.connection?.remoteAddress || 'unknown'),
-        user_agent: (req.headers?.['user-agent'] || 'unknown'),
-        created_at: new Date().toISOString()
-      });
+    const { error: sessionError } = await tenantInsert(TABLES.CHEF_SESSIONS, {
+      chef_id: chef.id,
+      session_token: sessionToken,
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+      ip_address: (req.ip || req.connection?.remoteAddress || 'unknown'),
+      user_agent: (req.headers?.['user-agent'] || 'unknown'),
+      created_at: new Date().toISOString()
+    });
 
     if (sessionError) {
       console.error(`[${BOT_INFO.name}] Chef session creation failed:`, sessionError);
@@ -729,10 +732,9 @@ async function chefLogin(req, res, data) {
     }
 
     // Update last login timestamp
-    const { error: updateError } = await getSupabase()
-      .from('ypec_chefs')
-      .update({ last_login: new Date().toISOString() })
-      .eq('id', chef.id);
+    const { error: updateError } = await tenantUpdate(TABLES.USERS, {
+      last_login: new Date().toISOString()
+    }).eq('id', chef.id);
 
     if (updateError) {
       console.warn(`[${BOT_INFO.name}] Last login update failed:`, updateError.message);
@@ -766,18 +768,20 @@ async function chefDashboard(req, res, data) {
   try {
     // Get chef info
     const { data: chef } = await getSupabase()
-      .from('ypec_chefs')
+      .from(TABLES.USERS)
       .select('*')
+      .eq('tenant_id', TENANT_ID)
       .eq('id', chef_id)
       .single();
 
     // Get assigned households
     const { data: householdEngagements } = await getSupabase()
-      .from('ypec_engagements')
+      .from(TABLES.ENGAGEMENTS)
       .select(`
-        household:ypec_households(id, household_name, primary_contact_name, city, state)
+        client:${TABLES.CLIENTS}(id, primary_contact_name, city, state)
       `)
-      .eq('chef_id', chef_id)
+      .eq('tenant_id', TENANT_ID)
+      .eq('assigned_user_id', chef_id)
       .eq('status', 'active');
 
     // Extract unique households
@@ -785,12 +789,12 @@ async function chefDashboard(req, res, data) {
     const householdIds = new Set();
     if (householdEngagements) {
       householdEngagements.forEach(eng => {
-        if (eng.household && !householdIds.has(eng.household.id)) {
-          householdIds.add(eng.household.id);
+        if (eng.client && !householdIds.has(eng.client.id)) {
+          householdIds.add(eng.client.id);
           households.push({
-            id: eng.household.id,
-            name: eng.household.household_name || eng.household.primary_contact_name,
-            location: eng.household.city && eng.household.state ? `${eng.household.city}, ${eng.household.state}` : null,
+            id: eng.client.id,
+            name: eng.client.primary_contact_name,
+            location: eng.client.city && eng.client.state ? `${eng.client.city}, ${eng.client.state}` : null,
             frequency: 'Weekly' // TODO: Get actual frequency from engagement
           });
         }
@@ -799,53 +803,55 @@ async function chefDashboard(req, res, data) {
 
     // Get upcoming engagements
     const { data: engagements } = await getSupabase()
-      .from('ypec_engagements')
+      .from(TABLES.ENGAGEMENTS)
       .select(`
         *,
-        household:ypec_households(household_name, primary_contact_name)
+        client:${TABLES.CLIENTS}(primary_contact_name)
       `)
-      .eq('chef_id', chef_id)
-      .gte('service_date', new Date().toISOString().split('T')[0])
-      .order('service_date', { ascending: true })
+      .eq('tenant_id', TENANT_ID)
+      .eq('assigned_user_id', chef_id)
+      .gte('event_date', new Date().toISOString().split('T')[0])
+      .order('event_date', { ascending: true })
       .limit(5);
 
     // Format engagements
     const formattedEngagements = engagements ? engagements.map(eng => ({
-      date: eng.service_date,
-      household_name: eng.household?.household_name || eng.household?.primary_contact_name || 'Unknown',
-      service_type: eng.service_type,
-      time: '6:00 PM' // TODO: Add time field to engagements
+      date: eng.event_date,
+      household_name: eng.client?.primary_contact_name || 'Unknown',
+      service_type: eng.engagement_type,
+      time: eng.event_time || '6:00 PM'
     })) : [];
 
     // Get earnings (from completed engagements)
     const { data: completedEngagements } = await getSupabase()
-      .from('ypec_engagements')
+      .from(TABLES.ENGAGEMENTS)
       .select('*')
-      .eq('chef_id', chef_id)
+      .eq('tenant_id', TENANT_ID)
+      .eq('assigned_user_id', chef_id)
       .eq('status', 'completed')
-      .order('service_date', { ascending: false })
+      .order('event_date', { ascending: false })
       .limit(10);
 
     const earnings = completedEngagements ? completedEngagements.map(eng => ({
       service_name: eng.service_name || 'Private Chef Service',
-      date: eng.service_date,
-      amount: eng.amount || 0
+      date: eng.event_date,
+      amount: eng.total_cost || 0
     })) : [];
 
     // Calculate stats
     const monthlyEarnings = completedEngagements
       ? completedEngagements
           .filter(eng => {
-            const engDate = new Date(eng.service_date);
+            const engDate = new Date(eng.event_date);
             const now = new Date();
             return engDate.getMonth() === now.getMonth() && engDate.getFullYear() === now.getFullYear();
           })
-          .reduce((sum, eng) => sum + (parseFloat(eng.amount) || 0), 0)
+          .reduce((sum, eng) => sum + (parseFloat(eng.total_cost) || 0), 0)
       : 0;
 
     const weeklyServices = engagements
       ? engagements.filter(eng => {
-          const engDate = new Date(eng.service_date);
+          const engDate = new Date(eng.event_date);
           const weekFromNow = new Date();
           weekFromNow.setDate(weekFromNow.getDate() + 7);
           return engDate <= weekFromNow;
@@ -898,8 +904,9 @@ async function chefApplication(req, res, data) {
 
     // Check if chef already exists
     const { data: existing } = await getSupabase()
-      .from('ypec_chefs')
+      .from(TABLES.USERS)
       .select('id')
+      .eq('tenant_id', TENANT_ID)
       .eq('email', email)
       .single();
 
@@ -911,25 +918,22 @@ async function chefApplication(req, res, data) {
     }
 
     // Create chef record
-    const { data: newChef, error: insertError } = await getSupabase()
-      .from('ypec_chefs')
-      .insert({
-        first_name: firstName,
-        last_name: lastName,
-        email: email,
-        phone: phone,
-        region: location,
-        years_experience: parseInt(yearsExperience),
-        specialties: specialties,
-        certifications: [culinaryEducation],
-        bio: bio,
-        previous_positions: previousPositions,
-        status: 'pending', // Application needs to be reviewed
-        login_enabled: false, // Enable after approval
-        created_at: new Date().toISOString()
-      })
-      .select()
-      .single();
+    const { data: newChef, error: insertError } = await tenantInsert(TABLES.USERS, {
+      user_type: 'chef',
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      phone: phone,
+      location: location,
+      years_experience: parseInt(yearsExperience),
+      specialties: specialties,
+      culinary_education: culinaryEducation,
+      bio: bio,
+      previous_positions: previousPositions,
+      status: 'pending', // Application needs to be reviewed
+      login_enabled: false, // Enable after approval
+      created_at: new Date().toISOString()
+    }).select().single();
 
     if (insertError) {
       console.error(`[${BOT_INFO.name}] Chef application insert error:`, insertError);
@@ -969,13 +973,10 @@ async function chefUpdateAvailability(req, res, data) {
 
     console.log(`[${BOT_INFO.name}] Updating availability for chef ${chef_id}: ${available}`);
 
-    const { error } = await getSupabase()
-      .from('ypec_chefs')
-      .update({
-        available: available,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', chef_id);
+    const { error } = await tenantUpdate(TABLES.USERS, {
+      availability_status: available ? 'available' : 'unavailable',
+      updated_at: new Date().toISOString()
+    }).eq('id', chef_id);
 
     if (error) {
       console.error(`[${BOT_INFO.name}] Availability update error:`, error);
@@ -1006,9 +1007,11 @@ async function getChefApplications(req, res) {
     console.log(`[${BOT_INFO.name}] Fetching all chef applications`);
 
     const { data: applications, error } = await getSupabase()
-      .from('ypec_chefs')
+      .from(TABLES.USERS)
       .select('*')
-      .order('created_at', { ascending: false });
+      .eq('tenant_id', TENANT_ID)
+      .eq('user_type', 'chef')
+      .order('created_at', { ascending: false});
 
     if (error) {
       console.error(`[${BOT_INFO.name}] Error fetching applications:`, error);
@@ -1065,9 +1068,7 @@ async function updateChefStatus(req, res, data) {
       updates.admin_notes = notes;
     }
 
-    const { error } = await getSupabase()
-      .from('ypec_chefs')
-      .update(updates)
+    const { error } = await tenantUpdate(TABLES.USERS, updates)
       .eq('id', chef_id);
 
     if (error) {

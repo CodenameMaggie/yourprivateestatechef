@@ -4,7 +4,7 @@
 // Purpose: Client-facing communication, inquiry handling, consultation scheduling
 // ============================================================================
 
-const { getSupabase } = require('./database');
+const { getSupabase, tenantInsert, tenantUpdate, TENANT_ID, TABLES } = require('./database');
 const mfs = require('./mfs-integration');
 
 const BOT_INFO = {
@@ -64,18 +64,21 @@ module.exports = async (req, res) => {
 
 async function getStatus(req, res) {
   const { data: inquiries } = await getSupabase()
-    .from('ypec_inquiries')
+    .from(TABLES.LEADS)
     .select('status')
+    .eq('tenant_id', TENANT_ID)
     .eq('status', 'new');
 
   const { data: consultations } = await getSupabase()
-    .from('ypec_households')
+    .from(TABLES.CLIENTS)
     .select('status')
+    .eq('tenant_id', TENANT_ID)
     .eq('status', 'consultation_scheduled');
 
   const { data: activeHouseholds } = await getSupabase()
-    .from('ypec_households')
+    .from(TABLES.CLIENTS)
     .select('id')
+    .eq('tenant_id', TENANT_ID)
     .eq('status', 'active');
 
   return res.json({
@@ -96,8 +99,9 @@ async function getStatus(req, res) {
 
 async function getInquiries(req, res) {
   const { data: inquiries, error } = await getSupabase()
-    .from('ypec_inquiries')
+    .from(TABLES.LEADS)
     .select('*')
+    .eq('tenant_id', TENANT_ID)
     .order('created_at', { ascending: false })
     .limit(50);
 
@@ -128,22 +132,19 @@ async function acknowledgeInquiry(req, res, data) {
 
   console.log(`[${BOT_INFO.name}] New inquiry from: ${name} <${email}>`);
 
-  // Create inquiry record
-  const { data: inquiry, error } = await getSupabase()
-    .from('ypec_inquiries')
-    .insert({
-      name,
-      email,
-      phone,
-      city,
-      state,
-      message,
-      service_interest,
-      referral_source,
-      status: 'new'
-    })
-    .select()
-    .single();
+  // Create inquiry/lead record
+  const { data: inquiry, error } = await tenantInsert(TABLES.LEADS, {
+    lead_type: 'inquiry',
+    name,
+    email,
+    phone,
+    city,
+    state,
+    message,
+    service_interest,
+    referral_source,
+    status: 'new'
+  }).select().single();
 
   if (error) {
     console.error('Error creating inquiry:', error);
@@ -151,41 +152,37 @@ async function acknowledgeInquiry(req, res, data) {
   }
 
   // Log communication
-  await getSupabase().from('ypec_communications').insert({
-    inquiry_id: inquiry.id,
-    comm_type: 'email',
+  await tenantInsert(TABLES.COMMUNICATIONS, {
     direction: 'inbound',
+    from_contact: email,
     subject: 'Introduction Request',
     message: message,
-    sent_by: email,
-    sent_at: new Date().toISOString()
+    channel: 'email',
+    status: 'received',
+    metadata: { lead_id: inquiry.id }
   });
 
   // Send acknowledgment email
   await sendAcknowledgmentEmail(name, email);
 
   // Update inquiry status
-  await getSupabase()
-    .from('ypec_inquiries')
-    .update({
-      status: 'responded',
-      responded_at: new Date().toISOString()
-    })
-    .eq('id', inquiry.id);
+  await tenantUpdate(TABLES.LEADS, {
+    status: 'responded',
+    contacted_at: new Date().toISOString()
+  }).eq('id', inquiry.id);
 
   // Notify ANNIE (CSO) of new inquiry
   await mfs.notifyAnnieNewInquiry(inquiry);
 
   // Log outbound communication
-  await getSupabase().from('ypec_communications').insert({
-    inquiry_id: inquiry.id,
-    comm_type: 'email',
+  await tenantInsert(TABLES.COMMUNICATIONS, {
     direction: 'outbound',
+    from_contact: 'YPEC-Concierge',
+    to_contact: email,
     subject: "We've received your introduction request",
-    sent_by: 'YPEC-Concierge',
-    sent_to: email,
-    sent_at: new Date().toISOString(),
-    email_status: 'sent'
+    channel: 'email',
+    status: 'sent',
+    metadata: { lead_id: inquiry.id }
   });
 
   console.log(`[${BOT_INFO.name}] Inquiry acknowledged: ${inquiry.id}`);
@@ -212,25 +209,24 @@ async function scheduleConsultation(req, res, data) {
   if (!inquiry_id) {
     console.log(`[${BOT_INFO.name}] Creating new inquiry from direct booking`);
 
-    // Create inquiry record first
-    const { data: newInquiry, error: inquiryError } = await getSupabase()
-      .from('ypec_inquiries')
-      .insert({
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        city: data.city,
-        state: data.state || '',
-        message: data.message || data.specialRequests || '',
-        service_interest: data.service_interest || data.serviceName,
-        referral_source: data.referral_source || 'Website Booking System',
+    // Create inquiry/lead record first
+    const { data: newInquiry, error: inquiryError } = await tenantInsert(TABLES.LEADS, {
+      lead_type: 'inquiry',
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      city: data.city,
+      state: data.state || '',
+      message: data.message || data.specialRequests || '',
+      service_interest: data.service_interest || data.serviceName,
+      referral_source: data.referral_source || 'Website Booking System',
+      status: 'consultation_scheduled',
+      metadata: {
         household_size: data.householdSize,
         cuisine_preferences: data.cuisinePreferences,
-        dietary_requirements: data.dietaryRequirements,
-        status: 'consultation_scheduled'
-      })
-      .select()
-      .single();
+        dietary_requirements: data.dietaryRequirements
+      }
+    }).select().single();
 
     if (inquiryError) {
       console.error('Error creating inquiry:', inquiryError);
@@ -241,8 +237,9 @@ async function scheduleConsultation(req, res, data) {
   } else {
     // Get existing inquiry details
     const { data: existingInquiry } = await getSupabase()
-      .from('ypec_inquiries')
+      .from(TABLES.LEADS)
       .select('*')
+      .eq('tenant_id', TENANT_ID)
       .eq('id', inquiry_id)
       .single();
 
@@ -253,47 +250,44 @@ async function scheduleConsultation(req, res, data) {
     inquiry = existingInquiry;
   }
 
-  // Create household record
-  const { data: household, error } = await getSupabase()
-    .from('ypec_households')
-    .insert({
-      primary_contact_name: inquiry.name,
-      email: inquiry.email,
-      phone: inquiry.phone,
-      primary_address: `${inquiry.city}, ${inquiry.state}`,
-      status: 'consultation_scheduled',
+  // Create client/household record
+  const { data: household, error } = await tenantInsert(TABLES.CLIENTS, {
+    client_type: 'household',
+    primary_contact_name: inquiry.name,
+    primary_contact_email: inquiry.email,
+    primary_contact_phone: inquiry.phone,
+    primary_address: `${inquiry.city}, ${inquiry.state}`,
+    city: inquiry.city,
+    state: inquiry.state,
+    status: 'consultation_scheduled',
+    referral_source: inquiry.referral_source,
+    metadata: {
       inquiry_date: inquiry.created_at,
       consultation_date: consultation_date,
-      household_size: inquiry.household_size,
-      referral_source: inquiry.referral_source
-    })
-    .select()
-    .single();
+      household_size: inquiry.metadata?.household_size
+    }
+  }).select().single();
 
   if (error) throw error;
 
-  // Update inquiry
-  await getSupabase()
-    .from('ypec_inquiries')
-    .update({
-      status: 'consultation_scheduled',
-      converted_to_household_id: household.id
-    })
-    .eq('id', inquiry.id);
+  // Update inquiry/lead
+  await tenantUpdate(TABLES.LEADS, {
+    status: 'converted',
+    converted_to_client_id: household.id
+  }).eq('id', inquiry.id);
 
   // Send consultation invitation email
   await sendConsultationInvitation(inquiry.name, inquiry.email, consultation_date);
 
   // Log communication
-  await getSupabase().from('ypec_communications').insert({
-    household_id: household.id,
-    comm_type: 'email',
+  await tenantInsert(TABLES.COMMUNICATIONS, {
     direction: 'outbound',
+    from_contact: 'YPEC-Concierge',
+    to_contact: inquiry.email,
     subject: 'Your YPEC Consultation - Next Steps',
-    sent_by: 'YPEC-Concierge',
-    sent_to: inquiry.email,
-    sent_at: new Date().toISOString(),
-    email_status: 'sent'
+    channel: 'email',
+    status: 'sent',
+    metadata: { client_id: household.id }
   });
 
   console.log(`[${BOT_INFO.name}] Consultation scheduled for household: ${household.id}`);
@@ -325,41 +319,46 @@ async function assignChef(req, res, data) {
 
   console.log(`[${BOT_INFO.name}] Assigning chef ${chef_id} to household ${household_id}`);
 
-  // Update household
-  const { error: householdError } = await getSupabase()
-    .from('ypec_households')
-    .update({
-      chef_id: chef_id,
-      status: 'active',
-      activation_date: new Date().toISOString()
-    })
-    .eq('id', household_id);
+  // Update client/household
+  const { error: householdError } = await tenantUpdate(TABLES.CLIENTS, {
+    assigned_chef_id: chef_id,
+    status: 'active'
+  }).eq('id', household_id);
 
   if (householdError) throw householdError;
 
   // Update chef household count
-  await getSupabase().rpc('increment', {
-    table_name: 'ypec_chefs',
-    row_id: chef_id,
-    column_name: 'current_households',
-    x: 1
-  });
+  const { data: chef } = await getSupabase()
+    .from(TABLES.USERS)
+    .select('current_households, max_households')
+    .eq('tenant_id', TENANT_ID)
+    .eq('id', chef_id)
+    .single();
+
+  if (chef) {
+    await tenantUpdate(TABLES.USERS, {
+      current_households: (chef.current_households || 0) + 1,
+      availability_status: ((chef.current_households || 0) + 1 >= (chef.max_households || 3)) ? 'full' : 'available'
+    }).eq('id', chef_id);
+  }
 
   // Get household and chef details
   const { data: household } = await getSupabase()
-    .from('ypec_households')
+    .from(TABLES.CLIENTS)
     .select('*')
+    .eq('tenant_id', TENANT_ID)
     .eq('id', household_id)
     .single();
 
-  const { data: chef } = await getSupabase()
-    .from('ypec_chefs')
+  const { data: chefDetails } = await getSupabase()
+    .from(TABLES.USERS)
     .select('*')
+    .eq('tenant_id', TENANT_ID)
     .eq('id', chef_id)
     .single();
 
   // Send chef introduction email
-  await sendChefIntroduction(household, chef);
+  await sendChefIntroduction(household, chefDetails);
 
   console.log(`[${BOT_INFO.name}] Chef assigned successfully`);
 
@@ -377,10 +376,12 @@ async function processNewInquiries(req, res) {
   console.log(`[${BOT_INFO.name}] Processing new inquiries (cron)`);
 
   const { data: newInquiries } = await getSupabase()
-    .from('ypec_inquiries')
+    .from(TABLES.LEADS)
     .select('*')
+    .eq('tenant_id', TENANT_ID)
+    .eq('lead_type', 'inquiry')
     .eq('status', 'new')
-    .is('responded_at', null);
+    .is('contacted_at', null);
 
   if (!newInquiries || newInquiries.length === 0) {
     return res.json({
@@ -422,11 +423,12 @@ async function sendConsultationReminders(req, res) {
   const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
   const { data: households } = await getSupabase()
-    .from('ypec_households')
+    .from(TABLES.CLIENTS)
     .select('*')
+    .eq('tenant_id', TENANT_ID)
     .eq('status', 'consultation_scheduled')
-    .gte('consultation_date', tomorrowStr)
-    .lt('consultation_date', `${tomorrowStr}T23:59:59`);
+    .gte('metadata->consultation_date', tomorrowStr)
+    .lt('metadata->consultation_date', `${tomorrowStr}T23:59:59`);
 
   if (!households || households.length === 0) {
     return res.json({
@@ -524,11 +526,11 @@ async function sendChefIntroduction(household, chef) {
   const emailContent = `
 Dear ${household.primary_contact_name.split(' ')[0]},
 
-We're delighted to introduce you to ${chef.full_name}, who will be serving your household.
+We're delighted to introduce you to ${chef.first_name} ${chef.last_name}, who will be serving your household.
 
-${chef.full_name} specializes in ${chef.specialties?.join(', ')} and has ${chef.experience_years} years of experience in private estate dining.
+${chef.first_name} ${chef.last_name} specializes in ${chef.specialties?.join(', ') || 'fine dining'} and has ${chef.years_experience || 0} years of experience in private estate dining.
 
-${chef.full_name} will reach out shortly to schedule your first session and discuss your preferences in detail.
+${chef.first_name} will reach out shortly to schedule your first session and discuss your preferences in detail.
 
 Welcome to Your Private Estate Chef.
 
@@ -536,7 +538,7 @@ Warm regards,
 The YPEC Team
   `.trim();
 
-  console.log(`[${BOT_INFO.name}] Chef introduction prepared for ${household.email}`);
+  console.log(`[${BOT_INFO.name}] Chef introduction prepared for ${household.primary_contact_email}`);
 }
 
 async function sendConsultationReminder(household) {

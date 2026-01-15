@@ -3,7 +3,7 @@
 // Purpose: Incentivize existing chefs to refer qualified candidates
 // ============================================================================
 
-const { getSupabase } = require('./database');
+const { getSupabase, tenantInsert, tenantUpdate, TENANT_ID, TABLES } = require('./database');
 const crypto = require('crypto');
 
 const REFERRAL_BONUSES = {
@@ -25,8 +25,9 @@ async function generateReferralCode(chefId) {
 
     // Check if code already exists
     const { data: existing } = await getSupabase()
-      .from('ypec_chef_referrals')
+      .from(TABLES.CHEF_REFERRALS)
       .select('id')
+      .eq('tenant_id', TENANT_ID)
       .eq('referral_code', code)
       .single();
 
@@ -36,18 +37,14 @@ async function generateReferralCode(chefId) {
     }
 
     // Create referral tracking record
-    const { data: referral, error } = await getSupabase()
-      .from('ypec_chef_referrals')
-      .insert({
-        chef_id: chefId,
-        referral_code: code,
-        referral_url: `https://yourprivateestatechef.com/chef-application.html?ref=${code}`,
-        total_referrals: 0,
-        total_earnings: 0,
-        created_at: new Date().toISOString()
-      })
-      .select()
-      .single();
+    const { data: referral, error } = await tenantInsert(TABLES.CHEF_REFERRALS, {
+      chef_id: chefId,
+      referral_code: code,
+      referral_url: `https://yourprivateestatechef.com/chef-application.html?ref=${code}`,
+      total_referrals: 0,
+      total_earnings: 0,
+      created_at: new Date().toISOString()
+    }).select().single();
 
     if (error) throw error;
 
@@ -80,8 +77,9 @@ async function getChefReferralInfo(req, res) {
 
     // Get or create referral tracking
     let { data: referral } = await getSupabase()
-      .from('ypec_chef_referrals')
+      .from(TABLES.CHEF_REFERRALS)
       .select('*')
+      .eq('tenant_id', TENANT_ID)
       .eq('chef_id', chef_id)
       .single();
 
@@ -89,8 +87,9 @@ async function getChefReferralInfo(req, res) {
       // Generate new referral code for chef
       const result = await generateReferralCode(chef_id);
       const { data: newReferral } = await getSupabase()
-        .from('ypec_chef_referrals')
+        .from(TABLES.CHEF_REFERRALS)
         .select('*')
+        .eq('tenant_id', TENANT_ID)
         .eq('chef_id', chef_id)
         .single();
 
@@ -99,8 +98,10 @@ async function getChefReferralInfo(req, res) {
 
     // Get referred chefs and their status
     const { data: referredChefs } = await getSupabase()
-      .from('ypec_chefs')
+      .from(TABLES.USERS)
       .select('id, first_name, last_name, status, created_at, onboarding_date')
+      .eq('tenant_id', TENANT_ID)
+      .eq('user_type', 'chef')
       .eq('referred_by', chef_id)
       .order('created_at', { ascending: false });
 
@@ -151,8 +152,9 @@ async function trackReferral(referralCode, newChefId) {
 
     // Find referral record
     const { data: referral } = await getSupabase()
-      .from('ypec_chef_referrals')
+      .from(TABLES.CHEF_REFERRALS)
       .select('chef_id')
+      .eq('tenant_id', TENANT_ID)
       .eq('referral_code', referralCode.toUpperCase())
       .single();
 
@@ -162,21 +164,22 @@ async function trackReferral(referralCode, newChefId) {
     }
 
     // Update new chef with referrer
-    await getSupabase()
-      .from('ypec_chefs')
-      .update({
-        referred_by: referral.chef_id,
-        referral_code_used: referralCode.toUpperCase()
-      })
-      .eq('id', newChefId);
+    await tenantUpdate(TABLES.USERS, {
+      referred_by: referral.chef_id,
+      referral_code_used: referralCode.toUpperCase()
+    }).eq('id', newChefId);
 
-    // Increment referral count
-    await getSupabase()
-      .from('ypec_chef_referrals')
-      .update({
-        total_referrals: getSupabase().raw('total_referrals + 1')
-      })
-      .eq('chef_id', referral.chef_id);
+    // Get current referral count and increment
+    const { data: currentReferral } = await getSupabase()
+      .from(TABLES.CHEF_REFERRALS)
+      .select('total_referrals')
+      .eq('tenant_id', TENANT_ID)
+      .eq('chef_id', referral.chef_id)
+      .single();
+
+    await tenantUpdate(TABLES.CHEF_REFERRALS, {
+      total_referrals: (currentReferral?.total_referrals || 0) + 1
+    }).eq('chef_id', referral.chef_id);
 
     console.log(`[ChefReferral] Referral tracked successfully`);
 
@@ -195,8 +198,9 @@ async function processReferralBonus(referredChefId, newStatus) {
 
     // Get referred chef info
     const { data: chef } = await getSupabase()
-      .from('ypec_chefs')
+      .from(TABLES.USERS)
       .select('id, referred_by, first_name, last_name, created_at, onboarding_date')
+      .eq('tenant_id', TENANT_ID)
       .eq('id', referredChefId)
       .single();
 
@@ -214,8 +218,9 @@ async function processReferralBonus(referredChefId, newStatus) {
 
     // Check if bonus already paid for this milestone
     const { data: existingBonus } = await getSupabase()
-      .from('ypec_referral_bonuses')
+      .from(TABLES.REFERRAL_BONUSES)
       .select('id')
+      .eq('tenant_id', TENANT_ID)
       .eq('referred_chef_id', referredChefId)
       .eq('milestone', newStatus)
       .single();
@@ -226,29 +231,32 @@ async function processReferralBonus(referredChefId, newStatus) {
     }
 
     // Record bonus
-    await getSupabase()
-      .from('ypec_referral_bonuses')
-      .insert({
-        referrer_chef_id: chef.referred_by,
-        referred_chef_id: referredChefId,
-        milestone: newStatus,
-        bonus_amount: milestoneBonus,
-        status: 'earned',
-        earned_at: new Date().toISOString()
-      });
+    await tenantInsert(TABLES.REFERRAL_BONUSES, {
+      referrer_chef_id: chef.referred_by,
+      referred_chef_id: referredChefId,
+      milestone: newStatus,
+      bonus_amount: milestoneBonus,
+      status: 'earned',
+      earned_at: new Date().toISOString()
+    });
 
-    // Update total earnings
-    await getSupabase()
-      .from('ypec_chef_referrals')
-      .update({
-        total_earnings: getSupabase().raw(`total_earnings + ${milestoneBonus}`)
-      })
-      .eq('chef_id', chef.referred_by);
+    // Get current earnings and update
+    const { data: currentReferral } = await getSupabase()
+      .from(TABLES.CHEF_REFERRALS)
+      .select('total_earnings')
+      .eq('tenant_id', TENANT_ID)
+      .eq('chef_id', chef.referred_by)
+      .single();
+
+    await tenantUpdate(TABLES.CHEF_REFERRALS, {
+      total_earnings: (currentReferral?.total_earnings || 0) + milestoneBonus
+    }).eq('chef_id', chef.referred_by);
 
     // Notify referrer
     const { data: referrer } = await getSupabase()
-      .from('ypec_chefs')
+      .from(TABLES.USERS)
       .select('first_name, last_name, email')
+      .eq('tenant_id', TENANT_ID)
       .eq('id', chef.referred_by)
       .single();
 

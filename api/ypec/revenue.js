@@ -4,7 +4,7 @@
 // Purpose: Revenue tracking, invoicing, payments, financial reporting
 // ============================================================================
 
-const { getSupabase } = require('./database');
+const { getSupabase, tenantInsert, tenantUpdate, TENANT_ID, TABLES } = require('./database');
 const mfs = require('./mfs-integration');
 
 
@@ -71,8 +71,9 @@ async function getStatus(req, res) {
   const thisMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
 
   const { data: invoices } = await getSupabase()
-    .from('ypec_invoices')
+    .from(TABLES.INVOICES)
     .select('total, status, invoice_date')
+    .eq('tenant_id', TENANT_ID)
     .gte('invoice_date', `${thisMonth}-01`);
 
   const totalRevenue = invoices
@@ -122,8 +123,9 @@ async function getRevenue(req, res, data) {
   }
 
   const { data: invoices } = await getSupabase()
-    .from('ypec_invoices')
+    .from(TABLES.INVOICES)
     .select('*')
+    .eq('tenant_id', TENANT_ID)
     .gte('invoice_date', startDate.toISOString().split('T')[0])
     .order('invoice_date', { ascending: false });
 
@@ -159,11 +161,12 @@ async function getRevenue(req, res, data) {
 
 async function getInvoices(req, res) {
   const { data: invoices, error } = await getSupabase()
-    .from('ypec_invoices')
+    .from(TABLES.INVOICES)
     .select(`
       *,
-      household:ypec_households(primary_contact_name, email)
+      client:${TABLES.CLIENTS}(primary_contact_name, primary_contact_email)
     `)
+    .eq('tenant_id', TENANT_ID)
     .order('invoice_date', { ascending: false })
     .limit(100);
 
@@ -190,11 +193,12 @@ async function getInvoices(req, res) {
 
 async function getPayments(req, res) {
   const { data: payments, error } = await getSupabase()
-    .from('ypec_chef_payments')
+    .from(TABLES.CHEF_PAYMENTS)
     .select(`
       *,
-      chef:ypec_chefs(full_name, email)
+      chef:${TABLES.USERS}(first_name, last_name, email)
     `)
+    .eq('tenant_id', TENANT_ID)
     .order('payment_date', { ascending: false })
     .limit(100);
 
@@ -216,8 +220,9 @@ async function forecastRevenue(req, res) {
 
   // Get all active engagements
   const { data: engagements } = await getSupabase()
-    .from('ypec_engagements')
+    .from(TABLES.ENGAGEMENTS)
     .select('*')
+    .eq('tenant_id', TENANT_ID)
     .eq('status', 'active');
 
   let monthlyRecurring = 0;
@@ -238,8 +243,9 @@ async function forecastRevenue(req, res) {
   next30Days.setDate(next30Days.getDate() + 30);
 
   const { data: upcomingEvents } = await getSupabase()
-    .from('ypec_events')
-    .select('*, engagement:ypec_engagements(rate, rate_type)')
+    .from(TABLES.EVENTS)
+    .select(`*, engagement:${TABLES.ENGAGEMENTS}(total_cost, payment_status)`)
+    .eq('tenant_id', TENANT_ID)
     .gte('event_date', today)
     .lte('event_date', next30Days.toISOString().split('T')[0])
     .in('status', ['scheduled', 'confirmed']);
@@ -303,21 +309,22 @@ async function generateMonthlyInvoices(req, res) {
 
   // Get active weekly/monthly engagements
   const { data: engagements } = await getSupabase()
-    .from('ypec_engagements')
+    .from(TABLES.ENGAGEMENTS)
     .select(`
       *,
-      household:ypec_households(primary_contact_name, email)
+      client:${TABLES.CLIENTS}(primary_contact_name, primary_contact_email)
     `)
-    .eq('status', 'active')
-    .in('rate_type', ['per_week', 'per_month']);
+    .eq('tenant_id', TENANT_ID)
+    .eq('status', 'active');
 
   let created = 0;
 
   for (const eng of engagements || []) {
     // Check if invoice already exists for this month
     const { data: existing } = await getSupabase()
-      .from('ypec_invoices')
+      .from(TABLES.INVOICES)
       .select('id')
+      .eq('tenant_id', TENANT_ID)
       .eq('engagement_id', eng.id)
       .gte('invoice_date', `${thisMonth}-01`)
       .lte('invoice_date', `${thisMonth}-31`);
@@ -340,25 +347,25 @@ async function generateMonthlyInvoices(req, res) {
     const invoiceNumber = `YPEC-${thisMonth}-${String(created + 1).padStart(4, '0')}`;
 
     // Create invoice
-    const { error } = await getSupabase()
-      .from('ypec_invoices')
-      .insert({
-        household_id: eng.household_id,
-        engagement_id: eng.id,
-        invoice_number: invoiceNumber,
-        invoice_date: new Date().toISOString().split('T')[0],
-        due_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 15 days
-        subtotal,
-        tax,
-        total,
-        status: 'draft',
+    const { error } = await tenantInsert(TABLES.INVOICES, {
+      client_id: eng.client_id,
+      engagement_id: eng.id,
+      invoice_number: invoiceNumber,
+      invoice_date: new Date().toISOString().split('T')[0],
+      due_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 15 days
+      subtotal,
+      tax,
+      total,
+      status: 'draft',
+      metadata: {
         line_items: [{
-          description: `${eng.service_type} service - ${thisMonth}`,
+          description: `${eng.engagement_type || 'service'} - ${thisMonth}`,
           quantity: 1,
           rate: subtotal,
           amount: subtotal
         }]
-      });
+      }
+    });
 
     if (error) {
       console.error(`[${BOT_INFO.name}] Error creating invoice:`, error);
@@ -388,8 +395,9 @@ async function sendWeeklyReport(req, res) {
   const weekStart = startOfWeek.toISOString().split('T')[0];
 
   const { data: invoices } = await getSupabase()
-    .from('ypec_invoices')
+    .from(TABLES.INVOICES)
     .select('*')
+    .eq('tenant_id', TENANT_ID)
     .gte('invoice_date', weekStart);
 
   const revenue = {
@@ -435,20 +443,21 @@ async function dailyRun(req, res) {
   const today = new Date().toISOString().split('T')[0];
 
   const { data: overdueInvoices } = await getSupabase()
-    .from('ypec_invoices')
+    .from(TABLES.INVOICES)
     .select(`
       *,
-      household:ypec_households(primary_contact_name, email)
+      client:${TABLES.CLIENTS}(primary_contact_name, primary_contact_email)
     `)
+    .eq('tenant_id', TENANT_ID)
     .eq('status', 'sent')
     .lt('due_date', today);
 
   if (overdueInvoices && overdueInvoices.length > 0) {
     // Mark as overdue
-    await getSupabase()
-      .from('ypec_invoices')
-      .update({ status: 'overdue' })
-      .in('id', overdueInvoices.map(i => i.id));
+    for (const invoice of overdueInvoices) {
+      await tenantUpdate(TABLES.INVOICES, { status: 'overdue' })
+        .eq('id', invoice.id);
+    }
 
     console.log(`[${BOT_INFO.name}] Marked ${overdueInvoices.length} invoices as overdue`);
 
