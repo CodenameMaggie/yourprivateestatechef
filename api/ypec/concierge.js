@@ -204,17 +204,53 @@ async function acknowledgeInquiry(req, res, data) {
 async function scheduleConsultation(req, res, data) {
   const { inquiry_id, consultation_date } = data;
 
-  console.log(`[${BOT_INFO.name}] Scheduling consultation for inquiry: ${inquiry_id}`);
+  console.log(`[${BOT_INFO.name}] Scheduling consultation - inquiry_id: ${inquiry_id || 'NEW'}`);
 
-  // Get inquiry details
-  const { data: inquiry } = await getSupabase()
-    .from('ypec_inquiries')
-    .select('*')
-    .eq('id', inquiry_id)
-    .single();
+  let inquiry;
 
-  if (!inquiry) {
-    return res.status(404).json({ error: 'Inquiry not found' });
+  // If no inquiry_id, this is a direct booking from the website
+  if (!inquiry_id) {
+    console.log(`[${BOT_INFO.name}] Creating new inquiry from direct booking`);
+
+    // Create inquiry record first
+    const { data: newInquiry, error: inquiryError } = await getSupabase()
+      .from('ypec_inquiries')
+      .insert({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        city: data.city,
+        state: data.state || '',
+        message: data.message || data.specialRequests || '',
+        service_interest: data.service_interest || data.serviceName,
+        referral_source: data.referral_source || 'Website Booking System',
+        household_size: data.householdSize,
+        cuisine_preferences: data.cuisinePreferences,
+        dietary_requirements: data.dietaryRequirements,
+        status: 'consultation_scheduled'
+      })
+      .select()
+      .single();
+
+    if (inquiryError) {
+      console.error('Error creating inquiry:', inquiryError);
+      throw inquiryError;
+    }
+
+    inquiry = newInquiry;
+  } else {
+    // Get existing inquiry details
+    const { data: existingInquiry } = await getSupabase()
+      .from('ypec_inquiries')
+      .select('*')
+      .eq('id', inquiry_id)
+      .single();
+
+    if (!existingInquiry) {
+      return res.status(404).json({ error: 'Inquiry not found' });
+    }
+
+    inquiry = existingInquiry;
   }
 
   // Create household record
@@ -243,7 +279,7 @@ async function scheduleConsultation(req, res, data) {
       status: 'consultation_scheduled',
       converted_to_household_id: household.id
     })
-    .eq('id', inquiry_id);
+    .eq('id', inquiry.id);
 
   // Send consultation invitation email
   await sendConsultationInvitation(inquiry.name, inquiry.email, consultation_date);
