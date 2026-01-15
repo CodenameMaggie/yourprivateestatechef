@@ -377,7 +377,12 @@ async function dailyRun(req, res) {
 
 async function adminLogin(req, res, data) {
   try {
-    const { email, password } = data;
+    let { email, password, encoded } = data;
+
+    // Decode base64 password if encoded (to bypass Railway JSON parser issues)
+    if (encoded) {
+      password = Buffer.from(password, 'base64').toString('utf-8');
+    }
 
     // Validate input
     const { error: validationError } = validate({ email, password }, loginSchema);
@@ -462,7 +467,12 @@ async function adminLogin(req, res, data) {
 
 async function clientLogin(req, res, data) {
   try {
-    const { email, password } = data;
+    let { email, password, encoded } = data;
+
+    // Decode base64 password if encoded (to bypass Railway JSON parser issues)
+    if (encoded) {
+      password = Buffer.from(password, 'base64').toString('utf-8');
+    }
 
     // Validate input
     const { error: validationError } = validate({ email, password }, loginSchema);
@@ -628,7 +638,12 @@ async function clientDashboard(req, res, data) {
 
 async function chefLogin(req, res, data) {
   try {
-    const { email, password } = data;
+    let { email, password, encoded } = data;
+
+    // Decode base64 password if encoded (to bypass Railway JSON parser issues)
+    if (encoded) {
+      password = Buffer.from(password, 'base64').toString('utf-8');
+    }
 
     // Validate input
     const { error: validationError } = validate({ email, password }, loginSchema);

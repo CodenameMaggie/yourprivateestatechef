@@ -205,6 +205,9 @@
             errorMessage.style.display = 'none';
 
             try {
+                // Base64 encode password to bypass Railway JSON parser issues with special characters
+                const encodedPassword = btoa(password);
+
                 // Admin authentication via Supabase
                 const response = await fetch('/api/ypec/operations', {
                     method: 'POST',
@@ -215,7 +218,8 @@
                         action: 'admin_login',
                         data: {
                             email: email,
-                            password: password
+                            password: encodedPassword,
+                            encoded: true
                         }
                     })
                 });

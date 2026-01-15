@@ -257,6 +257,9 @@
             const password = document.getElementById('password').value;
 
             try {
+                // Base64 encode password to bypass Railway JSON parser issues with special characters
+                const encodedPassword = btoa(password);
+
                 const response = await fetch('/api/ypec/operations', {
                     method: 'POST',
                     headers: {
@@ -266,7 +269,8 @@
                         action: 'client_login',
                         data: {
                             email: email,
-                            password: password
+                            password: encodedPassword,
+                            encoded: true
                         }
                     })
                 });
