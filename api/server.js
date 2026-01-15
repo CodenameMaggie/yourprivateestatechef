@@ -116,6 +116,10 @@ app.get('/api/health', (req, res) => {
 const diagnostic = require('./ypec/diagnostic');
 app.get('/api/diagnostic', diagnostic);
 
+// Environment check endpoint
+const envCheck = require('./ypec/env-check');
+app.get('/api/env-check', envCheck);
+
 // Bot endpoints
 const concierge = require('./ypec/concierge');
 const chefRelations = require('./ypec/chef-relations');
