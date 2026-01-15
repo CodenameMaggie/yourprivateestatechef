@@ -447,6 +447,65 @@
             </div>
         </div>
 
+        <!-- Referral Program -->
+        <div class="card" style="margin-bottom: 30px;">
+            <div class="card-header">
+                <h2 class="card-title">Chef Referral Program</h2>
+                <span class="card-badge" id="referralEarnings">$0</span>
+            </div>
+
+            <div style="background: var(--ivory); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 0.9em; color: var(--plum-soft); margin-bottom: 5px;">Your Referral Code</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="referralCode" readonly style="flex: 1; padding: 12px; border: 1px solid var(--blush); border-radius: 6px; background: var(--cream); font-family: monospace; font-size: 1.2em; font-weight: 600; color: var(--candlelight); text-align: center;">
+                        <button onclick="copyReferralCode()" style="padding: 12px 20px; background: var(--candlelight); color: var(--plum-deep); border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">Copy</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.9em; color: var(--plum-soft); margin-bottom: 5px;">Share Your Referral Link</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="referralUrl" readonly style="flex: 1; padding: 10px; border: 1px solid var(--blush); border-radius: 6px; background: var(--cream); font-size: 0.9em; color: var(--plum-deep);">
+                        <button onclick="copyReferralUrl()" style="padding: 10px 20px; background: var(--plum); color: var(--cream); border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">Copy Link</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid" style="margin-bottom: 20px;">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalReferrals">0</div>
+                    <div class="stat-label">Total Referrals</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalEarnings">$0</div>
+                    <div class="stat-label">Total Earned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="pendingEarnings">$0</div>
+                    <div class="stat-label">Pending Earnings</div>
+                </div>
+            </div>
+
+            <div style="background: var(--warm-white); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <h3 style="font-size: 1.1em; margin-bottom: 10px; color: var(--plum-deep);">Bonus Structure</h3>
+                <div style="font-size: 0.9em; color: var(--plum-soft); line-height: 1.8;">
+                    <div>✓ <strong>$50</strong> when referred chef reaches screening</div>
+                    <div>✓ <strong>$150</strong> when referred chef starts onboarding</div>
+                    <div>✓ <strong>$500</strong> when referred chef stays active for 30 days</div>
+                    <div>✓ <strong>$1,000</strong> when referred chef stays active for 90 days</div>
+                </div>
+            </div>
+
+            <div id="referredChefsList">
+                <h3 style="font-size: 1.1em; margin-bottom: 10px; color: var(--plum-deep);">Your Referrals</h3>
+                <div class="empty-state">
+                    <div class="empty-state-icon">👥</div>
+                    <p>No referrals yet. Share your code to start earning!</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Dashboard Grid -->
         <div class="dashboard-grid">
             <!-- Assigned Households -->
@@ -581,6 +640,102 @@
             }
         }
 
+        // Load referral information
+        async function loadReferralInfo() {
+            try {
+                const response = await fetch('/api/ypec-chef-referral', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data: {
+                            chef_id: chefId
+                        }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    populateReferralInfo(result);
+                } else {
+                    console.error('Failed to load referral info:', result.error);
+                }
+            } catch (error) {
+                console.error('Error loading referral info:', error);
+            }
+        }
+
+        function populateReferralInfo(data) {
+            // Set referral code and URL
+            document.getElementById('referralCode').value = data.referral_code || '';
+            document.getElementById('referralUrl').value = data.referral_url || '';
+
+            // Update stats
+            document.getElementById('totalReferrals').textContent = data.total_referrals || 0;
+            document.getElementById('totalEarnings').textContent = `$${data.total_earnings || 0}`;
+            document.getElementById('pendingEarnings').textContent = `$${data.pending_earnings || 0}`;
+            document.getElementById('referralEarnings').textContent = `$${data.total_earnings || 0}`;
+
+            // Populate referred chefs list
+            if (data.referred_chefs && data.referred_chefs.length > 0) {
+                const referredChefsList = document.getElementById('referredChefsList');
+                referredChefsList.innerHTML = `
+                    <h3 style="font-size: 1.1em; margin-bottom: 15px; color: var(--plum-deep);">Your Referrals</h3>
+                    ${data.referred_chefs.map(chef => `
+                        <div style="padding: 15px; background: var(--ivory); border-radius: 8px; margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-weight: 600; color: var(--plum-deep); margin-bottom: 4px;">${chef.chef_name}</div>
+                                    <div style="font-size: 0.9em; color: var(--plum-soft);">Status: ${formatStatus(chef.status)}</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 1.1em; font-weight: 600; color: var(--candlelight);">$${chef.earned}</div>
+                                    <div style="font-size: 0.85em; color: var(--plum-soft);">earned</div>
+                                </div>
+                            </div>
+                            ${chef.breakdown && chef.breakdown.length > 0 ? `
+                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--blush-soft); font-size: 0.85em; color: var(--plum-soft);">
+                                    ${chef.breakdown.map(b => `<div>✓ ${b.milestone}: $${b.amount}</div>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                `;
+            }
+        }
+
+        function formatStatus(status) {
+            const statusMap = {
+                'pending': 'Application Pending',
+                'screening': 'In Screening',
+                'onboarding': 'Onboarding',
+                'active': 'Active',
+                'inactive': 'Inactive',
+                'rejected': 'Not Selected'
+            };
+            return statusMap[status] || status;
+        }
+
+        function copyReferralCode() {
+            const codeInput = document.getElementById('referralCode');
+            codeInput.select();
+            codeInput.setSelectionRange(0, 99999); // For mobile devices
+            document.execCommand('copy');
+
+            alert('Referral code copied to clipboard!');
+        }
+
+        function copyReferralUrl() {
+            const urlInput = document.getElementById('referralUrl');
+            urlInput.select();
+            urlInput.setSelectionRange(0, 99999); // For mobile devices
+            document.execCommand('copy');
+
+            alert('Referral link copied to clipboard!');
+        }
+
         function populateDashboard(data) {
             // Update stats
             if (data.stats) {
@@ -651,6 +806,7 @@
 
         // Load data on page load
         loadDashboardData();
+        loadReferralInfo();
     </script>
 </body>
 </html>

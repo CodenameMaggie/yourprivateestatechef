@@ -8,6 +8,7 @@ const { getSupabase } = require('./database');
 const mfs = require('./mfs-integration');
 const { hashPassword, verifyPassword, generateSecureToken } = require('./security');
 const { validate, loginSchema } = require('./validation');
+const { trackReferral, processReferralBonus } = require('./chef-referral');
 
 
 const BOT_INFO = {
@@ -935,6 +936,11 @@ async function chefApplication(req, res, data) {
       throw insertError;
     }
 
+    // Track referral if referral code provided
+    if (data.referralCode) {
+      await trackReferral(data.referralCode, newChef.id);
+    }
+
     // TODO: Store uploaded files in cloud storage (S3, etc.)
     // TODO: Send notification to admin about new application
     // TODO: Send confirmation email to chef
@@ -1080,6 +1086,9 @@ async function updateChefStatus(req, res, data) {
       // TODO: Send screening instructions
       console.log(`[${BOT_INFO.name}] Chef ${chef_id} moved to screening`);
     }
+
+    // Process referral bonus if applicable
+    await processReferralBonus(chef_id, status);
 
     // Alert HENRY if chef was activated
     if (status === 'active') {

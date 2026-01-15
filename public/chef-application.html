@@ -664,6 +664,14 @@
         const totalSteps = 4;
         let applicationData = {};
 
+        // Check for referral code in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const referralCode = urlParams.get('ref');
+        if (referralCode) {
+            applicationData.referralCode = referralCode;
+            console.log('Referral code detected:', referralCode);
+        }
+
         // Handle custom location field
         document.getElementById('location').addEventListener('change', function() {
             const customLocationGroup = document.getElementById('customLocationGroup');
@@ -912,6 +920,7 @@
                             bio: applicationData.bio,
                             backgroundConsent: true,
                             termsConsent: true,
+                            referralCode: applicationData.referralCode || null,
                             // Note: File uploads will be handled separately in production
                             files: {
                                 resume: applicationData.resume.name,
