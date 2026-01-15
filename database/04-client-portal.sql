@@ -118,11 +118,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Drop triggers if they exist, then recreate
+DROP TRIGGER IF EXISTS update_household_preferences_updated_at ON ypec_household_preferences;
 CREATE TRIGGER update_household_preferences_updated_at
     BEFORE UPDATE ON ypec_household_preferences
     FOR EACH ROW
     EXECUTE FUNCTION update_household_preferences_timestamp();
 
+DROP TRIGGER IF EXISTS update_household_documents_updated_at ON ypec_household_documents;
 CREATE TRIGGER update_household_documents_updated_at
     BEFORE UPDATE ON ypec_household_documents
     FOR EACH ROW
@@ -133,7 +136,7 @@ CREATE TRIGGER update_household_documents_updated_at
 -- ============================================================================
 
 -- Create a test household account for demonstration
--- Password: "TestClient123!"
+-- Password: "TestClient123"
 INSERT INTO ypec_households (
     household_name,
     primary_contact_name,
@@ -150,11 +153,13 @@ VALUES (
     'test@example.com',
     '555-0100',
     '123 Test Street, Austin, TX 78701',
-    'TestClient123!',  -- TEMPORARY: Replace with bcrypt hash in production
+    'TestClient123',  -- TEMPORARY: Replace with bcrypt hash in production
     TRUE,
     'active'
 )
-ON CONFLICT (email) DO NOTHING;
+ON CONFLICT (email) DO UPDATE SET
+  password_hash = EXCLUDED.password_hash,
+  login_enabled = EXCLUDED.login_enabled;
 
 -- ============================================================================
 -- NOTES:

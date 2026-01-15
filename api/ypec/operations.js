@@ -6,6 +6,8 @@
 
 const { getSupabase } = require('./database');
 const mfs = require('./mfs-integration');
+const { hashPassword, verifyPassword, generateSecureToken } = require('./security');
+const { validate, loginSchema } = require('./validation');
 
 
 const BOT_INFO = {
@@ -377,6 +379,16 @@ async function adminLogin(req, res, data) {
   try {
     const { email, password } = data;
 
+    // Validate input
+    const validation = validate(loginSchema, { email, password });
+    if (!validation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid input',
+        errors: validation.errors
+      });
+    }
+
     console.log(`[${BOT_INFO.name}] Admin login attempt: ${email}`);
 
     // Check against ypec_staff table (admin users)
@@ -395,9 +407,9 @@ async function adminLogin(req, res, data) {
       });
     }
 
-    // TODO: Implement proper password hashing with bcrypt
-    // For now, using simple comparison (REPLACE THIS IN PRODUCTION)
-    if (staff.password_hash !== password) {
+    // Verify password using bcrypt
+    const isValidPassword = await verifyPassword(password, staff.password_hash);
+    if (!isValidPassword) {
       console.warn(`[${BOT_INFO.name}] Admin login failed - invalid password`);
       return res.status(401).json({
         success: false,
@@ -405,8 +417,8 @@ async function adminLogin(req, res, data) {
       });
     }
 
-    // Generate session token (simple UUID-like for now)
-    const sessionToken = `ypec_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+    // Generate secure session token
+    const sessionToken = generateSecureToken('ypec_admin');
 
     // Store session in database
     const { error: sessionError } = await getSupabase()
@@ -452,6 +464,16 @@ async function clientLogin(req, res, data) {
   try {
     const { email, password } = data;
 
+    // Validate input
+    const validation = validate(loginSchema, { email, password });
+    if (!validation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid input',
+        errors: validation.errors
+      });
+    }
+
     console.log(`[${BOT_INFO.name}] Client login attempt for: ${email}`);
 
     // Find household with matching email and login enabled
@@ -471,9 +493,9 @@ async function clientLogin(req, res, data) {
       });
     }
 
-    // TODO: Implement proper password hashing with bcrypt
-    // For now, using simple comparison (REPLACE THIS IN PRODUCTION)
-    if (household.password_hash !== password) {
+    // Verify password using bcrypt
+    const isValidPassword = await verifyPassword(password, household.password_hash);
+    if (!isValidPassword) {
       console.warn(`[${BOT_INFO.name}] Client login failed - invalid password`);
       return res.status(401).json({
         success: false,
@@ -481,8 +503,8 @@ async function clientLogin(req, res, data) {
       });
     }
 
-    // Generate session token
-    const sessionToken = `ypec_client_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+    // Generate secure session token
+    const sessionToken = generateSecureToken('ypec_client');
 
     // Store session in database
     const { error: sessionError } = await getSupabase()
@@ -608,6 +630,16 @@ async function chefLogin(req, res, data) {
   try {
     const { email, password } = data;
 
+    // Validate input
+    const validation = validate(loginSchema, { email, password });
+    if (!validation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid input',
+        errors: validation.errors
+      });
+    }
+
     console.log(`[${BOT_INFO.name}] Chef login attempt for: ${email}`);
 
     // Find chef with matching email and login enabled
@@ -627,9 +659,9 @@ async function chefLogin(req, res, data) {
       });
     }
 
-    // TODO: Implement proper password hashing with bcrypt
-    // For now, using simple comparison (REPLACE THIS IN PRODUCTION)
-    if (chef.password_hash !== password) {
+    // Verify password using bcrypt
+    const isValidPassword = await verifyPassword(password, chef.password_hash);
+    if (!isValidPassword) {
       console.warn(`[${BOT_INFO.name}] Chef login failed - invalid password`);
       return res.status(401).json({
         success: false,
@@ -637,8 +669,8 @@ async function chefLogin(req, res, data) {
       });
     }
 
-    // Generate session token
-    const sessionToken = `ypec_chef_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+    // Generate secure session token
+    const sessionToken = generateSecureToken('ypec_chef');
 
     // Store session in database
     const { error: sessionError } = await getSupabase()

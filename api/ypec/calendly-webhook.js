@@ -8,11 +8,16 @@ const { getSupabase } = require('./database');
 const mfs = require('./mfs-integration');
 
 const CALENDLY_CONFIG = {
-  token: 'eyJraWQiOiIxY2UxZTEzNjE3ZGNmNzY2YjNjZWJjY2Y4ZGM1YmFmYThhNjVlNjg0MDIzZjdjMzJiZTgzNDliMjM4MDEzNWI0IiwidHlwIjoiUEFUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiJodHRwczovL2F1dGguY2FsZW5kbHkuY29tIiwiaWF0IjoxNzY4MzM0NDc3LCJqdGkiOiIwYjg4ZDc2Zi1lZDMyLTQ0YTQtYjNjYi0wYjM2ZTY3ZDM3NWIiLCJ1c2VyX3V1aWQiOiJkNDk1YjhhOS01ZTMwLTQzMmItOTE0ZC1hMGNlYjM4MWQyOGIifQ.e1DIkA5lwvmQQvrRGQXc2Vjl7EHghFTiiR-Uz04avChPsyRUXYV2K9V_a-s2Irdbx_VFJavJGHx4TfoQ0AgCyQ',
+  token: process.env.CALENDLY_TOKEN || '', // Load from environment variable
   api_url: 'https://api.calendly.com',
   allowed_day: 'Friday', // Only Foodie Fridays
   event_name: 'Foodie Fridays Podcast'
 };
+
+// Validate configuration on load
+if (!CALENDLY_CONFIG.token) {
+  console.warn('[Calendly] WARNING: CALENDLY_TOKEN not configured in environment variables');
+}
 
 // ============================================================================
 // WEBHOOK HANDLER
