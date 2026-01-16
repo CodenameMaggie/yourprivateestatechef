@@ -292,13 +292,50 @@
     }
   ],
   "metadata": {
-    "total_markets": 10,
+    "total_primary_markets": 10,
     "tier_1_primary": 8,
     "tier_2_secondary": 2,
-    "total_hnw_households": "~937,000",
+    "total_hnw_households_primary": "~937,000",
     "geographic_coverage": ["Canada", "USA"],
-    "background_check_note": "All chefs MUST complete jurisdiction-specific background checks before placement",
+    "expansion_strategy": "demand_driven",
+    "market_philosophy": "NOT LIMITED to these markets. These are PRIMARY established markets. YPEC expands to ANY location with client demand. When a client inquiry comes from a new area (e.g., Palm Springs, Seattle, Chicago, Phoenix), we do targeted chef outreach in that area and surrounding regions.",
+    "expansion_process": [
+      "1. Client inquiry received from new location",
+      "2. Create 'emerging market' entry",
+      "3. Launch targeted chef recruitment in that area",
+      "4. Recruit chefs within 50-mile radius",
+      "5. Build local presence organically",
+      "6. Market matures: emerging → established → primary"
+    ],
+    "background_check_note": "All chefs MUST complete jurisdiction-specific background checks before placement. Supports ANY jurisdiction in Canada/USA.",
     "last_updated": "2026-01-15"
+  },
+  "emerging_markets": {
+    "note": "Tracks new markets where we've received client inquiries but haven't yet established chef network",
+    "examples": [
+      {
+        "id": "palm-springs-ca",
+        "city": "Palm Springs",
+        "province_state": "California",
+        "country": "USA",
+        "status": "emerging",
+        "client_inquiries": 2,
+        "chefs_recruited": 0,
+        "first_inquiry_date": "2026-01-10",
+        "target_chefs": 3
+      },
+      {
+        "id": "seattle-wa",
+        "city": "Seattle",
+        "province_state": "Washington",
+        "country": "USA",
+        "status": "emerging",
+        "client_inquiries": 1,
+        "chefs_recruited": 0,
+        "first_inquiry_date": "2026-01-12",
+        "target_chefs": 5
+      }
+    ]
   },
   "background_check_policy": {
     "required_for_all_placements": true,

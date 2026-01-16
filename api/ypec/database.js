@@ -29,6 +29,7 @@ const TABLES = {
   CHEF_LEADS: 'ypec_chef_leads',          // prospective chef leads from scraping
   CULINARY_OUTREACH: 'ypec_culinary_outreach', // culinary school outreach campaigns
   PARTNERSHIP_OUTREACH: 'ypec_partnership_outreach', // B2B partnership outreach campaigns
+  MARKETS: 'ypec_markets',                // geographic market expansion tracking
   EVENTS: 'ypec_events',                  // YPEC events/bookings
   ADMIN_SESSIONS: 'ypec_admin_sessions',  // admin login sessions
   CLIENT_SESSIONS: 'ypec_household_sessions', // client login sessions
