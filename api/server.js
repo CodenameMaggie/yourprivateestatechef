@@ -140,6 +140,7 @@ const chefCompliance = require('./ypec/chef-compliance');
 const chefRecruitment = require('./ypec/chef-recruitment');
 const clientLeads = require('./ypec/client-leads');
 const emailSender = require('./ypec/email-sender');
+const recruitmentAggregator = require('./ypec/recruitment-aggregator'); // MULTI-CHANNEL SOURCING
 
 // Executive Bots
 const atlas = require('./ypec/atlas'); // CEO - THE BRAIN
@@ -177,6 +178,7 @@ app.post('/api/ypec/chef-compliance', chefCompliance);
 app.post('/api/ypec/chef-recruitment', chefRecruitment);
 app.post('/api/ypec/client-leads', clientLeads);
 app.post('/api/ypec/email-sender', emailSender); // CENTRALIZED email sending
+app.post('/api/ypec/recruitment-aggregator', recruitmentAggregator); // MULTI-CHANNEL CHEF SOURCING
 
 // Executive Bots
 app.post('/api/ypec/atlas', atlas); // CEO - THE BRAIN

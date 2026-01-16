@@ -225,6 +225,16 @@ module.exports = {
   annieWeeklyCSOReport: cron.schedule('0 15 * * 5', () => {
     console.log('[ANNIE CSO] Weekly CSO report to Atlas (Friday 3pm)');
     callBot('/api/ypec/annie', 'weekly_cso_report', 'YPEC');
+  }),
+
+  // ============================================================================
+  // RECRUITMENT AGGREGATOR - MULTI-CHANNEL CHEF SOURCING
+  // ============================================================================
+
+  // Daily 6:00 AM - Aggregate chef leads from all channels
+  recruitmentAggregator: cron.schedule('0 6 * * *', () => {
+    console.log('[RECRUITMENT] Multi-channel chef sourcing (6am daily)');
+    callBot('/api/ypec/recruitment-aggregator', 'autonomous_run', 'YPEC');
   })
 };
 
