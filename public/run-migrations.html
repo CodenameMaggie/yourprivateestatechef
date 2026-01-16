@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YPEC Database Migrations</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 800px;
+      width: 100%;
+      padding: 40px;
+    }
+
+    h1 {
+      color: #2d3748;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      color: #718096;
+      margin-bottom: 30px;
+    }
+
+    .migration-item {
+      background: #f7fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+    }
+
+    .migration-item h3 {
+      color: #2d3748;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .migration-item p {
+      color: #4a5568;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+
+    .migration-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .status-pending {
+      background: #fef5e7;
+      color: #f39c12;
+    }
+
+    .status-running {
+      background: #ebf8ff;
+      color: #3182ce;
+    }
+
+    .status-success {
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+
+    .status-error {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: #5a67d8;
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .run-all-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      margin-top: 20px;
+      background: #48bb78;
+    }
+
+    .run-all-btn:hover {
+      background: #38a169;
+    }
+
+    .output {
+      background: #1a202c;
+      color: #a0aec0;
+      padding: 15px;
+      border-radius: 6px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+      margin-top: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    .output.success {
+      border-left: 4px solid #48bb78;
+    }
+
+    .output.error {
+      border-left: 4px solid #f56565;
+    }
+
+    .warning {
+      background: #fef5e7;
+      border-left: 4px solid #f39c12;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      color: #744210;
+    }
+
+    .info {
+      background: #ebf8ff;
+      border-left: 4px solid #3182ce;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      color: #2c5282;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🗄️ Database Migrations</h1>
+    <p class="subtitle">Your Private Estate Chef (YPEC) - Company #7</p>
+
+    <div class="info">
+      <strong>ℹ️ Info:</strong> This tool will create database tables for the culinary school outreach and B2B partnership tracking systems.
+    </div>
+
+    <div class="warning">
+      <strong>⚠️ Warning:</strong> Only run migrations once. Tables cannot be created if they already exist.
+    </div>
+
+    <div id="migrations-list">
+      <!-- Migrations will be loaded here -->
+    </div>
+
+    <button class="run-all-btn" id="run-all-btn" onclick="runAllMigrations()">
+      ▶️ Run All Migrations
+    </button>
+  </div>
+
+  <script>
+    const migrations = [
+      {
+        id: 'culinary-outreach',
+        name: 'Culinary School Outreach Table',
+        file: 'create-culinary-outreach-table.sql',
+        description: 'Creates table for tracking recruitment campaigns to culinary schools'
+      },
+      {
+        id: 'partnership-outreach',
+        name: 'Partnership Outreach Table',
+        file: 'create-partnership-outreach-table.sql',
+        description: 'Creates table for tracking B2B partnerships (Airbnb, Sotheby\'s, etc.)'
+      }
+    ];
+
+    // Render migrations
+    function renderMigrations() {
+      const container = document.getElementById('migrations-list');
+      container.innerHTML = migrations.map(m => `
+        <div class="migration-item" id="migration-${m.id}">
+          <span class="migration-status status-pending" id="status-${m.id}">Pending</span>
+          <h3>${m.name}</h3>
+          <p>${m.description}</p>
+          <button onclick="runMigration('${m.id}')">Run Migration</button>
+          <div class="output" id="output-${m.id}" style="display: none;"></div>
+        </div>
+      `).join('');
+    }
+
+    // Run single migration
+    async function runMigration(id) {
+      const migration = migrations.find(m => m.id === id);
+      const statusEl = document.getElementById(`status-${id}`);
+      const outputEl = document.getElementById(`output-${id}`);
+
+      statusEl.className = 'migration-status status-running';
+      statusEl.textContent = 'Running...';
+      outputEl.style.display = 'block';
+      outputEl.textContent = 'Executing migration...\n';
+
+      try {
+        // Read the SQL file
+        const sqlResponse = await fetch(`/migrations/${migration.file}`);
+        if (!sqlResponse.ok) {
+          throw new Error(`Failed to load migration file: ${migration.file}`);
+        }
+        const sql = await sqlResponse.text();
+
+        outputEl.textContent += `📄 Loaded ${migration.file} (${sql.length} bytes)\n`;
+        outputEl.textContent += `🔄 Executing SQL...\n`;
+
+        // For now, we'll output instructions since direct SQL execution requires special setup
+        outputEl.textContent += `\n⚠️ Manual execution required:\n`;
+        outputEl.textContent += `1. Go to your Supabase Dashboard SQL Editor\n`;
+        outputEl.textContent += `2. Copy and paste the SQL from /migrations/${migration.file}\n`;
+        outputEl.textContent += `3. Click "Run" to create the table\n\n`;
+        outputEl.textContent += `Or use: node migrations/run-migrations.js ${migration.file}\n`;
+
+        // Try to execute through API (if endpoint exists)
+        const response = await fetch('/api/ypec/operations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'run_migration',
+            data: { sql, migration_name: migration.name }
+          })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success) {
+            statusEl.className = 'migration-status status-success';
+            statusEl.textContent = 'Success ✓';
+            outputEl.className = 'output success';
+            outputEl.textContent += `\n✅ Migration completed successfully!\n`;
+          } else {
+            throw new Error(result.error || 'Migration failed');
+          }
+        } else {
+          // API not available, show manual instructions
+          statusEl.className = 'migration-status status-pending';
+          statusEl.textContent = 'Manual Required';
+          outputEl.className = 'output';
+        }
+
+      } catch (error) {
+        statusEl.className = 'migration-status status-error';
+        statusEl.textContent = 'Error ✗';
+        outputEl.className = 'output error';
+        outputEl.textContent += `\n❌ Error: ${error.message}\n`;
+        console.error('Migration error:', error);
+      }
+    }
+
+    // Run all migrations
+    async function runAllMigrations() {
+      const button = document.getElementById('run-all-btn');
+      button.disabled = true;
+      button.textContent = 'Running migrations...';
+
+      for (const migration of migrations) {
+        await runMigration(migration.id);
+        // Wait 1 second between migrations
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      button.disabled = false;
+      button.textContent = '✓ All migrations complete';
+    }
+
+    // Initialize
+    renderMigrations();
+  </script>
+</body>
+</html>

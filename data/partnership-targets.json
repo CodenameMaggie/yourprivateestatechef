@@ -1,0 +1,285 @@
+{
+  "partnerships": {
+    "luxury_real_estate": [
+      {
+        "id": "sothebys-intl",
+        "company": "Sotheby's International Realty",
+        "type": "luxury_real_estate",
+        "tier": "ultra_luxury",
+        "target_contact": "Luxury Client Services",
+        "website": "https://www.sothebysrealty.com",
+        "value_prop": "Exclusive chef placement for $5M+ home buyers",
+        "avg_home_price": "$8.5M",
+        "annual_sales": "~40,000 homes",
+        "target_markets": ["NYC", "LA", "Miami", "Aspen", "Hamptons"],
+        "partnership_type": "referral_commission",
+        "commission_rate": "5%",
+        "notes": "Offer concierge service to new homeowners"
+      },
+      {
+        "id": "compass",
+        "company": "Compass",
+        "type": "luxury_real_estate",
+        "tier": "luxury",
+        "target_contact": "Compass Concierge Team",
+        "website": "https://www.compass.com",
+        "value_prop": "Add private chef to Compass Concierge services",
+        "avg_home_price": "$2.5M",
+        "annual_sales": "~100,000 homes",
+        "target_markets": ["SF", "NYC", "LA", "Seattle", "Boston"],
+        "partnership_type": "concierge_integration",
+        "notes": "Already offers moving services - add chef placement"
+      },
+      {
+        "id": "douglas-elliman",
+        "company": "Douglas Elliman",
+        "type": "luxury_real_estate",
+        "tier": "luxury",
+        "target_contact": "Client Services",
+        "website": "https://www.elliman.com",
+        "avg_home_price": "$3.2M",
+        "annual_sales": "~30,000 homes",
+        "target_markets": ["NYC", "Miami", "LA", "Hamptons", "Palm Beach"],
+        "partnership_type": "white_label"
+      },
+      {
+        "id": "christies",
+        "company": "Christie's Real Estate",
+        "type": "luxury_real_estate",
+        "tier": "ultra_luxury",
+        "target_contact": "Global Luxury Division",
+        "website": "https://www.christiesrealestate.com",
+        "avg_home_price": "$12M",
+        "annual_sales": "~5,000 homes",
+        "target_markets": ["NYC", "London", "Hong Kong", "Geneva", "Monaco"],
+        "partnership_type": "exclusive_referral"
+      },
+      {
+        "id": "corcoran",
+        "company": "The Corcoran Group",
+        "type": "luxury_real_estate",
+        "tier": "luxury",
+        "target_contact": "Corcoran Connections (concierge)",
+        "website": "https://www.corcoran.com",
+        "avg_home_price": "$2.8M",
+        "annual_sales": "~15,000 homes",
+        "target_markets": ["NYC", "Hamptons", "Palm Beach", "Miami"],
+        "partnership_type": "concierge_partner"
+      }
+    ],
+    "luxury_hospitality": [
+      {
+        "id": "airbnb-luxe",
+        "company": "Airbnb Luxe",
+        "type": "luxury_hospitality",
+        "tier": "ultra_luxury",
+        "target_contact": "Luxe Host Services",
+        "website": "https://www.airbnb.com/luxury",
+        "value_prop": "Private chef services for Luxe properties",
+        "avg_booking_value": "$5,000/night",
+        "total_properties": "~2,000 Luxe homes",
+        "target_markets": ["Aspen", "Hamptons", "Napa", "Malibu", "Miami"],
+        "partnership_type": "host_referral",
+        "notes": "Luxe hosts need reliable chef services for guests"
+      },
+      {
+        "id": "airbnb-plus",
+        "company": "Airbnb Plus",
+        "type": "luxury_hospitality",
+        "tier": "premium",
+        "target_contact": "Plus Host Community",
+        "website": "https://www.airbnb.com/plus",
+        "value_prop": "Differentiate Plus listings with chef option",
+        "total_properties": "~40,000 Plus homes",
+        "partnership_type": "experience_add_on"
+      },
+      {
+        "id": "vrbo-luxury",
+        "company": "Vrbo Premier",
+        "type": "luxury_hospitality",
+        "tier": "luxury",
+        "target_contact": "Premier Property Team",
+        "website": "https://www.vrbo.com/premier",
+        "total_properties": "~10,000 premier homes",
+        "partnership_type": "concierge_service"
+      },
+      {
+        "id": "onefinestay",
+        "company": "onefinestay (AccorHotels)",
+        "type": "luxury_hospitality",
+        "tier": "ultra_luxury",
+        "target_contact": "Guest Services",
+        "website": "https://www.onefinestay.com",
+        "avg_booking_value": "$1,200/night",
+        "total_properties": "~3,000 homes",
+        "target_markets": ["London", "NYC", "LA", "Paris", "Rome"],
+        "partnership_type": "white_label_chef_service"
+      }
+    ],
+    "wealth_management": [
+      {
+        "id": "morgan-stanley-wealth",
+        "company": "Morgan Stanley Wealth Management",
+        "type": "wealth_management",
+        "tier": "ultra_high_net_worth",
+        "target_contact": "Private Wealth Advisors",
+        "min_client_wealth": "$25M",
+        "total_clients": "~15,000 UHNW",
+        "value_prop": "Lifestyle concierge benefit for top clients",
+        "partnership_type": "white_label_benefit"
+      },
+      {
+        "id": "goldman-private-wealth",
+        "company": "Goldman Sachs Private Wealth Management",
+        "type": "wealth_management",
+        "tier": "ultra_high_net_worth",
+        "target_contact": "PWM Client Services",
+        "min_client_wealth": "$10M",
+        "total_clients": "~40,000 HNW",
+        "partnership_type": "exclusive_partner"
+      },
+      {
+        "id": "ubs-wealth",
+        "company": "UBS Wealth Management",
+        "type": "wealth_management",
+        "tier": "high_net_worth",
+        "target_contact": "UBS Lifestyle Services",
+        "min_client_wealth": "$5M",
+        "total_clients": "~100,000 HNW",
+        "partnership_type": "lifestyle_benefit"
+      }
+    ],
+    "private_clubs": [
+      {
+        "id": "soho-house",
+        "company": "Soho House",
+        "type": "private_club",
+        "tier": "luxury",
+        "target_contact": "Member Benefits Team",
+        "website": "https://www.sohohouse.com",
+        "total_members": "~180,000",
+        "membership_fee": "$2,500-$4,000/year",
+        "target_markets": ["NYC", "LA", "Miami", "London", "Barcelona"],
+        "value_prop": "Exclusive member benefit: Private chef placement",
+        "partnership_type": "member_perk"
+      },
+      {
+        "id": "core-club",
+        "company": "Core: Club",
+        "type": "private_club",
+        "tier": "ultra_luxury",
+        "target_contact": "Concierge Services",
+        "location": "NYC",
+        "total_members": "~600",
+        "membership_fee": "$50,000/year",
+        "partnership_type": "white_label_concierge"
+      },
+      {
+        "id": "casa-cipriani",
+        "company": "Casa Cipriani",
+        "type": "private_club",
+        "tier": "ultra_luxury",
+        "target_contact": "Member Services",
+        "location": "NYC, Miami",
+        "total_members": "~2,000",
+        "membership_fee": "$15,000/year",
+        "partnership_type": "exclusive_partner"
+      }
+    ],
+    "luxury_concierge": [
+      {
+        "id": "quintessentially",
+        "company": "Quintessentially",
+        "type": "luxury_concierge",
+        "tier": "ultra_luxury",
+        "target_contact": "Partnerships Team",
+        "website": "https://www.quintessentially.com",
+        "total_members": "~60,000",
+        "membership_fee": "$5,000-$50,000/year",
+        "value_prop": "Add private chef to concierge services",
+        "partnership_type": "service_partner"
+      },
+      {
+        "id": "john-paul",
+        "company": "John Paul (AccorHotels)",
+        "type": "luxury_concierge",
+        "tier": "luxury",
+        "target_contact": "Service Partners",
+        "website": "https://www.johnpaul.com",
+        "total_clients": "~100M (via credit cards)",
+        "partnership_type": "preferred_vendor"
+      },
+      {
+        "id": "velocity-black",
+        "company": "Velocity Black",
+        "type": "luxury_concierge",
+        "tier": "high_net_worth",
+        "target_contact": "Vendor Relations",
+        "website": "https://www.velocityblack.com",
+        "total_members": "~50,000",
+        "membership_fee": "$1,500/year",
+        "partnership_type": "platform_integration"
+      }
+    ],
+    "luxury_brands": [
+      {
+        "id": "amex-centurion",
+        "company": "American Express Centurion",
+        "type": "luxury_credit_card",
+        "tier": "ultra_luxury",
+        "target_contact": "Centurion Lifestyle Team",
+        "total_cardholders": "~100,000",
+        "annual_fee": "$5,000-$10,000",
+        "value_prop": "Exclusive cardholder benefit",
+        "partnership_type": "cardholder_perk"
+      },
+      {
+        "id": "ritz-carlton-residences",
+        "company": "Ritz-Carlton Residences",
+        "type": "luxury_real_estate",
+        "tier": "ultra_luxury",
+        "target_contact": "Resident Services",
+        "total_properties": "~50 buildings",
+        "avg_unit_price": "$5M",
+        "value_prop": "White-label chef service for residents",
+        "partnership_type": "building_amenity"
+      },
+      {
+        "id": "four-seasons-private-residences",
+        "company": "Four Seasons Private Residences",
+        "type": "luxury_real_estate",
+        "tier": "ultra_luxury",
+        "target_contact": "Residences Concierge",
+        "total_properties": "~45 buildings",
+        "avg_unit_price": "$8M",
+        "partnership_type": "white_label_amenity"
+      }
+    ]
+  },
+  "metadata": {
+    "total_partnerships": 25,
+    "total_addressable_market": "~600,000 qualified households",
+    "estimated_conversion_rate": "2-5%",
+    "potential_clients": "12,000 - 30,000",
+    "avg_lifetime_value": "$180,000",
+    "total_market_value": "$2.16B - $5.4B",
+    "last_updated": "2026-01-15"
+  },
+  "partnership_tiers": {
+    "tier_1_ultra_luxury": {
+      "targets": ["Sotheby's", "Christie's", "Airbnb Luxe", "Morgan Stanley PWM", "Core Club", "Amex Centurion"],
+      "min_deal_value": "$500K/year",
+      "priority": "highest"
+    },
+    "tier_2_luxury": {
+      "targets": ["Compass", "Douglas Elliman", "Soho House", "Quintessentially", "UBS"],
+      "min_deal_value": "$200K/year",
+      "priority": "high"
+    },
+    "tier_3_premium": {
+      "targets": ["Airbnb Plus", "Vrbo Premier", "Velocity Black"],
+      "min_deal_value": "$50K/year",
+      "priority": "medium"
+    }
+  }
+}
