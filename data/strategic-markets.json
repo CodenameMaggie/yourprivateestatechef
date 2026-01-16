@@ -1,0 +1,342 @@
+{
+  "markets": [
+    {
+      "id": "kelowna-bc",
+      "city": "Kelowna",
+      "region": "Okanagan Valley",
+      "province_state": "British Columbia",
+      "country": "Canada",
+      "tier": "tier_1_primary",
+      "market_type": "resort_luxury",
+      "demographics": {
+        "hnw_households": "~3,500",
+        "avg_home_price": "$1.2M CAD",
+        "growth_rate": "high",
+        "seasonal_demand": true
+      },
+      "characteristics": [
+        "Wine country estates",
+        "Vacation properties",
+        "Golf resort communities",
+        "Lakefront luxury homes",
+        "Seasonal high demand (summer)"
+      ],
+      "background_check_jurisdiction": "BC",
+      "background_check_requirements": [
+        "Criminal Record Check (BC Ministry of Justice)",
+        "Vulnerable Sector Check (recommended)",
+        "RCMP Enhanced Clearance"
+      ],
+      "notes": "Primary market - wine country, resort community, growing luxury segment"
+    },
+    {
+      "id": "vancouver-bc",
+      "city": "Vancouver",
+      "region": "Lower Mainland",
+      "province_state": "British Columbia",
+      "country": "Canada",
+      "tier": "tier_1_primary",
+      "market_type": "urban_luxury",
+      "demographics": {
+        "hnw_households": "~45,000",
+        "avg_home_price": "$2.1M CAD",
+        "growth_rate": "stable_high",
+        "seasonal_demand": false
+      },
+      "characteristics": [
+        "West Vancouver estates",
+        "Downtown penthouses",
+        "Point Grey luxury homes",
+        "International clientele",
+        "High Asian market demand"
+      ],
+      "background_check_jurisdiction": "BC",
+      "background_check_requirements": [
+        "Criminal Record Check (BC Ministry of Justice)",
+        "Vulnerable Sector Check (if children in household)",
+        "RCMP Enhanced Clearance"
+      ],
+      "notes": "Major urban market - diverse, international, year-round demand"
+    },
+    {
+      "id": "nyc-ny",
+      "city": "New York",
+      "region": "New York City",
+      "province_state": "New York",
+      "country": "USA",
+      "tier": "tier_1_primary",
+      "market_type": "ultra_urban_luxury",
+      "demographics": {
+        "hnw_households": "~385,000",
+        "avg_home_price": "$3.5M USD",
+        "growth_rate": "stable",
+        "seasonal_demand": false
+      },
+      "characteristics": [
+        "Manhattan penthouses",
+        "Upper East Side townhouses",
+        "Tribeca lofts",
+        "Billionaire's Row",
+        "Hamptons summer homes"
+      ],
+      "background_check_jurisdiction": "NY",
+      "background_check_requirements": [
+        "FBI Background Check",
+        "New York State Criminal History",
+        "Live Scan Fingerprinting",
+        "Sex Offender Registry Check"
+      ],
+      "notes": "Largest market - ultra-luxury, high competition, premium pricing"
+    },
+    {
+      "id": "whistler-bc",
+      "city": "Whistler",
+      "region": "Sea-to-Sky Corridor",
+      "province_state": "British Columbia",
+      "country": "Canada",
+      "tier": "tier_1_primary",
+      "market_type": "resort_luxury",
+      "demographics": {
+        "hnw_households": "~2,000",
+        "avg_home_price": "$2.8M CAD",
+        "growth_rate": "high",
+        "seasonal_demand": true
+      },
+      "characteristics": [
+        "Ski resort estates",
+        "Luxury chalets",
+        "Winter season peak demand",
+        "International vacation properties",
+        "Celebrity clientele"
+      ],
+      "background_check_jurisdiction": "BC",
+      "background_check_requirements": [
+        "Criminal Record Check (BC Ministry of Justice)",
+        "RCMP Enhanced Clearance"
+      ],
+      "notes": "Premium resort market - winter peak, high-end seasonal demand"
+    },
+    {
+      "id": "toronto-on",
+      "city": "Toronto",
+      "region": "Greater Toronto Area",
+      "province_state": "Ontario",
+      "country": "Canada",
+      "tier": "tier_1_primary",
+      "market_type": "urban_luxury",
+      "demographics": {
+        "hnw_households": "~65,000",
+        "avg_home_price": "$1.8M CAD",
+        "growth_rate": "stable",
+        "seasonal_demand": false
+      },
+      "characteristics": [
+        "Rosedale estates",
+        "Yorkville condos",
+        "Forest Hill homes",
+        "Financial district clientele",
+        "Diverse cultural preferences"
+      ],
+      "background_check_jurisdiction": "ON",
+      "background_check_requirements": [
+        "Criminal Record Check (Ontario)",
+        "Vulnerable Sector Check",
+        "RCMP Enhanced Clearance"
+      ],
+      "notes": "Canada's largest market - financial hub, diverse, year-round demand"
+    },
+    {
+      "id": "los-angeles-ca",
+      "city": "Los Angeles",
+      "region": "Southern California",
+      "province_state": "California",
+      "country": "USA",
+      "tier": "tier_1_primary",
+      "market_type": "entertainment_luxury",
+      "demographics": {
+        "hnw_households": "~268,000",
+        "avg_home_price": "$2.8M USD",
+        "growth_rate": "stable",
+        "seasonal_demand": false
+      },
+      "characteristics": [
+        "Beverly Hills estates",
+        "Malibu beach homes",
+        "Hollywood Hills",
+        "Entertainment industry",
+        "Health-conscious clientele"
+      ],
+      "background_check_jurisdiction": "CA",
+      "background_check_requirements": [
+        "FBI Background Check",
+        "California DOJ Criminal History",
+        "Live Scan Fingerprinting",
+        "Trustline Registry (if children present)"
+      ],
+      "notes": "Entertainment market - health-focused, celebrity clientele, premium pricing"
+    },
+    {
+      "id": "victoria-bc",
+      "city": "Victoria",
+      "region": "Vancouver Island",
+      "province_state": "British Columbia",
+      "country": "Canada",
+      "tier": "tier_2_secondary",
+      "market_type": "retirement_luxury",
+      "demographics": {
+        "hnw_households": "~8,000",
+        "avg_home_price": "$1.1M CAD",
+        "growth_rate": "moderate",
+        "seasonal_demand": false
+      },
+      "characteristics": [
+        "Oak Bay waterfront",
+        "Retirement estates",
+        "British heritage clientele",
+        "Stable, year-round demand"
+      ],
+      "background_check_jurisdiction": "BC",
+      "background_check_requirements": [
+        "Criminal Record Check (BC Ministry of Justice)",
+        "Vulnerable Sector Check (recommended)",
+        "RCMP Enhanced Clearance"
+      ],
+      "notes": "Secondary market - retirement community, stable demand, traditional tastes"
+    },
+    {
+      "id": "miami-fl",
+      "city": "Miami",
+      "region": "South Florida",
+      "province_state": "Florida",
+      "country": "USA",
+      "tier": "tier_1_primary",
+      "market_type": "resort_luxury",
+      "demographics": {
+        "hnw_households": "~142,000",
+        "avg_home_price": "$1.9M USD",
+        "growth_rate": "high",
+        "seasonal_demand": true
+      },
+      "characteristics": [
+        "South Beach condos",
+        "Coral Gables estates",
+        "Fisher Island",
+        "International clientele",
+        "Latin American market"
+      ],
+      "background_check_jurisdiction": "FL",
+      "background_check_requirements": [
+        "FBI Background Check",
+        "Florida FDLE Criminal History",
+        "Level 2 Background Screening (if required)"
+      ],
+      "notes": "International market - Latin American clientele, winter season peak"
+    },
+    {
+      "id": "aspen-co",
+      "city": "Aspen",
+      "region": "Colorado Rockies",
+      "province_state": "Colorado",
+      "country": "USA",
+      "tier": "tier_1_primary",
+      "market_type": "resort_ultra_luxury",
+      "demographics": {
+        "hnw_households": "~3,500",
+        "avg_home_price": "$8.9M USD",
+        "growth_rate": "high",
+        "seasonal_demand": true
+      },
+      "characteristics": [
+        "Ski resort estates",
+        "Ultra-luxury chalets",
+        "Billionaire enclave",
+        "Winter season peak",
+        "Celebrity clientele"
+      ],
+      "background_check_jurisdiction": "CO",
+      "background_check_requirements": [
+        "FBI Background Check",
+        "Colorado CBI Criminal History",
+        "Enhanced screening recommended"
+      ],
+      "notes": "Ultra-luxury market - highest home prices, seasonal peak, premium pricing"
+    },
+    {
+      "id": "hamptons-ny",
+      "city": "Hamptons",
+      "region": "Long Island",
+      "province_state": "New York",
+      "country": "USA",
+      "tier": "tier_1_primary",
+      "market_type": "seasonal_ultra_luxury",
+      "demographics": {
+        "hnw_households": "~15,000",
+        "avg_home_price": "$5.2M USD",
+        "growth_rate": "stable",
+        "seasonal_demand": true
+      },
+      "characteristics": [
+        "Summer estates",
+        "Beach compounds",
+        "NYC weekend clientele",
+        "Memorial Day to Labor Day peak",
+        "Ultra-high-end events"
+      ],
+      "background_check_jurisdiction": "NY",
+      "background_check_requirements": [
+        "FBI Background Check",
+        "New York State Criminal History",
+        "Live Scan Fingerprinting"
+      ],
+      "notes": "Seasonal ultra-luxury - summer peak, NYC overflow, premium pricing"
+    }
+  ],
+  "metadata": {
+    "total_markets": 10,
+    "tier_1_primary": 8,
+    "tier_2_secondary": 2,
+    "total_hnw_households": "~937,000",
+    "geographic_coverage": ["Canada", "USA"],
+    "background_check_note": "All chefs MUST complete jurisdiction-specific background checks before placement",
+    "last_updated": "2026-01-15"
+  },
+  "background_check_policy": {
+    "required_for_all_placements": true,
+    "types_required": [
+      "Criminal Record Check (jurisdiction-specific)",
+      "Sex Offender Registry Check",
+      "Employment History Verification",
+      "Professional Reference Checks (minimum 3)"
+    ],
+    "canadian_requirements": {
+      "provider": "BC Ministry of Justice / Provincial equivalent",
+      "types": [
+        "Criminal Record Check",
+        "Vulnerable Sector Check (if children/elderly in household)",
+        "RCMP Enhanced Clearance"
+      ],
+      "renewal": "Every 5 years or as required by jurisdiction",
+      "processing_time": "2-6 weeks"
+    },
+    "usa_requirements": {
+      "provider": "FBI / State Department of Justice",
+      "types": [
+        "FBI Background Check",
+        "State-specific Criminal History",
+        "Live Scan Fingerprinting",
+        "Sex Offender Registry Check"
+      ],
+      "renewal": "Every 5 years or as required by state",
+      "processing_time": "2-8 weeks"
+    },
+    "disqualifying_offenses": [
+      "Any violent crime",
+      "Theft or fraud convictions",
+      "Sexual offenses",
+      "Drug trafficking",
+      "Child abuse or neglect",
+      "Domestic violence"
+    ],
+    "cost_responsibility": "Paid by chef, reimbursed upon successful placement (optional policy)"
+  }
+}
