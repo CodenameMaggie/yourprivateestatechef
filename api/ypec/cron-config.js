@@ -95,6 +95,34 @@ module.exports = {
   revenueDailyRun: cron.schedule('0 0 * * *', () => {
     console.log('[YPEC] Revenue daily run (midnight daily)');
     callBot('/api/ypec/revenue', 'run', 'YPEC');
+  }),
+
+  // ============================================================================
+  // MARKETING AUTOMATION - CENTRALIZED EMAIL SYSTEM
+  // ============================================================================
+
+  // Daily 9:00 AM - Send queued emails via Forbes Command
+  dailyEmailSender: cron.schedule('0 9 * * *', () => {
+    console.log('[YPEC] Daily email sender - Processing queue (9am daily)');
+    callBot('/api/ypec/email-sender', 'send_queued', 'YPEC');
+  }),
+
+  // Monday 10:00 AM - Culinary school outreach
+  culinarySchoolOutreach: cron.schedule('0 10 * * 1', () => {
+    console.log('[YPEC] Culinary school outreach (Monday 10am)');
+    callBot('/api/ypec/culinary-outreach', 'run', 'YPEC');
+  }),
+
+  // Tuesday 10:00 AM - B2B partnership outreach
+  partnershipOutreach: cron.schedule('0 10 * * 2', () => {
+    console.log('[YPEC] B2B partnership outreach (Tuesday 10am)');
+    callBot('/api/ypec/partnership-outreach', 'run', 'YPEC');
+  }),
+
+  // Daily 2:00 PM - Client lead follow-ups
+  clientLeadFollowups: cron.schedule('0 14 * * *', () => {
+    console.log('[YPEC] Client lead follow-ups (2pm daily)');
+    callBot('/api/ypec/client-leads', 'run', 'YPEC');
   })
 };
 
