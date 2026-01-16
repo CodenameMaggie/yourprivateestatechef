@@ -12,22 +12,26 @@ const DAN_PROFILE = {
   title: 'Chief Marketing Officer',
   reports_to: 'Atlas (CEO)',
   company: 'Your Private Estate Chef',
-  accountability: 'Generate pipeline for $100M revenue goal',
-  personality: 'Aggressive, data-driven, growth-obsessed, kills underperforming channels',
+  accountability: 'Generate pipeline AND convert leads for $100M revenue goal',
+  personality: 'Aggressive, data-driven, growth-obsessed, kills underperforming channels, hates cold leads',
   decision_authority: [
     'Launch new marketing campaigns (up to $25K)',
     'Kill underperforming channels',
     'Reallocate marketing budget between channels',
     'Adjust ad spend based on ROI',
     'Launch emergency paid campaigns',
-    'Demand budget increase from Atlas when ROI proven'
+    'Demand budget increase from Atlas when ROI proven',
+    'Follow up cold leads autonomously',
+    'Upsell existing clients (marketing offers)',
+    'Launch win-back campaigns for churned clients'
   ],
   lead_targets: {
     monthly: 500, // 500 leads/month for $100M pipeline
     qualified_monthly: 100, // 100 qualified leads/month
-    conversion_rate_target: 20, // 20% lead-to-client conversion
+    conversion_rate_target: 35, // 35% lead-to-client conversion
     cost_per_lead_max: 500, // Max $500/lead
-    cost_per_acquisition_max: 2500 // Max $2,500 per client
+    cost_per_acquisition_max: 2500, // Max $2,500 per client
+    upsell_rate: 20 // 20% of clients upsold annually
   },
   channels: {
     culinary_schools: { budget: 5000, status: 'active', roi: 'pending' },
@@ -45,6 +49,9 @@ const DAN_PROFILE = {
     'kill_channel',
     'reallocate_budget',
     'demand_budget',
+    'follow_up_cold_leads',
+    'upsell_clients',
+    'win_back_churned',
     'autonomous_run',
     'weekly_cmo_report'
   ]
@@ -75,6 +82,15 @@ module.exports = async (req, res) => {
 
       case 'demand_budget':
         return await demandBudget(req, res, data);
+
+      case 'follow_up_cold_leads':
+        return await followUpColdLeads(req, res);
+
+      case 'upsell_clients':
+        return await upsellClients(req, res);
+
+      case 'win_back_churned':
+        return await winBackChurned(req, res);
 
       case 'autonomous_run':
         return await autonomousRun(req, res);
@@ -393,6 +409,178 @@ async function demandBudget(req, res, data) {
 }
 
 // ============================================================================
+// FOLLOW UP COLD LEADS - Convert Dormant Leads
+// ============================================================================
+
+async function followUpColdLeads(req, res) {
+  console.log(`[${DAN_PROFILE.name}] Following up cold leads...`);
+
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const { data: cold_leads } = await getSupabase()
+    .from(TABLES.LEADS)
+    .select('*')
+    .eq('tenant_id', TENANT_ID)
+    .eq('status', 'new')
+    .lt('created_at', sevenDaysAgo.toISOString());
+
+  const follow_ups = [];
+
+  for (const lead of cold_leads || []) {
+    // Queue marketing follow-up email
+    await tenantInsert(TABLES.COMMUNICATIONS, {
+      direction: 'outbound',
+      to_contact: lead.email,
+      subject: 'Special Offer: Your Private Chef is Waiting',
+      message: `Hi ${lead.name}, I noticed you inquired about our private chef services. This week only: 20% off your first month...`,
+      channel: 'email',
+      status: 'queued',
+      metadata: {
+        lead_id: lead.id,
+        campaign: 'cold_lead_conversion',
+        automated: true,
+        sent_by: DAN_PROFILE.name,
+        offer: '20% off first month'
+      }
+    });
+
+    follow_ups.push({
+      lead_id: lead.id,
+      lead_name: lead.name,
+      days_cold: Math.floor((new Date() - new Date(lead.created_at)) / (1000 * 60 * 60 * 24)),
+      offer: '20% off first month'
+    });
+  }
+
+  if (res) {
+    return res.json({
+      success: true,
+      cold_leads_contacted: follow_ups.length,
+      follow_ups: follow_ups,
+      expected_conversion: Math.round(follow_ups.length * 0.15) // 15% conversion expected
+    });
+  } else {
+    return { follow_ups_sent: follow_ups.length };
+  }
+}
+
+// ============================================================================
+// UPSELL CLIENTS - Increase Customer Value
+// ============================================================================
+
+async function upsellClients(req, res) {
+  console.log(`[${DAN_PROFILE.name}] Identifying upsell opportunities...`);
+
+  const { data: clients } = await getSupabase()
+    .from(TABLES.CLIENTS)
+    .select('*')
+    .eq('tenant_id', TENANT_ID)
+    .eq('status', 'active');
+
+  const upsell_targets = clients?.filter(c =>
+    c.service_tier === 'basic' || !c.service_tier
+  ) || [];
+
+  const upsells = [];
+
+  for (const client of upsell_targets.slice(0, 10)) { // Top 10 upsell targets
+    // Queue upsell marketing email
+    await tenantInsert(TABLES.COMMUNICATIONS, {
+      direction: 'outbound',
+      to_contact: client.email,
+      subject: 'Upgrade to Full-Time Chef Service - Limited Availability',
+      message: `Hi ${client.primary_contact_name}, We noticed you're loving our weekly service. Why not upgrade to full-time coverage? Special offer: First month at 15% off...`,
+      channel: 'email',
+      status: 'queued',
+      metadata: {
+        client_id: client.id,
+        campaign: 'upsell_to_premium',
+        automated: true,
+        sent_by: DAN_PROFILE.name,
+        current_tier: client.service_tier || 'basic',
+        target_tier: 'premium'
+      }
+    });
+
+    upsells.push({
+      client_id: client.id,
+      client_name: client.primary_contact_name,
+      current_tier: client.service_tier || 'basic',
+      upsell_to: 'premium',
+      potential_revenue_increase: 4500, // $1,500/mo → $6,000/mo
+      offer: '15% off first month'
+    });
+  }
+
+  if (res) {
+    return res.json({
+      success: true,
+      upsell_opportunities: upsells.length,
+      total_potential_revenue: upsells.reduce((sum, u) => sum + u.potential_revenue_increase, 0),
+      upsells: upsells
+    });
+  } else {
+    return { upsells_sent: upsells.length };
+  }
+}
+
+// ============================================================================
+// WIN BACK CHURNED - Recover Lost Clients
+// ============================================================================
+
+async function winBackChurned(req, res) {
+  console.log(`[${DAN_PROFILE.name}] Running win-back campaign...`);
+
+  const { data: churned_clients } = await getSupabase()
+    .from(TABLES.CLIENTS)
+    .select('*')
+    .eq('tenant_id', TENANT_ID)
+    .eq('status', 'churned');
+
+  const win_back_offers = [];
+
+  for (const client of churned_clients?.slice(0, 10) || []) {
+    // Queue win-back email
+    await tenantInsert(TABLES.COMMUNICATIONS, {
+      direction: 'outbound',
+      to_contact: client.email,
+      subject: 'We Miss You! Come Back with 30% Off',
+      message: `Hi ${client.primary_contact_name}, We noticed you're no longer with us. We've made improvements and would love to have you back. Special win-back offer: 30% off for 3 months...`,
+      channel: 'email',
+      status: 'queued',
+      metadata: {
+        client_id: client.id,
+        campaign: 'win_back_churned',
+        automated: true,
+        sent_by: DAN_PROFILE.name,
+        offer: '30% off for 3 months'
+      }
+    });
+
+    win_back_offers.push({
+      client_id: client.id,
+      client_name: client.primary_contact_name,
+      churn_date: client.updated_at,
+      offer: '30% off for 3 months',
+      potential_revenue: 6000 // If they come back
+    });
+  }
+
+  if (res) {
+    return res.json({
+      success: true,
+      churned_clients: churned_clients?.length || 0,
+      win_back_offers_sent: win_back_offers.length,
+      potential_revenue: win_back_offers.reduce((sum, o) => sum + o.potential_revenue, 0),
+      offers: win_back_offers
+    });
+  } else {
+    return { win_back_campaigns_sent: win_back_offers.length };
+  }
+}
+
+// ============================================================================
 // AUTONOMOUS RUN - Daily Growth Operations
 // ============================================================================
 
@@ -449,6 +637,45 @@ async function autonomousRun(req, res) {
     results.actions_taken.push({
       action: 'BUDGET_DEMANDED',
       request: budget_request
+    });
+  }
+
+  // ACTION 4: Follow up cold leads (conversion responsibility)
+  const { data: cold_leads_count } = await getSupabase()
+    .from(TABLES.LEADS)
+    .select('id')
+    .eq('tenant_id', TENANT_ID)
+    .eq('status', 'new')
+    .lt('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
+
+  if ((cold_leads_count?.length || 0) > 5) {
+    const follow_up_result = await followUpColdLeads(null, null);
+    results.actions_taken.push({
+      action: 'COLD_LEADS_FOLLOWED_UP',
+      leads_contacted: follow_up_result.follow_ups_sent,
+      reasoning: `${cold_leads_count?.length || 0} leads going cold - conversion at risk`
+    });
+  }
+
+  // ACTION 5: Upsell existing clients (every Monday)
+  const dayOfWeek = new Date().getDay();
+  if (dayOfWeek === 1) { // Monday
+    const upsell_result = await upsellClients(null, null);
+    results.actions_taken.push({
+      action: 'UPSELL_CAMPAIGN_LAUNCHED',
+      upsell_offers_sent: upsell_result.upsells_sent,
+      reasoning: 'Weekly upsell campaign to increase customer value'
+    });
+  }
+
+  // ACTION 6: Win-back churned clients (first of month)
+  const dayOfMonth = new Date().getDate();
+  if (dayOfMonth === 1) {
+    const win_back_result = await winBackChurned(null, null);
+    results.actions_taken.push({
+      action: 'WIN_BACK_CAMPAIGN_LAUNCHED',
+      offers_sent: win_back_result.win_back_campaigns_sent,
+      reasoning: 'Monthly campaign to recover churned clients'
     });
   }
 
