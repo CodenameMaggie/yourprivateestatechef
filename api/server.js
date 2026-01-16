@@ -144,6 +144,7 @@ const emailSender = require('./ypec/email-sender');
 // Executive Bots
 const atlas = require('./ypec/atlas'); // CEO
 const jordan = require('./ypec/jordan'); // General Counsel
+const dave = require('./ypec/dave'); // CFO - 100% Accountable for $100M Revenue
 
 // Authentication middleware
 const { verifyActionAuth } = require('./ypec/middleware/auth');
@@ -177,6 +178,7 @@ app.post('/api/ypec/email-sender', emailSender); // CENTRALIZED email sending
 // Executive Bots
 app.post('/api/ypec/atlas', atlas); // CEO Dashboard & Strategic Oversight
 app.post('/api/ypec/jordan', jordan); // Legal & Compliance Oversight
+app.post('/api/ypec/dave', dave); // CFO - Autonomous Revenue Executive
 
 // Initialize cron jobs
 const cronJobs = require('./ypec/cron-config');

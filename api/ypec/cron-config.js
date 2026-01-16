@@ -145,6 +145,22 @@ module.exports = {
   quarterlyComplianceReview: cron.schedule('0 10 1 1,4,7,10 *', () => {
     console.log('[YPEC] Quarterly compliance review');
     callBot('/api/ypec/jordan', 'quarterly_compliance_review', 'YPEC');
+  }),
+
+  // ============================================================================
+  // DAVE - AUTONOMOUS CFO (100% ACCOUNTABLE FOR $100M REVENUE)
+  // ============================================================================
+
+  // Daily 7:00 AM - DAVE's autonomous revenue operations
+  daveAutonomousRun: cron.schedule('0 7 * * *', () => {
+    console.log('[DAVE CFO] Running autonomous revenue operations (7am daily)');
+    callBot('/api/ypec/dave', 'autonomous_run', 'YPEC');
+  }),
+
+  // Monday 9:00 AM - DAVE's weekly CFO report to Atlas
+  daveWeeklyCFOReport: cron.schedule('0 9 * * 1', () => {
+    console.log('[DAVE CFO] Weekly CFO report to Atlas (Monday 9am)');
+    callBot('/api/ypec/dave', 'weekly_cfo_report', 'YPEC');
   })
 };
 

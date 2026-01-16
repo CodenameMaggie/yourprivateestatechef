@@ -57,6 +57,14 @@ const C_SUITE = {
     title: 'General Counsel - Chief Legal Officer',
     endpoint: `${MFS_BASE_URL}/api/mfs/jordan`,
     responsibilities: ['Legal compliance', 'Contracts', 'Risk management', 'Regulatory oversight']
+  },
+  DAVE: {
+    name: 'DAVE',
+    title: 'CFO - Chief Financial Officer (AUTONOMOUS)',
+    endpoint: `${MFS_BASE_URL}/api/mfs/dave`,
+    responsibilities: ['$100M revenue goal', 'Revenue operations', 'Financial forecasting', 'Autonomous collections', 'Revenue gap analysis'],
+    accountability: '100% responsible for hitting $100M in 5 years',
+    autonomous: true
   }
 };
 
