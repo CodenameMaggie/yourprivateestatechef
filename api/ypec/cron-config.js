@@ -222,7 +222,7 @@ module.exports = {
   }),
 
   // Friday 3:00 PM - ANNIE's weekly CSO report to Atlas
-  annieWeeklyCSO Report: cron.schedule('0 15 * * 5', () => {
+  annieWeeklyCSOReport: cron.schedule('0 15 * * 5', () => {
     console.log('[ANNIE CSO] Weekly CSO report to Atlas (Friday 3pm)');
     callBot('/api/ypec/annie', 'weekly_cso_report', 'YPEC');
   })
