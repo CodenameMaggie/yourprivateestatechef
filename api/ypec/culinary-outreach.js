@@ -396,13 +396,58 @@ async function dailyRun(req, res) {
     followups_needed: followups?.length || 0
   };
 
-  // NOTE: Actual email sending will be activated in Phase 4
   console.log(`[${BOT_INFO.name}] Daily run: ${actions.scheduled_to_send} scheduled, ${actions.followups_needed} followups`);
+
+  // PHASE 4 ACTIVATED: Queue emails through centralized email sender
+  const emails_queued = [];
+
+  for (const campaign of scheduled || []) {
+    try {
+      // Queue email via centralized email sender
+      const response = await fetch('https://yourprivateestatechef.com/api/ypec/email-sender', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'queue_email',
+          data: {
+            recipient_email: campaign.contact_email,
+            recipient_name: campaign.school_name,
+            subject: campaign.email_subject,
+            body_html: campaign.email_body,
+            campaign_type: 'culinary_school',
+            campaign_id: campaign.id,
+            source_bot: BOT_INFO.name
+          }
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.queued) {
+        // Update campaign status to 'sent'
+        await getSupabase()
+          .from(TABLES.CULINARY_OUTREACH)
+          .update({
+            status: 'sent',
+            sent_date: new Date().toISOString()
+          })
+          .eq('id', campaign.id);
+
+        emails_queued.push(campaign.id);
+        console.log(`[${BOT_INFO.name}] ✅ Queued email to ${campaign.school_name}`);
+      } else {
+        console.log(`[${BOT_INFO.name}] ⚠️ Duplicate prevented: ${campaign.school_name}`);
+      }
+    } catch (error) {
+      console.error(`[${BOT_INFO.name}] Failed to queue email for ${campaign.school_name}:`, error.message);
+    }
+  }
 
   return res.json({
     success: true,
     actions_identified: actions,
-    message: 'Email sending not yet activated - campaigns prepared but not sent',
+    emails_queued: emails_queued.length,
+    message: `✅ EMAIL SENDING ACTIVATED - ${emails_queued.length} emails queued via Forbes Command`,
     timestamp: new Date().toISOString()
   });
 }
