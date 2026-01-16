@@ -254,7 +254,7 @@ recruiting@yourprivateestatechef.com`
       await submitButton.click();
 
       // Wait for navigation or success message
-      await page.waitForTimeout(3000);
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
       // Check for success indicators
       const pageContent = await page.content();
