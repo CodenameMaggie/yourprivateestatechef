@@ -382,7 +382,7 @@ async function getMarketingMetrics() {
 
 async function getServiceMetrics() {
   const { data: inquiries } = await getSupabase()
-    .from(TABLES.INQUIRIES)
+    .from(TABLES.LEADS)
     .select('*')
     .eq('tenant_id', TENANT_ID);
 
