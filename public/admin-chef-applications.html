@@ -496,13 +496,21 @@
         // Load applications
         async function loadApplications() {
             try {
+                const sessionToken = localStorage.getItem('ypec_admin_session');
+
+                if (!sessionToken) {
+                    window.location.href = '/admin.html';
+                    return;
+                }
+
                 const response = await fetch('/api/ypec/operations', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        action: 'get_chef_applications'
+                        action: 'get_chef_applications',
+                        session_token: sessionToken
                     })
                 });
 
@@ -712,6 +720,13 @@
 
         async function updateChefStatus(id, status, notes = '') {
             try {
+                const sessionToken = localStorage.getItem('ypec_admin_session');
+
+                if (!sessionToken) {
+                    window.location.href = '/admin.html';
+                    return;
+                }
+
                 const response = await fetch('/api/ypec/operations', {
                     method: 'POST',
                     headers: {
@@ -719,6 +734,7 @@
                     },
                     body: JSON.stringify({
                         action: 'update_chef_status',
+                        session_token: sessionToken,
                         data: { chef_id: id, status, notes }
                     })
                 });
