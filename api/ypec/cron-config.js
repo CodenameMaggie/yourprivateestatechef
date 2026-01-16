@@ -235,6 +235,22 @@ module.exports = {
   recruitmentAggregator: cron.schedule('0 6 * * *', () => {
     console.log('[RECRUITMENT] Multi-channel chef sourcing (6am daily)');
     callBot('/api/ypec/recruitment-aggregator', 'autonomous_run', 'YPEC');
+  }),
+
+  // ============================================================================
+  // FORM-FILLER - DIRECT EMAIL EXTRACTION & FORM AUTOMATION
+  // ============================================================================
+
+  // Daily 7:00 AM - Auto-fill forms and extract emails from job boards
+  formFillerDailyRun: cron.schedule('0 7 * * *', () => {
+    console.log('[FORM-FILLER] Scraping job boards and extracting emails (7am daily)');
+    callBot('/api/ypec/form-filler', 'autonomous_run', 'YPEC');
+  }),
+
+  // Monday 11:00 AM - Culinary school contact form outreach
+  formFillerSchoolOutreach: cron.schedule('0 11 * * 1', () => {
+    console.log('[FORM-FILLER] Culinary school outreach (Monday 11am)');
+    callBot('/api/ypec/form-filler', 'culinary_school_outreach', 'YPEC');
   })
 };
 
