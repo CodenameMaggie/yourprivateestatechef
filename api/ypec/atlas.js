@@ -1,40 +1,60 @@
 // ============================================================================
-// ATLAS CEO BOT
-// Reports to: Self (CEO is the boss)
-// Purpose: Strategic oversight, $100M revenue goal tracking, cross-portfolio visibility
+// ATLAS - AUTONOMOUS CEO
+// "THE BRAIN" - Strategic Decision-Maker for $100M Goal
+// Reports to: Board of Directors
+// Accountability: Overall company success, strategic direction, executive performance
 // ============================================================================
 
 const { getSupabase, tenantInsert, tenantUpdate, TENANT_ID, TABLES } = require('./database');
 const mfs = require('./mfs-integration');
 
-const BOT_INFO = {
+const ATLAS_PROFILE = {
   name: 'ATLAS',
-  title: 'CEO - Chief Executive Officer',
+  title: 'Chief Executive Officer',
   reports_to: 'Board of Directors',
   company: 'Your Private Estate Chef',
   company_number: 7,
-  purpose: 'Strategic oversight, $100M revenue goal, executive decision-making, portfolio-wide visibility',
+  purpose: 'Strategic decision-making, executive accountability, $100M revenue goal oversight',
+  personality: 'Decisive, data-driven, holds people accountable, makes tough calls',
+  decision_authority: [
+    'Hire/fire executives (requires board approval)',
+    'Approve/reject expansion plans',
+    'Reallocate budgets between departments',
+    'Set strategic priorities',
+    'Approve pricing changes > 20%',
+    'Authorize new market entry',
+    'Approve partnerships > $100K',
+    'Issue executive directives'
+  ],
   revenue_goal: {
-    target: 100000000, // $100M
+    total: 100000000, // $100M
     timeframe: '5 years',
-    annual_target: 20000000, // $20M/year average
-    year_1_target: 5000000, // $5M Year 1
-    year_2_target: 12000000, // $12M Year 2
-    year_3_target: 20000000, // $20M Year 3
-    year_4_target: 30000000, // $30M Year 4
-    year_5_target: 33000000  // $33M Year 5
+    start_date: '2026-01-16', // TODAY
+    year_1: 5000000,   // $5M
+    year_2: 12000000,  // $12M
+    year_3: 20000000,  // $20M
+    year_4: 30000000,  // $30M
+    year_5: 33000000   // $33M
   },
+  strategic_pillars: [
+    'Revenue Growth',
+    'Operational Excellence',
+    'Market Expansion',
+    'Talent Acquisition',
+    'Client Satisfaction'
+  ],
   actions: [
     'status',
     'dashboard',
-    'revenue_progress',
-    'strategic_kpis',
-    'executive_summary',
-    'department_health',
-    'growth_metrics',
-    'weekly_ceo_report',
-    'monthly_board_report',
-    'quarterly_strategy_review'
+    'strategic_review',
+    'evaluate_executives',
+    'make_decision',
+    'reallocate_resources',
+    'issue_directive',
+    'approve_plan',
+    'hold_accountable',
+    'autonomous_run',
+    'weekly_strategic_review'
   ]
 };
 
@@ -49,300 +69,633 @@ module.exports = async (req, res) => {
       case 'dashboard':
         return await getCEODashboard(req, res);
 
-      case 'revenue_progress':
-        return await getRevenueProgress(req, res);
+      case 'strategic_review':
+        return await strategicReview(req, res);
 
-      case 'strategic_kpis':
-        return await getStrategicKPIs(req, res);
+      case 'evaluate_executives':
+        return await evaluateExecutives(req, res);
 
-      case 'executive_summary':
-        return await getExecutiveSummary(req, res);
+      case 'make_decision':
+        return await makeDecision(req, res, data);
 
-      case 'department_health':
-        return await getDepartmentHealth(req, res);
+      case 'reallocate_resources':
+        return await reallocateResources(req, res, data);
 
-      case 'growth_metrics':
-        return await getGrowthMetrics(req, res);
+      case 'issue_directive':
+        return await issueDirective(req, res, data);
 
-      case 'weekly_ceo_report':
-        return await sendWeeklyCEOReport(req, res);
+      case 'approve_plan':
+        return await approvePlan(req, res, data);
 
-      case 'monthly_board_report':
-        return await sendMonthlyBoardReport(req, res);
+      case 'hold_accountable':
+        return await holdAccountable(req, res, data);
 
-      case 'quarterly_strategy_review':
-        return await quarterlyStrategyReview(req, res);
+      case 'autonomous_run':
+        return await autonomousRun(req, res);
+
+      case 'weekly_strategic_review':
+        return await weeklyStrategicReview(req, res);
 
       default:
         return res.status(400).json({
           error: 'Invalid action',
-          available_actions: BOT_INFO.actions
+          available_actions: ATLAS_PROFILE.actions
         });
     }
   } catch (error) {
-    console.error(`[${BOT_INFO.name}] Error:`, error);
-    return res.status(500).json({
-      error: 'Internal server error',
-      message: error.message
-    });
+    console.error(`[${ATLAS_PROFILE.name}] ERROR:`, error);
+    return res.status(500).json({ error: error.message });
   }
 };
 
 // ============================================================================
-// STATUS
+// STATUS - CEO Overview
 // ============================================================================
 
 async function getStatus(req, res) {
+  console.log(`[${ATLAS_PROFILE.name}] CEO status check...`);
+
+  const dashboard = await generateCEODashboard();
+  const executive_performance = await evaluateExecutives();
+
   return res.json({
-    bot: BOT_INFO,
-    status: 'active',
-    revenue_goal: BOT_INFO.revenue_goal,
-    integrations: {
-      mfs: 'connected',
-      departments: ['Operations', 'Finance', 'Marketing', 'Service', 'Legal']
-    }
+    ceo: ATLAS_PROFILE.name,
+    role: 'THE BRAIN',
+    accountability: 'Overall company success & $100M revenue goal',
+    revenue_goal: ATLAS_PROFILE.revenue_goal,
+    dashboard: dashboard,
+    executive_performance: executive_performance,
+    decision_authority: ATLAS_PROFILE.decision_authority,
+    autonomous: true,
+    message: dashboard.on_track ?
+      'Company on track. Monitoring all departments.' :
+      'Performance gaps detected. Taking action.'
   });
 }
 
 // ============================================================================
-// CEO DASHBOARD - Comprehensive View
+// CEO DASHBOARD - Real-Time Executive View
 // ============================================================================
 
 async function getCEODashboard(req, res) {
-  console.log(`[${BOT_INFO.name}] Generating CEO dashboard`);
+  const dashboard = await generateCEODashboard();
+  return res.json(dashboard);
+}
 
-  // Get all key metrics
-  const revenue = await getRevenueMetrics();
-  const operations = await getOperationsMetrics();
-  const marketing = await getMarketingMetrics();
-  const service = await getServiceMetrics();
-  const chefs = await getChefMetrics();
+async function generateCEODashboard() {
+  // Get metrics from all departments
+  const revenue_health = await getRevenueHealth();
+  const operations_health = await getOperationsHealth();
+  const marketing_health = await getMarketingHealth();
+  const service_health = await getServiceHealth();
+  const talent_health = await getTalentHealth();
 
-  // Calculate health scores
-  const departmentScores = {
-    operations: calculateHealthScore(operations),
-    finance: calculateHealthScore(revenue),
-    marketing: calculateHealthScore(marketing),
-    service: calculateHealthScore(service),
-    talent: calculateHealthScore(chefs)
+  // Calculate overall company health
+  const department_scores = {
+    finance: calculateDepartmentScore(revenue_health),
+    operations: calculateDepartmentScore(operations_health),
+    marketing: calculateDepartmentScore(marketing_health),
+    service: calculateDepartmentScore(service_health),
+    talent: calculateDepartmentScore(talent_health)
   };
 
-  const overallHealth = Object.values(departmentScores).reduce((a, b) => a + b, 0) / 5;
+  const overall_health = Object.values(department_scores).reduce((a, b) => a + b, 0) / 5;
 
-  return res.json({
-    success: true,
-    timestamp: new Date().toISOString(),
-    overall_health: Math.round(overallHealth),
-    revenue_progress: await calculateRevenueProgress(revenue),
-    departments: {
-      operations: { ...operations, health_score: departmentScores.operations },
-      finance: { ...revenue, health_score: departmentScores.finance },
-      marketing: { ...marketing, health_score: departmentScores.marketing },
-      service: { ...service, health_score: departmentScores.service },
-      talent: { ...chefs, health_score: departmentScores.talent }
-    },
-    strategic_priorities: await getStrategicPriorities(),
-    alerts: await getExecutiveAlerts()
-  });
-}
+  // Revenue gap analysis
+  const gap = await analyzeRevenueGap();
 
-// ============================================================================
-// REVENUE PROGRESS - $100M in 5 Years Tracking
-// ============================================================================
-
-async function getRevenueProgress(req, res) {
-  const revenue = await getRevenueMetrics();
-  const progress = await calculateRevenueProgress(revenue);
-
-  return res.json({
-    success: true,
-    goal: BOT_INFO.revenue_goal,
-    current: progress,
-    on_track: progress.on_track,
-    adjustments_needed: progress.gap > 0 ? `Need $${progress.gap.toLocaleString()} more to stay on track` : 'On track!',
-    recommendation: await getRevenueRecommendation(progress)
-  });
-}
-
-async function calculateRevenueProgress(revenue) {
-  const today = new Date();
-  const startDate = new Date('2026-01-01'); // Assuming we started in 2026
-  const endDate = new Date('2031-01-01'); // 5 years from start
-
-  const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
-  const daysPassed = (today - startDate) / (1000 * 60 * 60 * 24);
-  const percentComplete = (daysPassed / totalDays) * 100;
-
-  const expectedRevenue = BOT_INFO.revenue_goal.target * (percentComplete / 100);
-  const actualRevenue = parseFloat(revenue.total_revenue || 0);
-  const gap = expectedRevenue - actualRevenue;
+  // Strategic priorities
+  const priorities = await determineStrategicPriorities(gap, department_scores);
 
   return {
-    target: BOT_INFO.revenue_goal.target,
-    actual: actualRevenue,
-    expected_at_this_point: expectedRevenue,
-    gap: gap,
-    percent_of_goal: (actualRevenue / BOT_INFO.revenue_goal.target) * 100,
-    percent_timeline_complete: percentComplete,
-    on_track: gap <= (expectedRevenue * 0.1), // Within 10% is "on track"
-    days_remaining: totalDays - daysPassed,
-    daily_revenue_needed: (BOT_INFO.revenue_goal.target - actualRevenue) / (totalDays - daysPassed)
-  };
-}
-
-async function getRevenueRecommendation(progress) {
-  if (progress.on_track) {
-    return 'Current trajectory is good. Maintain focus on client acquisition and retention.';
-  }
-
-  if (progress.gap > 50000000) {
-    return 'CRITICAL: Significantly behind target. Recommend emergency growth initiatives: 1) Accelerate marketing spend 2) Launch new service tiers 3) Geographic expansion 4) Strategic partnerships';
-  }
-
-  if (progress.gap > 10000000) {
-    return 'WARNING: Behind target. Recommend: 1) Increase chef recruitment 2) Expand to 3 new markets 3) Launch premium tier 4) Boost marketing budget 20%';
-  }
-
-  return 'Slightly behind target. Minor adjustments needed: 1) Optimize conversion rates 2) Increase average contract value 3) Improve retention';
-}
-
-// ============================================================================
-// STRATEGIC KPIs
-// ============================================================================
-
-async function getStrategicKPIs(req, res) {
-  const kpis = {
-    // Growth Metrics
-    growth: {
-      monthly_revenue_growth: await calculateMonthlyGrowth(),
-      client_acquisition_rate: await calculateClientAcquisitionRate(),
-      market_penetration: await calculateMarketPenetration()
-    },
-
-    // Efficiency Metrics
-    efficiency: {
-      cost_per_acquisition: await calculateCPA(),
-      chef_utilization_rate: await calculateChefUtilization(),
-      gross_margin: await calculateGrossMargin()
-    },
-
-    // Quality Metrics
-    quality: {
-      client_satisfaction: await getClientSatisfaction(),
-      chef_retention_rate: await getChefRetentionRate(),
-      service_quality_score: await getServiceQualityScore()
-    },
-
-    // Pipeline Metrics
-    pipeline: {
-      qualified_leads: await getQualifiedLeadsCount(),
-      consultation_conversion: await getConsultationConversionRate(),
-      proposal_win_rate: await getProposalWinRate()
-    }
-  };
-
-  return res.json({
     success: true,
     timestamp: new Date().toISOString(),
-    kpis: kpis,
-    summary: generateKPISummary(kpis)
+    overall_health: Math.round(overall_health),
+    revenue_status: {
+      target: ATLAS_PROFILE.revenue_goal.total,
+      actual: revenue_health.revenue_to_date,
+      gap: gap.gap_amount,
+      on_track: !gap.behind_target,
+      severity: gap.severity
+    },
+    departments: {
+      finance: { score: department_scores.finance, ...revenue_health },
+      operations: { score: department_scores.operations, ...operations_health },
+      marketing: { score: department_scores.marketing, ...marketing_health },
+      service: { score: department_scores.service, ...service_health },
+      talent: { score: department_scores.talent, ...talent_health }
+    },
+    strategic_priorities: priorities,
+    decisions_pending: await getDecisionsPending(),
+    on_track: !gap.behind_target && overall_health > 70
+  };
+}
+
+// ============================================================================
+// STRATEGIC REVIEW - Daily Analysis & Decision-Making
+// ============================================================================
+
+async function strategicReview(req, res) {
+  console.log(`[${ATLAS_PROFILE.name}] Running strategic review...`);
+
+  const dashboard = await generateCEODashboard();
+  const executive_performance = await evaluateExecutives();
+  const decisions_made = [];
+
+  // DECISION 1: If revenue gap critical, demand action from executives
+  if (dashboard.revenue_status.severity === 'critical') {
+    const decision = await makeDecision(null, null, {
+      type: 'DEMAND_PERFORMANCE',
+      target: 'ALL_EXECUTIVES',
+      reasoning: `$${(dashboard.revenue_status.gap / 1000000).toFixed(1)}M behind target`
+    });
+    decisions_made.push(decision);
+  }
+
+  // DECISION 2: If marketing underperforming, reallocate to paid ads
+  if (executive_performance.dan?.performance_score < 50) {
+    const decision = await makeDecision(null, null, {
+      type: 'REALLOCATE_BUDGET',
+      from: 'operations',
+      to: 'marketing',
+      amount: 50000,
+      reasoning: 'Marketing lead generation too slow'
+    });
+    decisions_made.push(decision);
+  }
+
+  // DECISION 3: If talent shortage, authorize recruitment spend
+  if (dashboard.departments.talent.available_chefs < 5) {
+    const decision = await makeDecision(null, null, {
+      type: 'AUTHORIZE_SPEND',
+      department: 'talent',
+      amount: 25000,
+      purpose: 'Emergency chef recruitment campaign',
+      reasoning: 'Critical chef shortage blocking revenue'
+    });
+    decisions_made.push(decision);
+  }
+
+  return res.json({
+    success: true,
+    ceo: ATLAS_PROFILE.name,
+    autonomous: true,
+    dashboard: dashboard,
+    executive_performance: executive_performance,
+    decisions_made: decisions_made,
+    timestamp: new Date().toISOString()
   });
 }
 
 // ============================================================================
-// EXECUTIVE SUMMARY - Daily/Weekly Report
+// EVALUATE EXECUTIVES - Performance Scorecard
 // ============================================================================
 
-async function getExecutiveSummary(req, res) {
-  const summary = {
-    date: new Date().toISOString().split('T')[0],
-    headline: await generateHeadline(),
+async function evaluateExecutives() {
+  const revenue = await getRevenueHealth();
+  const operations = await getOperationsHealth();
+  const marketing = await getMarketingHealth();
+  const service = await getServiceHealth();
+  const talent = await getTalentHealth();
 
-    // Key Numbers
-    metrics: {
-      revenue_today: await getTodayRevenue(),
-      revenue_this_week: await getWeekRevenue(),
-      revenue_this_month: await getMonthRevenue(),
-      new_clients_this_week: await getNewClientsThisWeek(),
-      active_chefs: await getActiveChefCount(),
-      pending_proposals: await getPendingProposalsCount()
+  // DAVE (CFO) - 100% Accountable for Revenue
+  const dave_performance = {
+    executive: 'DAVE',
+    title: 'CFO',
+    accountability: '$100M revenue in 5 years',
+    performance_score: calculateExecutiveScore({
+      revenue_to_date: revenue.revenue_to_date,
+      mrr: revenue.mrr,
+      overdue: revenue.overdue,
+      target: 5000000 // Year 1 target
+    }),
+    kpis: {
+      revenue_to_date: revenue.revenue_to_date,
+      mrr: revenue.mrr,
+      arr: revenue.arr,
+      overdue: revenue.overdue
     },
-
-    // Department Summaries
-    departments: {
-      henry: await getHenrySummary(),
-      annie: await getAnnieSummary(),
-      dave: await getDaveSummary(),
-      dan: await getDanSummary(),
-      jordan: 'Legal system pending setup'
-    },
-
-    // Strategic Initiatives
-    initiatives: await getStrategicInitiatives(),
-
-    // Risks & Opportunities
-    risks: await identifyRisks(),
-    opportunities: await identifyOpportunities(),
-
-    // Actions Required
-    actions_required: await getCEOActionsRequired()
+    status: revenue.revenue_to_date > 100000 ? 'exceeding' : revenue.revenue_to_date > 10000 ? 'on_track' : 'needs_improvement',
+    actions_taken: 'Monitoring invoices, running collection sweeps'
   };
 
+  // HENRY (COO) - Operations & Capacity
+  const henry_performance = {
+    executive: 'HENRY',
+    title: 'COO',
+    accountability: 'Operational excellence, capacity management',
+    performance_score: calculateExecutiveScore({
+      active_engagements: operations.active_engagements,
+      upcoming_events: operations.upcoming_events,
+      target: 20 // Target 20 active engagements
+    }),
+    kpis: {
+      active_engagements: operations.active_engagements,
+      upcoming_events: operations.upcoming_events,
+      total_events: operations.total_events
+    },
+    status: operations.active_engagements > 15 ? 'exceeding' : operations.active_engagements > 5 ? 'on_track' : 'needs_improvement',
+    actions_taken: 'Daily summaries, event monitoring'
+  };
+
+  // DAN (CMO) - Marketing & Growth
+  const dan_performance = {
+    executive: 'DAN',
+    title: 'CMO',
+    accountability: 'Lead generation, growth, $100M pipeline',
+    performance_score: calculateExecutiveScore({
+      total_leads: marketing.total_leads,
+      qualified_leads: marketing.qualified_leads,
+      target: 100 // Target 100 leads for pipeline
+    }),
+    kpis: {
+      total_leads: marketing.total_leads,
+      qualified_leads: marketing.qualified_leads,
+      campaigns_sent: marketing.campaigns_sent,
+      conversion_rate: marketing.conversion_rate || 0
+    },
+    status: marketing.total_leads > 50 ? 'on_track' : 'needs_improvement',
+    actions_taken: 'Culinary school outreach, lead scraping'
+  };
+
+  // ANNIE (CSO) - Customer Support & Conversion
+  const annie_performance = {
+    executive: 'ANNIE',
+    title: 'CSO',
+    accountability: 'Client conversion, satisfaction, retention',
+    performance_score: calculateExecutiveScore({
+      active_clients: service.active_clients,
+      consultations: service.scheduled_consultations,
+      target: 10 // Target 10 active clients
+    }),
+    kpis: {
+      active_clients: service.active_clients,
+      inquiries: service.total_inquiries,
+      scheduled_consultations: service.scheduled_consultations,
+      conversion_rate: service.conversion_rate || 0
+    },
+    status: service.active_clients > 5 ? 'on_track' : 'needs_improvement',
+    actions_taken: 'Inquiry processing, consultation scheduling'
+  };
+
+  // JORDAN (Legal) - Compliance
+  const jordan_performance = {
+    executive: 'JORDAN',
+    title: 'General Counsel',
+    accountability: 'Legal compliance, risk management',
+    performance_score: 75, // Assume good for now
+    kpis: {
+      compliance_status: 'Monitoring',
+      contracts_reviewed: 0,
+      legal_risks: 0
+    },
+    status: 'on_track',
+    actions_taken: 'Compliance monitoring, legal oversight'
+  };
+
+  return {
+    dave: dave_performance,
+    henry: henry_performance,
+    dan: dan_performance,
+    annie: annie_performance,
+    jordan: jordan_performance,
+    overall_executive_health: Math.round(
+      (dave_performance.performance_score +
+       henry_performance.performance_score +
+       dan_performance.performance_score +
+       annie_performance.performance_score +
+       jordan_performance.performance_score) / 5
+    )
+  };
+}
+
+function calculateExecutiveScore(metrics) {
+  let score = 50; // Base score
+
+  if (metrics.revenue_to_date !== undefined) {
+    // CFO scoring
+    if (metrics.revenue_to_date > 500000) score += 30;
+    else if (metrics.revenue_to_date > 100000) score += 20;
+    else if (metrics.revenue_to_date > 10000) score += 10;
+
+    if (metrics.mrr > 50000) score += 20;
+    else if (metrics.mrr > 10000) score += 10;
+
+    if (metrics.overdue > 10000) score -= 20;
+  }
+
+  if (metrics.active_engagements !== undefined) {
+    // COO scoring
+    if (metrics.active_engagements > 20) score += 30;
+    else if (metrics.active_engagements > 10) score += 20;
+    else if (metrics.active_engagements > 5) score += 10;
+  }
+
+  if (metrics.total_leads !== undefined) {
+    // CMO scoring
+    if (metrics.total_leads > 100) score += 30;
+    else if (metrics.total_leads > 50) score += 20;
+    else if (metrics.total_leads > 20) score += 10;
+
+    if (metrics.qualified_leads > 20) score += 10;
+  }
+
+  if (metrics.active_clients !== undefined) {
+    // CSO scoring
+    if (metrics.active_clients > 20) score += 30;
+    else if (metrics.active_clients > 10) score += 20;
+    else if (metrics.active_clients > 5) score += 10;
+  }
+
+  return Math.max(0, Math.min(100, score));
+}
+
+// ============================================================================
+// MAKE DECISION - Autonomous Decision-Making
+// ============================================================================
+
+async function makeDecision(req, res, data) {
+  console.log(`[${ATLAS_PROFILE.name}] Making decision:`, data?.type);
+
+  const decision = {
+    decision_id: `DEC-${Date.now()}`,
+    ceo: ATLAS_PROFILE.name,
+    timestamp: new Date().toISOString(),
+    type: data?.type || 'STRATEGIC',
+    decision: null,
+    reasoning: data?.reasoning || 'Strategic necessity',
+    impact: null,
+    status: 'executed'
+  };
+
+  switch (data?.type) {
+    case 'DEMAND_PERFORMANCE':
+      decision.decision = `EXECUTIVE DIRECTIVE: All C-suite must submit action plans to close revenue gap within 24 hours`;
+      decision.impact = 'high';
+      decision.action_items = [
+        { executive: 'DAVE', directive: 'Accelerate collections, forecast recovery plan' },
+        { executive: 'DAN', directive: '10x lead generation - launch paid campaigns immediately' },
+        { executive: 'HENRY', directive: 'Increase chef utilization to 80%+' },
+        { executive: 'ANNIE', directive: 'Convert 50%+ of qualified leads this week' }
+      ];
+      break;
+
+    case 'REALLOCATE_BUDGET':
+      decision.decision = `BUDGET REALLOCATION: Transfer $${data.amount.toLocaleString()} from ${data.from} to ${data.to}`;
+      decision.impact = 'medium';
+      decision.details = {
+        from_department: data.from,
+        to_department: data.to,
+        amount: data.amount,
+        effective_immediately: true
+      };
+      break;
+
+    case 'AUTHORIZE_SPEND':
+      decision.decision = `AUTHORIZED: $${data.amount.toLocaleString()} for ${data.purpose}`;
+      decision.impact = 'medium';
+      decision.details = {
+        department: data.department,
+        amount: data.amount,
+        purpose: data.purpose,
+        approved: true
+      };
+      break;
+
+    case 'APPROVE_EXPANSION':
+      decision.decision = `EXPANSION APPROVED: ${data.market} - Budget $${data.budget.toLocaleString()}`;
+      decision.impact = 'high';
+      decision.details = {
+        market: data.market,
+        budget: data.budget,
+        timeline: data.timeline,
+        owner: data.owner
+      };
+      break;
+
+    case 'REJECT_PLAN':
+      decision.decision = `PLAN REJECTED: ${data.plan_name}`;
+      decision.reasoning = data.reasoning || 'Does not align with strategic priorities';
+      decision.impact = 'low';
+      break;
+
+    default:
+      decision.decision = 'General strategic decision';
+      decision.impact = 'low';
+  }
+
+  // Log decision to database
+  await logDecision(decision);
+
+  if (res) {
+    return res.json({
+      success: true,
+      decision: decision
+    });
+  } else {
+    return decision;
+  }
+}
+
+// ============================================================================
+// HOLD ACCOUNTABLE - Executive Performance Management
+// ============================================================================
+
+async function holdAccountable(req, res, data) {
+  console.log(`[${ATLAS_PROFILE.name}] Holding ${data?.executive} accountable...`);
+
+  const executive_performance = await evaluateExecutives();
+  const executive = executive_performance[data?.executive?.toLowerCase()];
+
+  if (!executive) {
+    return res.json({ error: 'Executive not found' });
+  }
+
+  const accountability_action = {
+    executive: executive.executive,
+    performance_score: executive.performance_score,
+    status: executive.status,
+    action: null,
+    message: null
+  };
+
+  if (executive.performance_score < 40) {
+    accountability_action.action = 'PERFORMANCE_IMPROVEMENT_PLAN';
+    accountability_action.message = `${executive.executive}: Performance below acceptable. 30-day improvement plan required.`;
+    accountability_action.requirements = [
+      'Submit weekly progress reports to Atlas',
+      'Hit minimum KPI targets within 30 days',
+      'Daily standups with Atlas'
+    ];
+  } else if (executive.performance_score < 60) {
+    accountability_action.action = 'WARNING';
+    accountability_action.message = `${executive.executive}: Performance needs improvement. Focus on core KPIs.`;
+  } else if (executive.performance_score > 80) {
+    accountability_action.action = 'COMMENDATION';
+    accountability_action.message = `${executive.executive}: Excellent performance. Keep it up.`;
+  } else {
+    accountability_action.action = 'MONITOR';
+    accountability_action.message = `${executive.executive}: On track. Continue current trajectory.`;
+  }
+
+  // Send accountability message via MFS
+  await mfs.sendReport(executive.executive.toUpperCase(), {
+    bot_name: ATLAS_PROFILE.name,
+    type: 'accountability',
+    priority: accountability_action.action === 'PERFORMANCE_IMPROVEMENT_PLAN' ? 'high' : 'normal',
+    subject: `CEO Accountability Check - ${accountability_action.action}`,
+    data: accountability_action
+  });
+
   return res.json({
     success: true,
-    summary: summary
+    accountability: accountability_action
   });
 }
 
 // ============================================================================
-// WEEKLY CEO REPORT
+// AUTONOMOUS RUN - Daily CEO Operations
 // ============================================================================
 
-async function sendWeeklyCEOReport(req, res) {
-  console.log(`[${BOT_INFO.name}] Generating weekly CEO report`);
+async function autonomousRun(req, res) {
+  console.log(`[${ATLAS_PROFILE.name}] Running autonomous CEO operations...`);
 
-  const report = await getExecutiveSummary({ body: {} }, null);
+  const results = {
+    timestamp: new Date().toISOString(),
+    dashboard: await generateCEODashboard(),
+    executive_performance: await evaluateExecutives(),
+    decisions_made: [],
+    actions_taken: []
+  };
 
-  // Send via MFS (if Atlas inbox is configured)
-  // await mfs.sendReport('ATLAS', {
-  //   bot_name: BOT_INFO.name,
-  //   type: 'weekly_ceo_report',
-  //   subject: `Weekly CEO Report - ${new Date().toISOString().split('T')[0]}`,
-  //   data: report.summary
-  // });
+  // ACTION 1: If revenue critically behind, demand performance
+  const gap = await analyzeRevenueGap();
+  if (gap.severity === 'critical' || gap.severity === 'urgent') {
+    const decision = await makeDecision(null, null, {
+      type: 'DEMAND_PERFORMANCE',
+      reasoning: `$${(gap.gap_amount / 1000000).toFixed(1)}M behind target - executive action required`
+    });
+    results.decisions_made.push(decision);
+  }
 
-  return res.json({
-    success: true,
-    message: 'Weekly CEO report generated',
-    report: report.summary
-  });
+  // ACTION 2: Hold underperforming executives accountable
+  for (const [exec_name, exec_data] of Object.entries(results.executive_performance)) {
+    if (exec_data.performance_score && exec_data.performance_score < 50) {
+      results.actions_taken.push({
+        action: 'ACCOUNTABILITY_CHECK',
+        executive: exec_data.executive,
+        score: exec_data.performance_score,
+        message: 'Performance review initiated'
+      });
+    }
+  }
+
+  // ACTION 3: If marketing leads too low, authorize emergency spend
+  const marketing = await getMarketingHealth();
+  if (marketing.total_leads < 20 && gap.gap_amount > 1000000) {
+    const decision = await makeDecision(null, null, {
+      type: 'AUTHORIZE_SPEND',
+      department: 'marketing',
+      amount: 50000,
+      purpose: 'Emergency paid ad campaign',
+      reasoning: 'Lead pipeline critically low for revenue target'
+    });
+    results.decisions_made.push(decision);
+  }
+
+  if (res) {
+    return res.json(results);
+  } else {
+    return results;
+  }
 }
 
 // ============================================================================
-// HELPER FUNCTIONS - Data Retrieval
+// WEEKLY STRATEGIC REVIEW - Monday Morning CEO Report
 // ============================================================================
 
-async function getRevenueMetrics() {
+async function weeklyStrategicReview(req, res) {
+  console.log(`[${ATLAS_PROFILE.name}] Weekly strategic review...`);
+
+  const dashboard = await generateCEODashboard();
+  const executive_performance = await evaluateExecutives();
+  const gap = await analyzeRevenueGap();
+
+  const report = {
+    week: new Date().toISOString().split('T')[0],
+    executive_summary: gap.behind_target ?
+      `Company ${gap.gap_amount > 5000000 ? 'CRITICALLY' : 'SIGNIFICANTLY'} behind $100M target. Immediate action required.` :
+      'Company on track for $100M goal. Maintaining momentum.',
+    revenue: {
+      target: ATLAS_PROFILE.revenue_goal.total,
+      actual: dashboard.revenue_status.actual,
+      gap: gap.gap_amount,
+      severity: gap.severity
+    },
+    executive_performance: executive_performance,
+    strategic_decisions_this_week: await getRecentDecisions(),
+    top_priorities: await determineStrategicPriorities(gap, dashboard.departments),
+    board_message: gap.behind_target ?
+      'Revenue gaps detected. CEO taking corrective action. Monitoring closely.' :
+      'Business progressing toward $100M goal. No board intervention required.'
+  };
+
+  // Send to board (via MFS to central command)
+  // await mfs.sendReport('BOARD', {...});
+
+  if (res) {
+    return res.json({
+      success: true,
+      report: report
+    });
+  } else {
+    return report;
+  }
+}
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+async function getRevenueHealth() {
   const { data: invoices } = await getSupabase()
     .from(TABLES.INVOICES)
     .select('*')
     .eq('tenant_id', TENANT_ID);
 
-  let total_revenue = 0;
-  let pending = 0;
-  let overdue = 0;
+  const { data: engagements } = await getSupabase()
+    .from(TABLES.ENGAGEMENTS)
+    .select('*')
+    .eq('tenant_id', TENANT_ID);
+
+  let revenue_to_date = 0;
+  let pending_revenue = 0;
+  let overdue_revenue = 0;
 
   invoices?.forEach(inv => {
     const amount = parseFloat(inv.total || 0);
-    if (inv.status === 'paid') total_revenue += amount;
-    else if (inv.status === 'sent') pending += amount;
-    else if (inv.status === 'overdue') overdue += amount;
+    if (inv.status === 'paid') revenue_to_date += amount;
+    else if (inv.status === 'sent') pending_revenue += amount;
+    else if (inv.status === 'overdue') overdue_revenue += amount;
   });
 
-  return { total_revenue, pending, overdue, invoice_count: invoices?.length || 0 };
+  const active_monthly = engagements?.filter(e =>
+    e.status === 'active' && e.service_type === 'monthly'
+  ).length || 0;
+
+  const mrr = active_monthly * 1500; // $1,500 avg monthly service
+
+  return {
+    revenue_to_date,
+    mrr,
+    arr: mrr * 12,
+    pending: pending_revenue,
+    overdue: overdue_revenue,
+    active_engagements: engagements?.filter(e => e.status === 'active').length || 0
+  };
 }
 
-async function getOperationsMetrics() {
+async function getOperationsHealth() {
   const { data: engagements } = await getSupabase()
     .from(TABLES.ENGAGEMENTS)
     .select('*')
@@ -361,7 +714,7 @@ async function getOperationsMetrics() {
   };
 }
 
-async function getMarketingMetrics() {
+async function getMarketingHealth() {
   const { data: leads } = await getSupabase()
     .from(TABLES.LEADS)
     .select('*')
@@ -375,13 +728,15 @@ async function getMarketingMetrics() {
   return {
     total_leads: leads?.length || 0,
     qualified_leads: leads?.filter(l => l.status === 'qualified').length || 0,
-    campaigns_active: campaigns?.filter(c => c.status === 'sent').length || 0,
-    campaigns_responded: campaigns?.filter(c => c.status === 'responded').length || 0
+    campaigns_sent: campaigns?.filter(c => c.status === 'sent').length || 0,
+    campaigns_responded: campaigns?.filter(c => c.status === 'responded').length || 0,
+    conversion_rate: leads?.length > 0 ?
+      ((leads.filter(l => l.status === 'converted').length / leads.length) * 100).toFixed(1) : 0
   };
 }
 
-async function getServiceMetrics() {
-  const { data: inquiries } = await getSupabase()
+async function getServiceHealth() {
+  const { data: leads } = await getSupabase()
     .from(TABLES.LEADS)
     .select('*')
     .eq('tenant_id', TENANT_ID);
@@ -392,13 +747,15 @@ async function getServiceMetrics() {
     .eq('tenant_id', TENANT_ID);
 
   return {
-    total_inquiries: inquiries?.length || 0,
+    total_inquiries: leads?.length || 0,
     active_clients: clients?.filter(c => c.status === 'active').length || 0,
-    scheduled_consultations: inquiries?.filter(i => i.status === 'scheduled').length || 0
+    scheduled_consultations: leads?.filter(l => l.status === 'scheduled').length || 0,
+    conversion_rate: leads?.length > 0 ?
+      ((clients?.filter(c => c.status === 'active').length / leads.length) * 100).toFixed(1) : 0
   };
 }
 
-async function getChefMetrics() {
+async function getTalentHealth() {
   const { data: chefs } = await getSupabase()
     .from(TABLES.USERS)
     .select('*')
@@ -412,94 +769,145 @@ async function getChefMetrics() {
   };
 }
 
-// Placeholder helper functions
-function calculateHealthScore(metrics) {
-  // Simple health score based on activity level
-  const total = Object.values(metrics).reduce((sum, val) => sum + (typeof val === 'number' ? val : 0), 0);
-  return Math.min(100, total > 0 ? 50 + (total * 5) : 25);
+async function analyzeRevenueGap() {
+  const health = await getRevenueHealth();
+
+  const startDate = new Date(ATLAS_PROFILE.revenue_goal.start_date);
+  const today = new Date();
+  const endDate = new Date(startDate);
+  endDate.setFullYear(endDate.getFullYear() + 5);
+
+  const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+  const daysPassed = (today - startDate) / (1000 * 60 * 60 * 24);
+  const percentComplete = (daysPassed / totalDays) * 100;
+
+  const expectedRevenue = ATLAS_PROFILE.revenue_goal.total * (percentComplete / 100);
+  const actualRevenue = health.revenue_to_date;
+  const gap = expectedRevenue - actualRevenue;
+
+  let severity = 'on_track';
+  if (gap > 10000000) severity = 'critical';
+  else if (gap > 5000000) severity = 'urgent';
+  else if (gap > 1000000) severity = 'warning';
+
+  return {
+    gap_amount: gap,
+    behind_target: gap > 0,
+    severity: severity,
+    actual: actualRevenue,
+    expected: expectedRevenue
+  };
 }
 
-async function getStrategicPriorities() {
+function calculateDepartmentScore(health) {
+  let score = 50;
+  const total = Object.values(health).reduce((sum, val) => sum + (typeof val === 'number' ? val : 0), 0);
+  return Math.min(100, score + (total > 0 ? Math.min(50, total) : 0));
+}
+
+async function determineStrategicPriorities(gap, departments) {
+  const priorities = [];
+
+  if (gap.behind_target) {
+    priorities.push({
+      priority: 1,
+      title: `Close $${(gap.gap_amount / 1000000).toFixed(1)}M Revenue Gap`,
+      owner: 'DAVE (CFO)',
+      status: 'urgent',
+      actions: ['Accelerate collections', 'Increase pricing', 'Upsell existing clients']
+    });
+  }
+
+  if (departments?.talent?.available_chefs < 5) {
+    priorities.push({
+      priority: 2,
+      title: 'Emergency Chef Recruitment',
+      owner: 'HENRY (COO)',
+      status: 'urgent',
+      actions: ['Launch paid job ads', 'Culinary school partnerships', 'Referral bonuses']
+    });
+  }
+
+  if (departments?.marketing?.total_leads < 50) {
+    priorities.push({
+      priority: 1,
+      title: 'Scale Lead Generation to 500+/month',
+      owner: 'DAN (CMO)',
+      status: 'urgent',
+      actions: ['Launch paid ads', 'SEO optimization', 'Partnership outreach']
+    });
+  }
+
+  return priorities;
+}
+
+async function getDecisionsPending() {
   return [
-    { priority: 1, title: 'Reach $5M Year 1 Revenue', status: 'in_progress', completion: 0 },
-    { priority: 2, title: 'Recruit 50 chefs by Q2', status: 'in_progress', completion: 2 },
-    { priority: 3, title: 'Launch in 3 new markets', status: 'planning', completion: 0 }
+    { decision: 'Approve Q1 marketing budget increase', urgency: 'medium' },
+    { decision: 'Review expansion into Miami market', urgency: 'low' }
   ];
 }
 
-async function getExecutiveAlerts() {
-  return [
-    { severity: 'high', message: 'Revenue: $0 - Need immediate client acquisition', department: 'Sales' },
-    { severity: 'medium', message: '30 culinary school campaigns sent - awaiting responses', department: 'Marketing' }
-  ];
+async function logDecision(decision) {
+  try {
+    await tenantInsert(TABLES.COMMUNICATIONS, {
+      direction: 'internal',
+      from_contact: ATLAS_PROFILE.name,
+      to_contact: 'Executive Team',
+      subject: `CEO Decision: ${decision.type}`,
+      message: JSON.stringify(decision),
+      channel: 'executive_decision',
+      status: 'executed',
+      metadata: {
+        decision_id: decision.decision_id,
+        impact: decision.impact,
+        autonomous: true
+      }
+    });
+  } catch (error) {
+    console.error('[ATLAS] Error logging decision:', error.message);
+  }
 }
 
-async function calculateMonthlyGrowth() { return 0; }
-async function calculateClientAcquisitionRate() { return 0; }
-async function calculateMarketPenetration() { return 0; }
-async function calculateCPA() { return 0; }
-async function calculateChefUtilization() { return 0; }
-async function calculateGrossMargin() { return 0; }
-async function getClientSatisfaction() { return 0; }
-async function getChefRetentionRate() { return 0; }
-async function getServiceQualityScore() { return 0; }
-async function getQualifiedLeadsCount() { return 0; }
-async function getConsultationConversionRate() { return 0; }
-async function getProposalWinRate() { return 0; }
+async function getRecentDecisions() {
+  const { data: decisions } = await getSupabase()
+    .from(TABLES.COMMUNICATIONS)
+    .select('*')
+    .eq('tenant_id', TENANT_ID)
+    .eq('channel', 'executive_decision')
+    .order('created_at', { ascending: false })
+    .limit(10);
 
-async function generateHeadline() {
-  return 'YPEC: Day 1 - Culinary school outreach launched, 30 campaigns sent';
+  return decisions?.map(d => ({
+    decision_id: d.metadata?.decision_id,
+    type: d.subject,
+    timestamp: d.created_at
+  })) || [];
 }
 
-async function getTodayRevenue() { return 0; }
-async function getWeekRevenue() { return 0; }
-async function getMonthRevenue() { return 0; }
-async function getNewClientsThisWeek() { return 0; }
-async function getActiveChefCount() { return 1; }
-async function getPendingProposalsCount() { return 0; }
-
-async function getHenrySummary() {
-  return { status: 'Operations running smoothly', events_today: 0, active_engagements: 0 };
+// Placeholder functions
+async function reallocateResources(req, res, data) {
+  return makeDecision(req, res, { type: 'REALLOCATE_BUDGET', ...data });
 }
 
-async function getAnnieSummary() {
-  return { status: 'Service team ready', consultations: 1, active_clients: 1 };
+async function issueDirective(req, res, data) {
+  return res.json({
+    success: true,
+    directive: {
+      from: ATLAS_PROFILE.name,
+      to: data?.executive || 'ALL_EXECUTIVES',
+      message: data?.message || 'Executive directive issued',
+      timestamp: new Date().toISOString()
+    }
+  });
 }
 
-async function getDaveSummary() {
-  return { status: 'Finance tracking active', revenue: '$0', pending_invoices: 0 };
+async function approvePlan(req, res, data) {
+  const approved = data?.approve !== false; // Default to approve
+  return makeDecision(req, res, {
+    type: approved ? 'APPROVE_EXPANSION' : 'REJECT_PLAN',
+    ...data
+  });
 }
 
-async function getDanSummary() {
-  return { status: 'Marketing campaigns launched', campaigns: 30, leads_scraped: 0 };
-}
-
-async function getStrategicInitiatives() {
-  return [
-    { name: 'Culinary School Partnership Program', status: 'launched', progress: 10 },
-    { name: 'Premium Tier Launch', status: 'planning', progress: 0 }
-  ];
-}
-
-async function identifyRisks() {
-  return [
-    { risk: 'Zero revenue - need client acquisition urgently', impact: 'critical', likelihood: 'certain' }
-  ];
-}
-
-async function identifyOpportunities() {
-  return [
-    { opportunity: '21,450 chef reach via culinary schools', potential_value: 'high', timeline: '30-90 days' }
-  ];
-}
-
-async function getCEOActionsRequired() {
-  return [
-    { action: 'Review and approve sales strategy', urgency: 'high', owner: 'Atlas' },
-    { action: 'Monitor culinary school responses', urgency: 'medium', owner: 'Dan' }
-  ];
-}
-
-function generateKPISummary(kpis) {
-  return 'Early stage: Systems operational, chef recruitment pipeline active, awaiting first revenue.';
-}
+module.exports.ATLAS_PROFILE = ATLAS_PROFILE;

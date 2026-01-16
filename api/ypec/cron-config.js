@@ -161,6 +161,22 @@ module.exports = {
   daveWeeklyCFOReport: cron.schedule('0 9 * * 1', () => {
     console.log('[DAVE CFO] Weekly CFO report to Atlas (Monday 9am)');
     callBot('/api/ypec/dave', 'weekly_cfo_report', 'YPEC');
+  }),
+
+  // ============================================================================
+  // ATLAS - AUTONOMOUS CEO (THE BRAIN)
+  // ============================================================================
+
+  // Daily 6:00 AM - ATLAS's autonomous strategic review
+  atlasAutonomousRun: cron.schedule('0 6 * * *', () => {
+    console.log('[ATLAS CEO] Running autonomous strategic review (6am daily)');
+    callBot('/api/ypec/atlas', 'autonomous_run', 'YPEC');
+  }),
+
+  // Monday 8:00 AM - ATLAS's weekly strategic review & executive performance
+  atlasWeeklyReview: cron.schedule('0 8 * * 1', () => {
+    console.log('[ATLAS CEO] Weekly strategic review & executive performance (Monday 8am)');
+    callBot('/api/ypec/atlas', 'weekly_strategic_review', 'YPEC');
   })
 };
 
