@@ -37,6 +37,10 @@ const TABLES = {
   INVOICES: 'ypec_invoices',              // client invoices
   CHEF_PAYMENTS: 'ypec_chef_payments',    // chef payroll
   CHEF_AVAILABILITY: 'ypec_chef_availability', // chef scheduling
+
+  // Centralized Email System (NO DUPLICATES)
+  EMAIL_QUEUE: 'ypec_email_queue',        // ALL emails queue through here - deduplication
+  EMAIL_LOG: 'ypec_email_log',            // Email send history and analytics
 };
 
 let supabase = null;

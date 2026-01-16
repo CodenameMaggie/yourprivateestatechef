@@ -139,6 +139,7 @@ const marketExpansion = require('./ypec/market-expansion');
 const chefCompliance = require('./ypec/chef-compliance');
 const chefRecruitment = require('./ypec/chef-recruitment');
 const clientLeads = require('./ypec/client-leads');
+const emailSender = require('./ypec/email-sender');
 
 // Authentication middleware
 const { verifyActionAuth } = require('./ypec/middleware/auth');
@@ -167,6 +168,7 @@ app.post('/api/ypec/market-expansion', marketExpansion);
 app.post('/api/ypec/chef-compliance', chefCompliance);
 app.post('/api/ypec/chef-recruitment', chefRecruitment);
 app.post('/api/ypec/client-leads', clientLeads);
+app.post('/api/ypec/email-sender', emailSender); // CENTRALIZED email sending
 
 // Initialize cron jobs
 const cronJobs = require('./ypec/cron-config');
