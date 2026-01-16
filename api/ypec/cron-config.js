@@ -177,6 +177,54 @@ module.exports = {
   atlasWeeklyReview: cron.schedule('0 8 * * 1', () => {
     console.log('[ATLAS CEO] Weekly strategic review & executive performance (Monday 8am)');
     callBot('/api/ypec/atlas', 'weekly_strategic_review', 'YPEC');
+  }),
+
+  // ============================================================================
+  // DAN - AUTONOMOUS CMO (100% ACCOUNTABLE FOR GROWTH)
+  // ============================================================================
+
+  // Daily 8:00 AM - DAN's autonomous growth operations
+  danAutonomousRun: cron.schedule('0 8 * * *', () => {
+    console.log('[DAN CMO] Running autonomous growth operations (8am daily)');
+    callBot('/api/ypec/dan', 'autonomous_run', 'YPEC');
+  }),
+
+  // Friday 4:00 PM - DAN's weekly CMO report to Atlas
+  danWeeklyCMOReport: cron.schedule('0 16 * * 5', () => {
+    console.log('[DAN CMO] Weekly CMO report to Atlas (Friday 4pm)');
+    callBot('/api/ypec/dan', 'weekly_cmo_report', 'YPEC');
+  }),
+
+  // ============================================================================
+  // HENRY - AUTONOMOUS COO (100% ACCOUNTABLE FOR CAPACITY)
+  // ============================================================================
+
+  // Daily 9:00 AM - HENRY's autonomous capacity operations
+  henryAutonomousRun: cron.schedule('0 9 * * *', () => {
+    console.log('[HENRY COO] Running autonomous capacity operations (9am daily)');
+    callBot('/api/ypec/henry', 'autonomous_run', 'YPEC');
+  }),
+
+  // Thursday 4:00 PM - HENRY's weekly COO report to Atlas
+  henryWeeklyCOOReport: cron.schedule('0 16 * * 4', () => {
+    console.log('[HENRY COO] Weekly COO report to Atlas (Thursday 4pm)');
+    callBot('/api/ypec/henry', 'weekly_coo_report', 'YPEC');
+  }),
+
+  // ============================================================================
+  // ANNIE - AUTONOMOUS CSO (100% ACCOUNTABLE FOR CONVERSION)
+  // ============================================================================
+
+  // Daily 10:00 AM - ANNIE's autonomous conversion operations
+  annieAutonomousRun: cron.schedule('0 10 * * *', () => {
+    console.log('[ANNIE CSO] Running autonomous conversion operations (10am daily)');
+    callBot('/api/ypec/annie', 'autonomous_run', 'YPEC');
+  }),
+
+  // Friday 3:00 PM - ANNIE's weekly CSO report to Atlas
+  annieWeeklyCSO Report: cron.schedule('0 15 * * 5', () => {
+    console.log('[ANNIE CSO] Weekly CSO report to Atlas (Friday 3pm)');
+    callBot('/api/ypec/annie', 'weekly_cso_report', 'YPEC');
   })
 };
 

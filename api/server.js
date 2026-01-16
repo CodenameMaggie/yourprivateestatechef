@@ -142,9 +142,12 @@ const clientLeads = require('./ypec/client-leads');
 const emailSender = require('./ypec/email-sender');
 
 // Executive Bots
-const atlas = require('./ypec/atlas'); // CEO
+const atlas = require('./ypec/atlas'); // CEO - THE BRAIN
 const jordan = require('./ypec/jordan'); // General Counsel
 const dave = require('./ypec/dave'); // CFO - 100% Accountable for $100M Revenue
+const dan = require('./ypec/dan'); // CMO - 100% Accountable for Growth & Leads
+const henry = require('./ypec/henry'); // COO - 100% Accountable for Capacity & Operations
+const annie = require('./ypec/annie'); // CSO - 100% Accountable for Conversion & Retention
 
 // Authentication middleware
 const { verifyActionAuth } = require('./ypec/middleware/auth');
@@ -176,9 +179,12 @@ app.post('/api/ypec/client-leads', clientLeads);
 app.post('/api/ypec/email-sender', emailSender); // CENTRALIZED email sending
 
 // Executive Bots
-app.post('/api/ypec/atlas', atlas); // CEO Dashboard & Strategic Oversight
-app.post('/api/ypec/jordan', jordan); // Legal & Compliance Oversight
+app.post('/api/ypec/atlas', atlas); // CEO - THE BRAIN
+app.post('/api/ypec/jordan', jordan); // General Counsel
 app.post('/api/ypec/dave', dave); // CFO - Autonomous Revenue Executive
+app.post('/api/ypec/dan', dan); // CMO - Autonomous Growth Executive
+app.post('/api/ypec/henry', henry); // COO - Autonomous Capacity Executive
+app.post('/api/ypec/annie', annie); // CSO - Autonomous Conversion Executive
 
 // Initialize cron jobs
 const cronJobs = require('./ypec/cron-config');
