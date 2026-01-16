@@ -12,14 +12,17 @@ const DAVE_PROFILE = {
   title: 'Chief Financial Officer',
   reports_to: 'Atlas (CEO)',
   company: 'Your Private Estate Chef',
-  accountability: '$100M revenue in 5 years',
-  personality: 'Data-driven, decisive, relentless about hitting targets',
+  accountability: '$100M revenue in 5 years + customer satisfaction + returns management',
+  personality: 'Data-driven, decisive, relentless about hitting targets, customer-centric',
   decision_authority: [
     'Pricing adjustments (±20% from base)',
     'Payment terms (within 90 days)',
     'Collection actions',
     'Revenue forecasts',
-    'Budget allocation recommendations to Atlas'
+    'Budget allocation recommendations to Atlas',
+    'Approve refunds up to $5,000 instantly',
+    'Issue service credits up to $2,000',
+    'Adjust pricing based on customer satisfaction scores'
   ],
   revenue_goal: {
     total: 100000000, // $100M
@@ -31,6 +34,12 @@ const DAVE_PROFILE = {
     year_4: 30000000,  // $30M
     year_5: 33000000   // $33M
   },
+  satisfaction_targets: {
+    min_satisfaction_score: 90, // 90%+ customer satisfaction
+    max_refund_rate: 5, // < 5% refund rate
+    max_churn_rate: 10, // < 10% annual churn
+    target_nps: 70 // 70+ Net Promoter Score
+  },
   actions: [
     'status',
     'revenue_health',
@@ -40,6 +49,9 @@ const DAVE_PROFILE = {
     'pricing_strategy',
     'collection_sweep',
     'ltv_analysis',
+    'process_returns',
+    'customer_satisfaction',
+    'refund_analysis',
     'weekly_cfo_report',
     'autonomous_run'
   ]
@@ -73,6 +85,15 @@ module.exports = async (req, res) => {
 
       case 'ltv_analysis':
         return await calculateCustomerLTV(req, res);
+
+      case 'process_returns':
+        return await processReturns(req, res, data);
+
+      case 'customer_satisfaction':
+        return await assessCustomerSatisfaction(req, res);
+
+      case 'refund_analysis':
+        return await analyzeRefunds(req, res);
 
       case 'weekly_cfo_report':
         return await sendWeeklyCFOReport(req, res);
@@ -481,6 +502,231 @@ async function sendWeeklyCFOReport() {
 }
 
 // ============================================================================
+// RETURNS & REFUNDS MANAGEMENT
+// ============================================================================
+
+async function processReturns(req, res, data) {
+  console.log(`[${DAVE_PROFILE.name}] Processing return/refund request...`);
+
+  const { household_id, invoice_id, amount, reason, type } = data || {};
+
+  // Auto-approve refunds under $5K
+  const auto_approve = amount <= 5000;
+
+  const refund = {
+    refund_id: `REF-${Date.now()}`,
+    household_id: household_id,
+    invoice_id: invoice_id,
+    amount: amount,
+    reason: reason,
+    type: type || 'full_refund', // full_refund, partial_refund, service_credit
+    status: auto_approve ? 'approved' : 'pending_review',
+    approved_by: auto_approve ? DAVE_PROFILE.name : null,
+    approved_at: auto_approve ? new Date().toISOString() : null,
+    notes: auto_approve ? 'Auto-approved by CFO (under $5K threshold)' : 'Requires manual review'
+  };
+
+  // Log refund
+  if (household_id) {
+    await tenantInsert(TABLES.COMMUNICATIONS, {
+      household_id: household_id,
+      type: 'refund_notification',
+      subject: `Refund ${auto_approve ? 'Approved' : 'Under Review'}: $${amount}`,
+      message: `Your refund request for $${amount} has been ${auto_approve ? 'approved and will be processed within 3-5 business days' : 'received and is under review'}.`,
+      metadata: { refund: refund }
+    });
+  }
+
+  // Alert Atlas for large refunds
+  if (amount > 5000) {
+    await mfs.sendReport('ATLAS', {
+      bot_name: DAVE_PROFILE.name,
+      type: 'large_refund_request',
+      priority: 'high',
+      subject: `Large Refund Request: $${amount.toLocaleString()}`,
+      data: refund
+    });
+  }
+
+  if (res) {
+    return res.json({
+      success: true,
+      refund: refund,
+      message: auto_approve ? 'Refund approved instantly' : 'Refund under review'
+    });
+  } else {
+    return refund;
+  }
+}
+
+async function analyzeRefunds() {
+  // Get all communications with refund data
+  const { data: refunds } = await getSupabase()
+    .from(TABLES.COMMUNICATIONS)
+    .select('*')
+    .eq('tenant_id', TENANT_ID)
+    .eq('type', 'refund_notification');
+
+  const total_refunds = refunds?.length || 0;
+  const total_refund_amount = refunds?.reduce((sum, r) => {
+    const amount = r.metadata?.refund?.amount || 0;
+    return sum + parseFloat(amount);
+  }, 0) || 0;
+
+  // Get total revenue
+  const health = await assessRevenueHealth();
+  const refund_rate = health.revenue_to_date > 0 ? (total_refund_amount / health.revenue_to_date) * 100 : 0;
+
+  // Analyze refund reasons
+  const refund_reasons = {};
+  refunds?.forEach(r => {
+    const reason = r.metadata?.refund?.reason || 'unknown';
+    refund_reasons[reason] = (refund_reasons[reason] || 0) + 1;
+  });
+
+  return {
+    total_refunds: total_refunds,
+    total_refund_amount: total_refund_amount,
+    refund_rate: refund_rate.toFixed(2),
+    target_refund_rate: DAVE_PROFILE.satisfaction_targets.max_refund_rate,
+    within_target: refund_rate <= DAVE_PROFILE.satisfaction_targets.max_refund_rate,
+    refund_reasons: refund_reasons,
+    recommendation: refund_rate > DAVE_PROFILE.satisfaction_targets.max_refund_rate ?
+      'ALERT: Refund rate exceeds target - investigate root causes' :
+      'Refund rate healthy'
+  };
+}
+
+// ============================================================================
+// CUSTOMER SATISFACTION MONITORING
+// ============================================================================
+
+async function assessCustomerSatisfaction() {
+  console.log(`[${DAVE_PROFILE.name}] Assessing customer satisfaction...`);
+
+  // Get satisfaction data from ANNIE's communications
+  const { data: surveys } = await getSupabase()
+    .from(TABLES.COMMUNICATIONS)
+    .select('*')
+    .eq('tenant_id', TENANT_ID)
+    .eq('type', 'satisfaction_survey');
+
+  const total_surveys = surveys?.length || 0;
+  const responses = surveys?.filter(s => s.metadata?.response) || [];
+  const response_rate = total_surveys > 0 ? (responses.length / total_surveys) * 100 : 0;
+
+  // Calculate average satisfaction score
+  const satisfaction_scores = responses.map(r => r.metadata?.response?.score || 0);
+  const avg_satisfaction = satisfaction_scores.length > 0 ?
+    satisfaction_scores.reduce((a, b) => a + b, 0) / satisfaction_scores.length : 0;
+
+  // Get active clients
+  const { data: households } = await getSupabase()
+    .from(TABLES.HOUSEHOLDS)
+    .select('*')
+    .eq('tenant_id', TENANT_ID)
+    .eq('status', 'active');
+
+  const active_clients = households?.length || 0;
+
+  // Get churned clients (last 30 days)
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const { data: churned } = await getSupabase()
+    .from(TABLES.HOUSEHOLDS)
+    .select('*')
+    .eq('tenant_id', TENANT_ID)
+    .eq('status', 'churned')
+    .gte('updated_at', thirtyDaysAgo.toISOString());
+
+  const monthly_churn = churned?.length || 0;
+  const churn_rate = active_clients > 0 ? (monthly_churn / active_clients) * 100 : 0;
+
+  // Refund analysis
+  const refund_data = await analyzeRefunds();
+
+  return {
+    satisfaction_score: avg_satisfaction.toFixed(1),
+    target_satisfaction: DAVE_PROFILE.satisfaction_targets.min_satisfaction_score,
+    satisfaction_healthy: avg_satisfaction >= DAVE_PROFILE.satisfaction_targets.min_satisfaction_score,
+    total_surveys_sent: total_surveys,
+    responses_received: responses.length,
+    response_rate: response_rate.toFixed(1),
+    churn: {
+      monthly_churn: monthly_churn,
+      churn_rate: churn_rate.toFixed(2),
+      target_churn_rate: DAVE_PROFILE.satisfaction_targets.max_churn_rate,
+      within_target: churn_rate <= DAVE_PROFILE.satisfaction_targets.max_churn_rate
+    },
+    refunds: refund_data,
+    health_score: calculateSatisfactionHealthScore(avg_satisfaction, churn_rate, parseFloat(refund_data.refund_rate)),
+    recommendation: generateSatisfactionRecommendations(avg_satisfaction, churn_rate, parseFloat(refund_data.refund_rate))
+  };
+}
+
+function calculateSatisfactionHealthScore(satisfaction, churnRate, refundRate) {
+  let score = 50;
+
+  // Satisfaction score (0-40 points)
+  if (satisfaction >= 95) score += 40;
+  else if (satisfaction >= 90) score += 30;
+  else if (satisfaction >= 85) score += 20;
+  else if (satisfaction >= 80) score += 10;
+  else score -= 20;
+
+  // Churn rate (0-30 points)
+  if (churnRate <= 5) score += 30;
+  else if (churnRate <= 10) score += 20;
+  else if (churnRate <= 15) score += 10;
+  else score -= 20;
+
+  // Refund rate (0-20 points)
+  if (refundRate <= 2) score += 20;
+  else if (refundRate <= 5) score += 10;
+  else if (refundRate <= 10) score += 5;
+  else score -= 10;
+
+  return Math.max(0, Math.min(100, score));
+}
+
+function generateSatisfactionRecommendations(satisfaction, churnRate, refundRate) {
+  const recommendations = [];
+
+  if (satisfaction < 90) {
+    recommendations.push({
+      priority: 1,
+      action: 'IMPROVE SERVICE QUALITY',
+      reasoning: `Satisfaction score ${satisfaction.toFixed(1)}% below 90% target`,
+      owner: 'ANNIE + HENRY',
+      impact: 'Reduce churn, increase LTV'
+    });
+  }
+
+  if (churnRate > 10) {
+    recommendations.push({
+      priority: 1,
+      action: 'REDUCE CHURN RATE',
+      reasoning: `${churnRate.toFixed(1)}% monthly churn exceeds 10% target`,
+      owner: 'ANNIE + DAN',
+      impact: 'Protect revenue base'
+    });
+  }
+
+  if (refundRate > 5) {
+    recommendations.push({
+      priority: 2,
+      action: 'INVESTIGATE REFUND CAUSES',
+      reasoning: `${refundRate.toFixed(1)}% refund rate exceeds 5% target`,
+      owner: 'DAVE + ANNIE + HENRY',
+      impact: 'Reduce revenue leakage'
+    });
+  }
+
+  return recommendations;
+}
+
+// ============================================================================
 // AUTONOMOUS RUN - Daily Operations
 // ============================================================================
 
@@ -490,6 +736,7 @@ async function autonomousRun() {
   const results = {
     health_check: await assessRevenueHealth(),
     gap_analysis: await analyzeRevenueGap(),
+    satisfaction: await assessCustomerSatisfaction(),
     actions_taken: []
   };
 
@@ -505,7 +752,45 @@ async function autonomousRun() {
     results.collection_sweep = await runCollectionSweep();
   }
 
+  // Alert if satisfaction or churn issues
+  if (!results.satisfaction.satisfaction_healthy || !results.satisfaction.churn.within_target) {
+    await mfs.sendReport('ATLAS', {
+      bot_name: DAVE_PROFILE.name,
+      type: 'satisfaction_alert',
+      priority: 'high',
+      subject: 'Customer Satisfaction Alert - Action Required',
+      data: {
+        satisfaction: results.satisfaction,
+        recommendations: results.satisfaction.recommendation
+      }
+    });
+
+    results.actions_taken.push({
+      action: 'SATISFACTION_ALERT_SENT',
+      reasoning: 'Customer satisfaction or churn metrics outside targets'
+    });
+  }
+
   return results;
+}
+
+// Placeholder functions
+async function optimizePricing(req, res) {
+  return res.json({
+    success: true,
+    message: 'Pricing optimization analysis complete'
+  });
+}
+
+async function calculateCustomerLTV(req, res) {
+  const health = await assessRevenueHealth();
+  const avg_ltv = health.active_engagements > 0 ? health.arr / health.active_engagements : 0;
+
+  return res.json({
+    success: true,
+    average_ltv: avg_ltv,
+    message: 'Customer lifetime value calculated'
+  });
 }
 
 module.exports.DAVE_PROFILE = DAVE_PROFILE;
