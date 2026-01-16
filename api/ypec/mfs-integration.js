@@ -22,6 +22,12 @@ const MFS_BASE_URL = process.env.MFS_BASE_URL || 'http://5.78.139.9:3000';
 
 // C-Suite Bot Endpoints
 const C_SUITE = {
+  ATLAS: {
+    name: 'ATLAS',
+    title: 'CEO - Chief Executive Officer',
+    endpoint: `${MFS_BASE_URL}/api/mfs/atlas`,
+    responsibilities: ['Strategic oversight', '$100M revenue goal', 'Board reporting', 'Executive decisions']
+  },
   ANNIE: {
     name: 'ANNIE',
     title: 'CSO - Chief Support Officer',
@@ -45,6 +51,12 @@ const C_SUITE = {
     title: 'CMO - Chief Marketing Officer',
     endpoint: `${MFS_BASE_URL}/api/mfs/dan`,
     responsibilities: ['Marketing', 'Growth', 'Content']
+  },
+  JORDAN: {
+    name: 'JORDAN',
+    title: 'General Counsel - Chief Legal Officer',
+    endpoint: `${MFS_BASE_URL}/api/mfs/jordan`,
+    responsibilities: ['Legal compliance', 'Contracts', 'Risk management', 'Regulatory oversight']
   }
 };
 

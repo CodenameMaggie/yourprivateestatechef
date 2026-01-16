@@ -123,6 +123,28 @@ module.exports = {
   clientLeadFollowups: cron.schedule('0 14 * * *', () => {
     console.log('[YPEC] Client lead follow-ups (2pm daily)');
     callBot('/api/ypec/client-leads', 'run', 'YPEC');
+  }),
+
+  // ============================================================================
+  // EXECUTIVE REPORTS - ATLAS & JORDAN
+  // ============================================================================
+
+  // Monday 8:00 AM - Weekly CEO report to ATLAS
+  weeklyCEOReport: cron.schedule('0 8 * * 1', () => {
+    console.log('[YPEC] Weekly CEO report to ATLAS (Monday 8am)');
+    callBot('/api/ypec/atlas', 'weekly_ceo_report', 'YPEC');
+  }),
+
+  // 1st of Month 9:00 AM - Monthly legal report to ATLAS (via JORDAN)
+  monthlyLegalReport: cron.schedule('0 9 1 * *', () => {
+    console.log('[YPEC] Monthly legal report (1st of month 9am)');
+    callBot('/api/ypec/jordan', 'monthly_legal_report', 'YPEC');
+  }),
+
+  // Quarterly (1st of Jan/Apr/Jul/Oct) 10:00 AM - Compliance audit
+  quarterlyComplianceReview: cron.schedule('0 10 1 1,4,7,10 *', () => {
+    console.log('[YPEC] Quarterly compliance review');
+    callBot('/api/ypec/jordan', 'quarterly_compliance_review', 'YPEC');
   })
 };
 

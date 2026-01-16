@@ -141,6 +141,10 @@ const chefRecruitment = require('./ypec/chef-recruitment');
 const clientLeads = require('./ypec/client-leads');
 const emailSender = require('./ypec/email-sender');
 
+// Executive Bots
+const atlas = require('./ypec/atlas'); // CEO
+const jordan = require('./ypec/jordan'); // General Counsel
+
 // Authentication middleware
 const { verifyActionAuth } = require('./ypec/middleware/auth');
 
@@ -169,6 +173,10 @@ app.post('/api/ypec/chef-compliance', chefCompliance);
 app.post('/api/ypec/chef-recruitment', chefRecruitment);
 app.post('/api/ypec/client-leads', clientLeads);
 app.post('/api/ypec/email-sender', emailSender); // CENTRALIZED email sending
+
+// Executive Bots
+app.post('/api/ypec/atlas', atlas); // CEO Dashboard & Strategic Oversight
+app.post('/api/ypec/jordan', jordan); // Legal & Compliance Oversight
 
 // Initialize cron jobs
 const cronJobs = require('./ypec/cron-config');
