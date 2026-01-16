@@ -132,6 +132,14 @@ const emailRouter = require('./ypec/email-router');
 const payments = require('./ypec/payments');
 const calendlyWebhook = require('./ypec/calendly-webhook');
 
+// Marketing Infrastructure Bots
+const culinaryOutreach = require('./ypec/culinary-outreach');
+const partnershipOutreach = require('./ypec/partnership-outreach');
+const marketExpansion = require('./ypec/market-expansion');
+const chefCompliance = require('./ypec/chef-compliance');
+const chefRecruitment = require('./ypec/chef-recruitment');
+const clientLeads = require('./ypec/client-leads');
+
 // Authentication middleware
 const { verifyActionAuth } = require('./ypec/middleware/auth');
 
@@ -151,6 +159,14 @@ app.post('/api/ypec/marketing', marketing);
 app.post('/api/ypec/lead-scraper', leadScraper);
 app.post('/api/ypec/lead-upload', leadUpload);
 app.post('/api/ypec/email-router', emailRouter);
+
+// Marketing Infrastructure Bots (new)
+app.post('/api/ypec/culinary-outreach', culinaryOutreach);
+app.post('/api/ypec/partnership-outreach', partnershipOutreach);
+app.post('/api/ypec/market-expansion', marketExpansion);
+app.post('/api/ypec/chef-compliance', chefCompliance);
+app.post('/api/ypec/chef-recruitment', chefRecruitment);
+app.post('/api/ypec/client-leads', clientLeads);
 
 // Initialize cron jobs
 const cronJobs = require('./ypec/cron-config');
