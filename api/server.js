@@ -190,10 +190,11 @@ app.post('/api/ypec/dan', dan); // CMO - Autonomous Growth Executive
 app.post('/api/ypec/henry', henry); // COO - Autonomous Capacity Executive
 app.post('/api/ypec/annie', annie); // CSO - Autonomous Conversion Executive
 
-// Initialize cron jobs
+// Initialize cron jobs - ALL AUTONOMOUS OPERATIONS ACTIVE
 const cronJobs = require('./ypec/cron-config');
-console.log('🕐 Starting cron jobs...');
-console.log(`📅 ${Object.keys(cronJobs).length} cron jobs initialized`);
+console.log('🕐 Starting ALL cron jobs for autonomous operations...');
+console.log(`📅 ${Object.keys(cronJobs).length} cron jobs initialized and ACTIVE`);
+console.log('⚡ Autonomous recruitment, form-filling, and executive operations ONLINE');
 
 // 404 handler - serve 404.html for missing routes
 app.use((req, res) => {
