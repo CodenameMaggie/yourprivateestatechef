@@ -298,34 +298,40 @@ async function sendQueuedEmails(req, res, data) {
 async function sendViaForbesCommand(email) {
   console.log(`[${BOT_INFO.name}] Sending via Forbes Command: ${email.recipient_email}`);
   console.log(`[${BOT_INFO.name}] Subject: ${email.subject}`);
-  console.log(`[${BOT_INFO.name}] Flow: YPEC → email-api.js → Guardian → Postfix`);
+  console.log(`[${BOT_INFO.name}] FROM: henry@yourprivateestatechef.com`);
+  console.log(`[${BOT_INFO.name}] Flow: YPEC → Nodemailer → SMTP Port 25 → Postfix`);
 
   try {
-    // Call forbes-command email API
-    const response = await fetch(FORBES_COMMAND_EMAIL_CONFIG.api_endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        to: email.recipient_email,
-        from: 'noreply@yourprivateestatechef.com', // Or from Forbes Command
-        subject: email.subject,
-        html: email.body_html,
-        text: email.body_text || email.body_html.replace(/<[^>]*>/g, ''), // Strip HTML as fallback
-        campaign: email.campaign_type,
-        source: 'YPEC-Marketing'
-      })
+    // Use nodemailer for direct SMTP sending to Forbes Command server
+    const nodemailer = require('nodemailer');
+
+    const transporter = nodemailer.createTransport({
+      host: FORBES_COMMAND_EMAIL_CONFIG.host,
+      port: 25,
+      secure: false, // Port 25 uses STARTTLS
+      tls: {
+        rejectUnauthorized: false // Accept self-signed certificates
+      }
     });
 
-    if (!response.ok) {
-      throw new Error(`Forbes Command API error: ${response.status} ${response.statusText}`);
-    }
+    const mailOptions = {
+      from: 'henry@yourprivateestatechef.com',
+      to: email.recipient_email,
+      subject: email.subject,
+      html: email.body_html,
+      text: email.body_text || email.body_html.replace(/<[^>]*>/g, ''),
+      headers: {
+        'X-Campaign-Type': email.campaign_type,
+        'X-Source-Bot': 'YPEC-Marketing'
+      }
+    };
 
-    const result = await response.json();
-    console.log(`[${BOT_INFO.name}] ✅ Forbes Command response:`, result);
+    const result = await transporter.sendMail(mailOptions);
+    console.log(`[${BOT_INFO.name}] ✅ Email sent via SMTP:`, result.messageId);
 
     return true;
   } catch (error) {
-    console.error(`[${BOT_INFO.name}] ❌ Forbes Command send failed:`, error.message);
+    console.error(`[${BOT_INFO.name}] ❌ SMTP send failed:`, error.message);
     throw error;
   }
 }
