@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Private Estate Chef | By Introduction Only</title>
+<meta name="description" content="Heritage-trained private chefs, matched to families who understand that the table is where legacy lives. By introduction only.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Raleway:wght@200;300;400;500&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+:root{--plum:#2d1f2b;--deep:#1a1016;--gold:#d4a855;--gold-soft:rgba(212,168,85,0.5);--blush:#d9bbb4;--warm:#FDF8F5;--cream:#F8F3EE;--text:#2d1f2b;--muted:#7a6878}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{overflow-x:hidden}body{font-family:"Cormorant Garamond",Georgia,serif;background:var(--deep);color:var(--text);overflow-x:hidden}
+::selection{background:var(--gold);color:var(--deep)}
+
+.cursor-glow{position:fixed;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,85,0.045) 0%,transparent 70%);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);opacity:0;transition:opacity 0.5s}
+body:hover .cursor-glow{opacity:1}
+
+/* ══ NAV ══ */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;mix-blend-mode:difference;transition:all 0.6s}
+.nav.solid{mix-blend-mode:normal;background:rgba(26,16,22,0.96);backdrop-filter:blur(20px);border-bottom:1px solid rgba(212,168,85,0.05)}
+.nav-inner{max-width:1600px;margin:0 auto;padding:32px 56px;display:flex;justify-content:space-between;align-items:center;transition:padding 0.5s}
+.nav.solid .nav-inner{padding:16px 56px}
+.nav-brand{font-family:Raleway,sans-serif;font-size:9px;letter-spacing:6px;text-transform:uppercase;color:#fff;text-decoration:none;font-weight:300}
+.nav-right{display:flex;gap:36px;align-items:center;list-style:none}
+.nav-right a{font-family:Raleway,sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.6);text-decoration:none;font-weight:200;transition:color 0.3s}
+.nav-right a:hover{color:#fff}
+.nav-cta-link{color:var(--gold)!important;border:1px solid rgba(212,168,85,0.25);padding:10px 28px;transition:all 0.5s!important}
+.nav-cta-link:hover{background:var(--gold)!important;color:var(--deep)!important;border-color:var(--gold)!important}
+.mob-btn{display:none;background:none;border:none;cursor:pointer;padding:8px}
+.mob-btn span{display:block;width:20px;height:1px;background:#fff;margin:5px 0}
+
+/* ══ HERO — CROSSFADE ══ */
+.hero{height:100vh;min-height:800px;position:relative;overflow:hidden;background:var(--deep)}
+.hero-slide{position:absolute;inset:0;opacity:0;transition:opacity 2s ease-in-out;background-size:cover;background-position:center}
+.hero-slide.active{opacity:1}
+.hero-slide::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(26,16,22,0.5) 0%,rgba(45,31,43,0.3) 40%,rgba(26,16,22,0.6) 100%),radial-gradient(ellipse at center,transparent 40%,rgba(26,16,22,0.5) 100%)}
+.hero-slide::before{content:'';position:absolute;inset:0;z-index:1;background:radial-gradient(ellipse at 50% 50%,rgba(212,168,85,0.06) 0%,transparent 70%)}
+.hero-slide-1{background-image:url('https://images.pexels.com/photos/2544829/pexels-photo-2544829.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=2')}
+.hero-slide-2{background-image:url('https://images.pexels.com/photos/3338497/pexels-photo-3338497.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=2')}
+.hero-slide-3{background-image:url('https://images.pexels.com/photos/1114425/pexels-photo-1114425.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=2')}
+.hero-grain{position:absolute;inset:0;z-index:3;opacity:0.3;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")}
+.frame-line{position:absolute;top:0;bottom:0;width:1px;z-index:4;background:linear-gradient(180deg,transparent 10%,rgba(212,168,85,0.04) 50%,transparent 90%)}
+.frame-line.l{left:8%}.frame-line.r{right:8%}
+.hero-indicators{position:absolute;bottom:56px;left:50%;transform:translateX(-50%);z-index:10;display:flex;gap:12px}
+.hero-dot{width:24px;height:2px;background:rgba(212,168,85,0.2);cursor:pointer;transition:all 0.5s;border:none;padding:0}
+.hero-dot.active{background:var(--gold);width:40px}
+.hero-caption{position:absolute;bottom:100px;left:8%;z-index:10;opacity:0;transform:translateY(10px);transition:all 1s 0.5s}
+.hero-caption.active{opacity:1;transform:translateY(0)}
+.hero-caption span{font-family:Raleway,sans-serif;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(212,168,85,0.4);font-weight:200}
+.hero-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:8;text-align:center;max-width:1000px;width:100%;padding:0 48px}
+.hero-pre{font-family:Raleway,sans-serif;font-size:9px;letter-spacing:8px;text-transform:uppercase;color:var(--gold-soft);font-weight:200;margin-bottom:48px;opacity:0;animation:heroIn 2s 0.5s forwards}
+.hero-title{font-family:"Great Vibes",cursive;font-size:clamp(56px,11vw,130px);color:var(--warm);font-weight:400;line-height:0.95;opacity:0;animation:heroIn 2s 0.7s forwards}
+.hero-title span{display:block;margin-top:-4px}
+.hero-rule{width:1px;height:72px;background:linear-gradient(180deg,transparent,var(--gold),transparent);margin:36px auto;opacity:0;animation:heroIn 1.5s 1.2s forwards}
+.hero-tag{font-family:Cinzel,serif;font-size:11px;letter-spacing:8px;text-transform:uppercase;color:var(--blush);font-weight:400;opacity:0;animation:heroIn 1.5s 1.4s forwards}
+.hero-btn-wrap{margin-top:48px;opacity:0;animation:heroIn 1.2s 1.7s forwards}
+.hero-btn{display:inline-block;font-family:Raleway,sans-serif;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);border:1px solid rgba(212,168,85,0.3);padding:16px 52px;text-decoration:none;transition:all 0.5s;font-weight:200}
+.hero-btn:hover{background:var(--gold);color:var(--deep);border-color:var(--gold);letter-spacing:6px}
+@keyframes heroIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ MARQUEE ══ */
+.marquee-wrap{overflow:hidden;padding:44px 0;background:var(--deep);border-top:1px solid rgba(212,168,85,0.04);border-bottom:1px solid rgba(212,168,85,0.04)}
+.marquee-track{display:flex;white-space:nowrap;animation:mq 45s linear infinite}
+.marquee-track span{font-family:Cinzel,serif;font-size:12px;letter-spacing:6px;text-transform:uppercase;color:rgba(212,168,85,0.12);font-weight:400;padding:0 36px;flex-shrink:0}
+@keyframes mq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ══ THE TABLE — FULL BLEED ══ */
+.the-table{position:relative;height:85vh;min-height:600px;overflow:hidden;background-image:url('https://images.pexels.com/photos/1114425/pexels-photo-1114425.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=2');background-size:cover;background-position:center}
+.the-table::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,var(--deep) 0%,rgba(26,16,22,0.2) 15%,rgba(26,16,22,0.15) 70%,rgba(26,16,22,0.7) 100%),radial-gradient(ellipse at center,transparent 30%,rgba(26,16,22,0.3) 100%)}
+.the-table::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%,rgba(212,168,85,0.05) 0%,transparent 60%);z-index:1}
+.the-table-content{position:absolute;bottom:0;left:0;right:0;padding:0 56px 80px;z-index:5;text-align:center}
+.the-table-content .tagline{font-family:"Great Vibes",cursive;font-size:clamp(36px,5vw,64px);color:var(--warm);font-weight:400;line-height:1.2;margin-bottom:16px;text-shadow:0 2px 40px rgba(26,16,22,0.5)}
+.the-table-content .sub{font-family:Raleway,sans-serif;font-size:10px;letter-spacing:5px;text-transform:uppercase;color:rgba(212,168,85,0.5);font-weight:200}
+
+/* ══ SERVICES ══ */
+.services-wrap{background:var(--cream);padding:120px 0 0;overflow:hidden}
+.services-top{max-width:1400px;margin:0 auto;padding:0 56px;display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:80px}
+.services-top-left .eyebrow{font-family:Raleway,sans-serif;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);font-weight:300;margin-bottom:16px}
+.services-top-left h2{font-family:Cinzel,serif;font-size:clamp(32px,4vw,52px);color:var(--text);font-weight:400;line-height:1.2;letter-spacing:1px}
+.services-top-right{font-family:Raleway,sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:300}
+.services-track-wrap{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;padding:0 56px 120px;cursor:grab}
+.services-track-wrap::-webkit-scrollbar{display:none}
+.services-track{display:flex;gap:28px;min-width:max-content}
+.svc-card{width:400px;flex-shrink:0;background:var(--warm);position:relative;overflow:hidden;transition:transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)}
+.svc-card:hover{transform:translateY(-8px)}
+.svc-card-img{height:300px;position:relative;overflow:hidden;background-size:cover;background-position:center}
+.svc-card-img::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(26,16,22,0.05) 0%,rgba(45,31,43,0.4) 100%)}
+.svc-card-img .svc-num{position:absolute;top:24px;left:28px;z-index:2;font-family:Cinzel,serif;font-size:11px;letter-spacing:4px;color:var(--gold);font-weight:400}
+.svc-card-body{padding:32px 28px}
+.svc-card-body h3{font-family:Cinzel,serif;font-size:19px;color:var(--text);font-weight:400;letter-spacing:1px;margin-bottom:14px}
+.svc-card-body p{font-size:15px;color:var(--muted);line-height:1.85;font-weight:300;margin-bottom:18px}
+.svc-price{font-family:Raleway,sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:300}
+
+/* ══ PROCESS ══ */
+.process{background:var(--deep);padding:160px 48px;position:relative;overflow:hidden}
+.process::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(61,42,58,0.3) 0%,transparent 50%)}
+.process-header{text-align:center;margin-bottom:120px;position:relative;z-index:2}
+.process-header .eyebrow{font-family:Raleway,sans-serif;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:var(--gold-soft);font-weight:200;margin-bottom:20px}
+.process-header h2{font-family:Cinzel,serif;font-size:clamp(28px,3.5vw,44px);color:var(--warm);font-weight:400;letter-spacing:2px}
+.process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;max-width:1200px;margin:0 auto;background:rgba(212,168,85,0.06);position:relative;z-index:2}
+.p-step{background:var(--deep);padding:56px 36px;transition:background 0.5s}
+.p-step:hover{background:rgba(45,31,43,0.4)}
+.p-step-num{font-family:Cinzel,serif;font-size:48px;color:rgba(212,168,85,0.08);font-weight:400;margin-bottom:24px;transition:color 0.5s}
+.p-step:hover .p-step-num{color:rgba(212,168,85,0.2)}
+.p-step h4{font-family:Cinzel,serif;font-size:15px;color:var(--gold);font-weight:400;letter-spacing:2px;margin-bottom:16px}
+.p-step p{font-size:15px;color:rgba(217,187,180,0.5);line-height:1.8;font-weight:300}
+
+/* ══ CLOSER — QUOTE + BOOK NOW ══ */
+.closer{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:var(--plum);position:relative;overflow:hidden;padding:120px 48px;
+}
+.closer::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 0% 50%,rgba(212,168,85,0.04) 0%,transparent 50%),radial-gradient(ellipse at 100% 50%,rgba(217,187,180,0.03) 0%,transparent 50%)}
+.closer::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 100%,rgba(212,168,85,0.03) 0%,transparent 40%)}
+.closer-inner{max-width:800px;position:relative;z-index:2;text-align:center}
+.closer-open{font-family:"Cormorant Garamond",serif;font-size:160px;color:rgba(212,168,85,0.08);line-height:0.6;margin-bottom:24px}
+.closer-inner blockquote{font-size:clamp(20px,2.5vw,28px);line-height:2.2;color:var(--blush);font-weight:300;font-style:italic;margin-bottom:64px}
+.closer-inner blockquote em{color:var(--warm);font-weight:400}
+.closer-divider{width:40px;height:1px;background:var(--gold);margin:0 auto 56px;opacity:0.4}
+.closer-btn{
+  display:inline-block;font-family:Raleway,sans-serif;font-size:10px;letter-spacing:6px;
+  text-transform:uppercase;color:var(--plum);background:#fff;
+  padding:20px 72px;text-decoration:none;
+  transition:all 0.5s;font-weight:400;
+}
+.closer-btn:hover{
+  background:var(--gold);color:var(--deep);letter-spacing:7px;
+}
+
+/* ══ FOOTER ══ */
+footer{background:var(--deep);padding:64px 56px 48px;border-top:1px solid rgba(212,168,85,0.04)}
+.ft-inner{max-width:1200px;margin:0 auto}
+.ft-top{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:48px;margin-bottom:32px;border-bottom:1px solid rgba(212,168,85,0.04)}
+.ft-brand{font-family:Cinzel,serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:400}
+.ft-brand-sub{font-family:Raleway,sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(217,187,180,0.2);font-weight:200;margin-top:6px}
+.ft-cols{display:flex;gap:56px}
+.ft-col h5{font-family:Raleway,sans-serif;font-size:8px;letter-spacing:3px;text-transform:uppercase;color:rgba(212,168,85,0.3);font-weight:200;margin-bottom:16px}
+.ft-col a{display:block;font-size:13px;color:rgba(217,187,180,0.35);text-decoration:none;margin-bottom:10px;transition:color 0.3s;font-weight:300}
+.ft-col a:hover{color:var(--gold)}
+.ft-bottom{display:flex;justify-content:space-between;align-items:center}
+.ft-copy{font-family:Raleway,sans-serif;font-size:9px;letter-spacing:1px;color:rgba(217,187,180,0.15);font-weight:200}
+.ft-eco{display:flex;gap:16px}
+.ft-eco a{font-family:Raleway,sans-serif;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(217,187,180,0.15);text-decoration:none;transition:color 0.3s;font-weight:200}
+.ft-eco a:hover{color:var(--gold)}
+
+.rv{opacity:0;transform:translateY(50px);transition:all 1.4s cubic-bezier(0.22,1,0.36,1)}
+.rv.vis{opacity:1;transform:translateY(0)}
+.rv-d1{transition-delay:0.1s}.rv-d2{transition-delay:0.2s}.rv-d3{transition-delay:0.3s}
+
+@media(max-width:1000px){
+  .services-top{flex-direction:column;align-items:flex-start;gap:16px}
+  .process-grid{grid-template-columns:repeat(2,1fr)}
+  .ft-top{flex-direction:column;gap:32px}
+  .ft-bottom{flex-direction:column;gap:12px;text-align:center}
+}
+@media(max-width:640px){
+  .nav-right{display:none}.mob-btn{display:block}
+  .nav-right.open{display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:var(--deep);padding:24px 32px;gap:16px;border-bottom:1px solid rgba(212,168,85,0.06)}
+  .nav-inner,.nav.solid .nav-inner{padding:20px 24px}
+  .hero-title{font-size:52px}.hero-center{padding:0 24px}
+  .the-table{height:70vh;min-height:400px}
+  .the-table-content{padding:0 24px 48px}
+  .services-wrap{padding:80px 0 0}.services-top{padding:0 24px}.services-track-wrap{padding:0 24px 80px}.svc-card{width:320px}
+  .process,.closer{padding:100px 24px}
+  .process-grid{grid-template-columns:1fr}
+  .closer{min-height:auto;padding:120px 24px}
+  .closer-open{font-size:100px}
+  .closer-btn{padding:18px 48px;font-size:9px}
+  footer{padding:48px 24px 32px}.ft-cols{flex-direction:column;gap:24px}
+  .frame-line,.hero-indicators,.hero-caption{display:none}
+}
+</style>
+</head>
+<body>
+<div class="cursor-glow" id="glow"></div>
+
+<nav class="nav" id="nav"><div class="nav-inner">
+  <a href="/" class="nav-brand">Your Private Estate Chef</a>
+  <button class="mob-btn" onclick="document.querySelector('.nav-right').classList.toggle('open')"><span></span><span></span><span></span></button>
+  <ul class="nav-right">
+    <li><a href="/about">About</a></li>
+    <li><a href="/school">Academy</a></li>
+    <li><a href="/founding-chef">For Chefs</a></li>
+    <li><a href="/contact">Contact</a></li>
+    <li><a href="/family-waitlist" class="nav-cta-link">Inquire</a></li>
+  </ul>
+</div></nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero" id="hero">
+  <div class="hero-slide hero-slide-1 active" id="slide-0"></div>
+  <div class="hero-slide hero-slide-2" id="slide-1"></div>
+  <div class="hero-slide hero-slide-3" id="slide-2"></div>
+  <div class="hero-grain"></div>
+  <div class="frame-line l"></div><div class="frame-line r"></div>
+  <div class="hero-center">
+    <p class="hero-pre">The Sovereign Economy</p>
+    <h1 class="hero-title">Your Private<span>Estate Chef</span></h1>
+    <div class="hero-rule"></div>
+    <p class="hero-tag">By Introduction Only</p>
+    <div class="hero-btn-wrap"><a href="/family-waitlist" class="hero-btn">Request an Introduction</a></div>
+  </div>
+  <div class="hero-caption active" id="cap-0"><span>I &mdash; The Kitchen</span></div>
+  <div class="hero-caption" id="cap-1"><span>II &mdash; The Service</span></div>
+  <div class="hero-caption" id="cap-2"><span>III &mdash; The Table</span></div>
+  <div class="hero-indicators">
+    <button class="hero-dot active" data-slide="0"></button>
+    <button class="hero-dot" data-slide="1"></button>
+    <button class="hero-dot" data-slide="2"></button>
+  </div>
+</section>
+
+<!-- ══ MARQUEE ══ -->
+<div class="marquee-wrap"><div class="marquee-track">
+  <span>Weekly Preparation</span><span>&middot;</span><span>Estate Residency</span><span>&middot;</span><span>Special Occasions</span><span>&middot;</span><span>Vacation &amp; Travel</span><span>&middot;</span><span>Heritage Methods</span><span>&middot;</span><span>By Introduction Only</span><span>&middot;</span>
+  <span>Weekly Preparation</span><span>&middot;</span><span>Estate Residency</span><span>&middot;</span><span>Special Occasions</span><span>&middot;</span><span>Vacation &amp; Travel</span><span>&middot;</span><span>Heritage Methods</span><span>&middot;</span><span>By Introduction Only</span><span>&middot;</span>
+</div></div>
+
+<!-- ══ THE TABLE — FULL BLEED ══ -->
+<section class="the-table rv">
+  <div class="the-table-content">
+    <p class="tagline">Where Every Gathering Becomes Legacy</p>
+    <p class="sub">Heritage Methods &middot; Seasonal Ingredients &middot; Estate-Level Service</p>
+  </div>
+</section>
+
+<!-- ══ SERVICES ══ -->
+<section class="services-wrap">
+  <div class="services-top">
+    <div class="services-top-left rv"><p class="eyebrow">Services</p><h2>What We<br>Offer Families</h2></div>
+    <div class="services-top-right rv rv-d1">Drag to explore &rarr;</div>
+  </div>
+  <div class="services-track-wrap"><div class="services-track">
+    <div class="svc-card">
+      <div class="svc-card-img" style="background-image:url('https://images.pexels.com/photos/3338497/pexels-photo-3338497.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2')"><span class="svc-num">I</span></div>
+      <div class="svc-card-body"><h3>Weekly Meal Preparation</h3><p>Your chef visits one to two times weekly. Heritage methods, seasonal ingredients, meals tailored entirely to your family's rhythm.</p><span class="svc-price">From $500 / week</span></div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-card-img" style="background-image:url('https://images.pexels.com/photos/8697542/pexels-photo-8697542.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2')"><span class="svc-num">II</span></div>
+      <div class="svc-card-body"><h3>Special Occasions</h3><p>Intimate dinner parties, milestone celebrations, holiday gatherings. Full menu design, preparation, and service with absolute discretion.</p><span class="svc-price">From $750 / event</span></div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-card-img" style="background-image:url('https://images.pexels.com/photos/2544829/pexels-photo-2544829.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2')"><span class="svc-num">III</span></div>
+      <div class="svc-card-body"><h3>Estate Residency</h3><p>Full-time or seasonal placement for your primary residence, second home, or vacation property. The estate kitchen model, built for modern life.</p><span class="svc-price">Custom Pricing</span></div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-card-img" style="background-image:url('https://images.pexels.com/photos/29616285/pexels-photo-29616285.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2')"><span class="svc-num">IV</span></div>
+      <div class="svc-card-body"><h3>Vacation &amp; Travel</h3><p>Your chef travels with your family. Wherever you go, your standard follows. Consistent, trusted, seamless across every season.</p><span class="svc-price">From $1,500 / week + travel</span></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ══ PROCESS ══ -->
+<section class="process">
+  <div class="process-header"><p class="eyebrow rv">The Process</p><h2 class="rv rv-d1">From Introduction to Table</h2></div>
+  <div class="process-grid">
+    <div class="p-step rv"><div class="p-step-num">01</div><h4>Discovery</h4><p>Tell us about your family. Dietary needs, culinary preferences, household rhythm, and what matters most around your table.</p></div>
+    <div class="p-step rv rv-d1"><div class="p-step-num">02</div><h4>Matching</h4><p>We present two to three chefs whose heritage training, specialties, and temperament align with your family.</p></div>
+    <div class="p-step rv rv-d2"><div class="p-step-num">03</div><h4>Introduction</h4><p>Meet your matched chefs. Share your vision. This is a relationship. It begins with honest conversation.</p></div>
+    <div class="p-step rv rv-d3"><div class="p-step-num">04</div><h4>Service Begins</h4><p>A trial event to confirm the fit. Then ongoing service. Your chef becomes part of your household.</p></div>
+  </div>
+</section>
+
+<!-- ══ CLOSER — THE LAST THING THEY SEE ══ -->
+<section class="closer">
+  <div class="closer-inner rv">
+    <div class="closer-open">&ldquo;</div>
+    <blockquote><em>In every culture, across every generation, the table is where families become dynasties.</em> It is where stories are told, values are passed, and bonds are forged that outlast us all.</blockquote>
+    <div class="closer-divider"></div>
+    <a href="/family-waitlist" class="closer-btn">Book Now</a>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer><div class="ft-inner">
+  <div class="ft-top">
+    <div><p class="ft-brand">Your Private Estate Chef</p><p class="ft-brand-sub">A Sovereign Economy Business</p></div>
+    <div class="ft-cols">
+      <div class="ft-col"><h5>Navigate</h5><a href="/about">About</a><a href="/school">Academy Login</a><a href="/contact">Contact</a></div>
+      <div class="ft-col"><h5>Join</h5><a href="/family-waitlist">For Families</a><a href="/founding-chef">For Chefs</a></div>
+    </div>
+  </div>
+  <div class="ft-bottom">
+    <p class="ft-copy">&copy; 2026 Your Private Estate Chef. By Introduction Only.</p>
+    <div class="ft-eco"><a href="https://maggieforbesstrategies.com">The Sovereign Economy</a></div>
+  </div>
+</div></footer>
+
+<script>
+!function(){var s=document.querySelectorAll('.hero-slide'),d=document.querySelectorAll('.hero-dot'),c=document.querySelectorAll('.hero-caption'),cur=0,n=s.length,t;function go(i){s[cur].classList.remove('active');d[cur].classList.remove('active');c[cur].classList.remove('active');cur=i%n;s[cur].classList.add('active');d[cur].classList.add('active');c[cur].classList.add('active')}function auto(){t=setInterval(function(){go(cur+1)},5000)}d.forEach(function(b){b.addEventListener('click',function(){clearInterval(t);go(+this.dataset.slide);auto()})});auto()}();
+!function(){var g=document.getElementById('glow'),mx=0,my=0,gx=0,gy=0;document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY});!function l(){gx+=(mx-gx)*0.07;gy+=(my-gy)*0.07;g.style.left=gx+'px';g.style.top=gy+'px';requestAnimationFrame(l)}()}();
+!function(){var els=document.querySelectorAll('.rv');var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target)}})},{threshold:0.12,rootMargin:'0px 0px -60px 0px'});els.forEach(function(el){obs.observe(el)})}();
+!function(){var n=document.getElementById('nav');window.addEventListener('scroll',function(){n.classList.toggle('solid',window.scrollY>100)})}();
+!function(){var el=document.querySelector('.services-track-wrap');if(!el)return;var d=false,sx,sl;el.addEventListener('mousedown',function(e){d=true;el.style.cursor='grabbing';sx=e.pageX-el.offsetLeft;sl=el.scrollLeft});el.addEventListener('mouseleave',function(){d=false;el.style.cursor=''});el.addEventListener('mouseup',function(){d=false;el.style.cursor=''});el.addEventListener('mousemove',function(e){if(!d)return;e.preventDefault();el.scrollLeft=sl-(e.pageX-el.offsetLeft-sx)*1.5})}();
+</script>
+</body>
+</html>
